@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../config/app_constants.dart';
-import '../../core/theme/colors.dart';
-import '../../core/theme/text_styles.dart';
+import '../../features/auth/presentation/pages/email_verification_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/signup_business_page.dart';
+import '../../features/auth/presentation/pages/signup_credentials_page.dart';
+import '../../features/auth/presentation/pages/signup_location_page.dart';
+import '../../features/auth/presentation/pages/signup_tracking_page.dart';
+import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import 'routes.dart';
 
 class AppRouter {
@@ -10,30 +14,26 @@ class AppRouter {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case AppRoutes.home:
-        return _buildRoute(settings, const _StarterPage());
+      case AppRoutes.welcome:
+        return _buildRoute(settings, const WelcomePage());
+      case AppRoutes.signupBusiness:
+        return _buildRoute(settings, const SignupBusinessPage());
+      case AppRoutes.signupLocation:
+        return _buildRoute(settings, const SignupLocationPage());
+      case AppRoutes.signupTracking:
+        return _buildRoute(settings, const SignupTrackingPage());
+      case AppRoutes.signupCredentials:
+        return _buildRoute(settings, const SignupCredentialsPage());
+      case AppRoutes.verifyEmail:
+        return _buildRoute(settings, const EmailVerificationPage());
+      case AppRoutes.login:
+        return _buildRoute(settings, const LoginPage());
       case AppRoutes.dashboard:
         return _buildRoute(
           settings,
-          const _SectionPage(
+          const _ComingSoonPage(
             title: 'Dashboard',
-            subtitle: 'Track cash flow, inventory, and daily performance here.',
-          ),
-        );
-      case AppRoutes.onboarding:
-        return _buildRoute(
-          settings,
-          const _SectionPage(
-            title: 'Onboarding',
-            subtitle: 'Guide new users through setup and first steps.',
-          ),
-        );
-      case AppRoutes.auth:
-        return _buildRoute(
-          settings,
-          const _SectionPage(
-            title: 'Authentication',
-            subtitle: 'Add login, registration, and password recovery flows here.',
+            message: 'Dashboard feature is not implemented yet.',
           ),
         );
       default:
@@ -52,76 +52,23 @@ class AppRouter {
   }
 }
 
-class _StarterPage extends StatelessWidget {
-  const _StarterPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppConfig.appName),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                'A clean starting point for Finmind',
-                style: AppTextStyles.displayLarge,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                AppConfig.appDescription,
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              const _FeatureCard(
-                title: 'Theme ready',
-                subtitle: 'Color and typography tokens are centralized in app/theme.',
-              ),
-              const SizedBox(height: 12),
-              const _FeatureCard(
-                title: 'Routing ready',
-                subtitle: 'Add feature pages and map them through AppRoutes.',
-              ),
-              const SizedBox(height: 12),
-              const _FeatureCard(
-                title: 'DI placeholder',
-                subtitle: 'Expand InjectionContainer when services are introduced.',
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionPage extends StatelessWidget {
-  const _SectionPage({
+class _ComingSoonPage extends StatelessWidget {
+  const _ComingSoonPage({
     required this.title,
-    required this.subtitle,
+    required this.message,
   });
 
   final String title;
-  final String subtitle;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          subtitle,
-          style: AppTextStyles.bodyLarge.copyWith(
-            color: AppColors.textSecondary,
-          ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(message, textAlign: TextAlign.center),
         ),
       ),
     );
@@ -137,38 +84,6 @@ class _NotFoundPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Not Found')),
       body: const Center(
         child: Text('The requested route does not exist.'),
-      ),
-    );
-  }
-}
-
-class _FeatureCard extends StatelessWidget {
-  const _FeatureCard({
-    required this.title,
-    required this.subtitle,
-  });
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: AppTextStyles.titleLarge),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

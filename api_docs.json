@@ -1,0 +1,1566 @@
+{
+  "info": {
+    "_postman_id": "e3473c58-359a-48a9-a4e2-5ad3753f295f",
+    "name": "Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56150297",
+    "_collection_link": "https://go.postman.co/collection/35033617-e3473c58-359a-48a9-a4e2-5ad3753f295f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Cash Sale",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"paymentMethod\": \"cash\",\r\n  \"items\": [\r\n    { \"productId\": \"ecfe05ad-aaff-45b4-aaf8-a772bcd08f7e\", \"quantity\": 2 }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sales",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "sales"
+          ]
+        },
+        "description": "CASH SALE — Record a sale paid immediately\n\nRecords a sale paid by cash, mobile money, or bank. Posts the  \njournal entry (4 lines: money in, sales revenue, COGS, stock  \nout), creates sale items, and reduces stock. No customer info  \nneeded — the buyer is anonymous.\n\nUse the same request for cash, MoMo, and bank payments —  \njust change paymentMethod.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/sales  \nAUTH: Bearer access token (any role — cashiers sell)  \nREQUIRES: onboarding completed\n\nBODY:  \n{  \n\"paymentMethod\": \"cash | mtn_momo | telecel | airtel | bank\",  \n\"items\": \\[  \n{ \"productId\": \"uuid\", \"quantity\": number > 0 }  \n\\],  \n\"receiptPrinted\": boolean (optional),  \n\"receiptSentTo\": \"string (optional, e.g. phone for digital receipt)\"  \n}\n\nThe cashier sends only productId and quantity per item.  \nThe system looks up prices from the catalogue and computes  \nrevenue, cost, and profit automatically.\n\nRESPONSES:  \n201 → { referenceNumber, totalRevenue, totalCogs,  \ngrossProfit, itemCount, isCredit: false, debtorId: null }  \n400 → not enough stock for a product  \n404 → one or more products not found / inactive  \n403 → onboarding not completed  \n401 → no/invalid access token"
+      },
+      "response": []
+    },
+    {
+      "name": "Credit Sale",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"paymentMethod\": \"credit\",\r\n  \"items\": [\r\n    { \"productId\": \"c0f449fe-ef10-49f1-af24-66baf80806f1\", \"quantity\": 2 }\r\n  ],\r\n  \"customerName\": \"Kofi Manu\",\r\n  \"customerPhone\": \"0244123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sales",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "sales"
+          ]
+        },
+        "description": "CREDIT SALE — Sell on credit to a NEW customer\n\nRecords a sale where the customer pays later. Creates a new  \ndebtor (the person), posts the journal entry (money goes to  \nDebtors, not cash), and creates a debt under that debtor.\n\nUse this when the customer is NEW (not already in the system).  \nFor a returning customer, use \"Old Debtor Credit Sale\" instead.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/sales  \nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nBODY:  \n{  \n\"paymentMethod\": \"credit\",  \n\"items\": \\[  \n{ \"productId\": \"uuid\", \"quantity\": number > 0 }  \n\\],  \n\"customerName\": \"string (REQUIRED for new credit customer)\",  \n\"customerPhone\": \"string (optional but encouraged)\",  \n\"dueDate\": \"string (optional, e.g. 2026-07-01)\"  \n}\n\nThe system creates a debtor record for this customer and a  \ndebt for the amount owed. The returned debtorId identifies  \nthis customer — save it to link future credit sales to the  \nsame person (see Old Debtor Credit Sale).\n\nRESPONSES:  \n201 → { referenceNumber, totalRevenue, totalCogs,  \ngrossProfit, itemCount, isCredit: true, debtorId }  \n400 → credit sale requires a customer name (if none given)  \n400 → not enough stock for a product  \n404 → one or more products not found / inactive  \n403 → onboarding not completed  \n401 → no/invalid access token"
+      },
+      "response": []
+    },
+    {
+      "name": "Old debtor Credit Sale",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"paymentMethod\": \"credit\",\r\n  \"items\": [\r\n    { \"productId\": \"c0f449fe-ef10-49f1-af24-66baf80806f1\", \"quantity\": 1 }\r\n  ],\r\n  \"debtorId\": \"beaec6c6-23b8-4a54-bbea-8af480934bb2\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sales",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "sales"
+          ]
+        },
+        "description": "OLD DEBTOR CREDIT SALE — Sell on credit to an EXISTING customer\n\nRecords a credit sale for a customer who is ALREADY in the  \nsystem (a returning credit customer). Instead of creating a  \nnew debtor, this links the new debt to the existing one — so  \nthe customer's debts accumulate under a single identity.\n\nUse this when the frontend customer-picker selects an existing  \ndebtor. Send their debtorId instead of name/phone.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/sales  \nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nBODY:  \n{  \n\"paymentMethod\": \"credit\",  \n\"items\": \\[  \n{ \"productId\": \"uuid\", \"quantity\": number > 0 }  \n\\],  \n\"debtorId\": \"uuid (REQUIRED — the existing debtor's ID)\",  \n\"dueDate\": \"string (optional, e.g. 2026-07-01)\"  \n}\n\nNo customerName needed — debtorId identifies the existing  \ncustomer. The system verifies the debtor belongs to this  \nbusiness, then creates a NEW debt under them. The customer  \nremains ONE record; their total owed is the sum of all their  \nopen debts.\n\nRESPONSES:  \n201 → { referenceNumber, totalRevenue, totalCogs,  \ngrossProfit, itemCount, isCredit: true, debtorId }  \n404 → selected customer (debtorId) not found  \n400 → not enough stock for a product  \n403 → onboarding not completed  \n401 → no/invalid access token"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Profit and Loss",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "PROFIT & LOSS REPORT — Net profit for a period\n\nReturns revenue, COGS, gross profit, expenses (with a per-category  \nbreakdown), and net profit, computed from the journal for a date  \nrange. Reads the accounting source of truth, so it always matches  \nthe books.\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/reports/profit-loss  \nAUTH: Bearer access token\n\nQUERY PARAMS (all optional):  \nfrom start date, YYYY-MM-DD (e.g. 2026-06-01)  \nto end date, YYYY-MM-DD (e.g. 2026-06-19)\n\nIf omitted → defaults to THIS MONTH (1st of current month → today).  \nIf provided → from must be <= to (else 400).\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"period\": { \"from\": \"2026-06-01\", \"to\": \"2026-06-19\" },  \n\"revenue\": 8000,  \n\"cogs\": 5000,  \n\"grossProfit\": 3000,  \n\"expenses\": 2500,  \n\"netProfit\": 500,  \n\"expenseBreakdown\": \\[  \n{ \"category\": \"wages\", \"name\": \"Staff wages\", \"amount\": 1200 },  \n{ \"category\": \"rent\", \"name\": \"Rent\", \"amount\": 500 }  \n\\]  \n}  \n}\n\nNOTES:\n\n- Only revenue/COGS/expense accounts affect the P&L. Owner deposits/  \n    withdrawals (equity) and opening balance do NOT appear here.\n    \n- expenseBreakdown is sorted largest-first; categories with 0 are omitted.\n    \n\nRESPONSES:  \n200 → the report  \n400 → invalid range (from after to)  \n401 → no/invalid access token  \n403 → onboarding not complete"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Cash Position",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/reports/cash-position",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "reports",
+            "cash-position"
+          ]
+        },
+        "description": "CASH POSITION — Current money on hand\n\nReturns the current balance of every money account (cash, mobile  \nmoney, bank) plus a grand total. A snapshot of \"how much money do I  \nhave right now\" — computed from all transactions since the opening  \nbalance.\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/reports/cash-position  \nAUTH: Bearer access token\n\nPARAMS: none (it's a current snapshot, not a date range)\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"asOf\": \"2026-06-19T...\",  \n\"total\": 4700,  \n\"accounts\": \\[  \n{ \"subtype\": \"cash_hand\", \"name\": \"Cash in hand\", \"balance\": 500 },  \n{ \"subtype\": \"cash_momo_mtn\", \"name\": \"MTN MoMo\", \"balance\": 1200 },  \n{ \"subtype\": \"cash_momo_telecel\", \"name\": \"Telecel Cash\", \"balance\": 0 },  \n{ \"subtype\": \"cash_momo_airtel\", \"name\": \"AirtelTigo Money\", \"balance\": 0 },  \n{ \"subtype\": \"cash_bank\", \"name\": \"Bank account\", \"balance\": 3000 }  \n\\]  \n}  \n}\n\nNOTES:\n\n- All 5 money accounts always appear (even at 0), in a fixed order.\n    \n- Balance = money in (debits) − money out (credits), all time.\n    \n- This is CASH (money on hand), not profit. Different from the P&L.\n    \n\nRESPONSES:  \n200 → the cash position  \n401 → no/invalid access token  \n403 → onboarding not complete"
+      },
+      "response": []
+    },
+    {
+      "name": "Debtors Summary",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/reports/debtors-summary",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "reports",
+            "debtors-summary"
+          ]
+        },
+        "description": "DEBTORS SUMMARY — Who owes you money\n\nReturns customers with outstanding debts, grouped per person, with  \na total. Overdue ones are sorted first. Reads the debts table  \n(unpaid only). Answers \"who owes me?\"\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/reports/debtors-summary  \nAUTH: Bearer access token\n\nPARAMS: none (current outstanding snapshot)\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"totalOwed\": 1450,  \n\"count\": 3,  \n\"overdueCount\": 1,  \n\"debtors\": \\[  \n{  \n\"debtorId\": \"...\",  \n\"name\": \"Ama Owusu\",  \n\"phone\": \"0244...\",  \n\"amountOutstanding\": 450,  \n\"dueDate\": \"2026-06-10\",  \n\"debtCount\": 1,  \n\"isOverdue\": true,  \n\"isDueSoon\": false  \n}  \n\\]  \n}  \n}\n\nNOTES:\n\n- One row per debtor (their TOTAL across all unpaid debts).\n    \n- amountOutstanding = sum of that person's unpaid debts.\n    \n- dueDate = their earliest (most urgent) due date.\n    \n- Fully-paid debts are excluded.\n    \n- Sorted: overdue first, then soonest due, then no due date."
+      },
+      "response": []
+    },
+    {
+      "name": "Creditors Summary",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/reports/creditors-summary",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "reports",
+            "creditors-summary"
+          ]
+        },
+        "description": "CREDITORS SUMMARY — Who you owe\n\nReturns suppliers you owe, grouped per supplier, with a total.  \nReads the payables table (unpaid only). Answers \"who do I owe?\"\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/reports/creditors-summary  \nAUTH: Bearer access token\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"totalOwed\": 600,  \n\"count\": 1,  \n\"overdueCount\": 0,  \n\"creditors\": \\[  \n{  \n\"creditorId\": \"...\",  \n\"name\": \"Tema Wholesale\",  \n\"phone\": \"...\",  \n\"amountOutstanding\": 600,  \n\"dueDate\": \"2026-06-30\",  \n\"payableCount\": 1,  \n\"isOverdue\": false,  \n\"isDueSoon\": true  \n}  \n\\]  \n}  \n}"
+      },
+      "response": []
+    },
+    {
+      "name": "Cash Purchase",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"paymentMethod\": \"cash\",\r\n  \"items\": [\r\n    { \"productId\": \"<product-id>\", \"quantity\": 30, \"unitCost\": 22 }\r\n  ],\r\n  \"notes\": \"Restocked Cowbell\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/purchases",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "purchases"
+          ]
+        },
+        "description": "CASH PURCHASE — Buy stock, pay immediately\n\nRecords buying inventory paid by cash, mobile money, or bank.  \nStock increases, money goes out. Recomputes each product's  \nweighted-average cost and records the latest purchase cost.  \nNo COGS or profit — that happens later when the stock is sold.\n\nUse the same request for cash, MoMo, and bank — change paymentMethod.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/purchases  \nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nBODY:  \n{  \n\"paymentMethod\": \"cash | mtn_momo | telecel | airtel | bank\",  \n\"items\": \\[  \n{ \"productId\": \"uuid\", \"quantity\": number > 0,  \n\"unitCost\": number >= 0 }  \n\\],  \n\"notes\": \"string (optional)\"  \n}\n\nunitCost is what you paid PER UNIT this time. It updates the  \nproduct's weighted-average cost (used for profit) and is stored  \nas the latest purchase cost (shown to help set selling prices).\n\nEFFECT:  \n→ product stock INCREASED by quantity  \n→ product costPrice = new weighted average  \n→ product lastPurchaseCost = this unitCost  \n→ journal: DEBIT Stock, CREDIT Cash/MoMo/Bank\n\nRESPONSES:  \n201 → { referenceNumber, totalPurchaseValue, itemCount,  \nisCredit: false, creditorId: null }  \n404 → one or more products not found / inactive  \n403 → onboarding not completed  \n401 → no/invalid access token"
+      },
+      "response": []
+    },
+    {
+      "name": "Credit Purchase",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {\r",
+              "  const res = pm.response.json();\r",
+              "  if (res.data && res.data.creditorId) {\r",
+              "    pm.environment.set(\"creditorId\", res.data.creditorId);\r",
+              "    console.log(\"Saved creditorId: \" + res.data.creditorId);\r",
+              "  }\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"paymentMethod\": \"credit\",\r\n  \"items\": [\r\n    { \"productId\": \"ecfe05ad-aaff-45b4-aaf8-a772bcd08f7e\", \"quantity\": 20, \"unitCost\": 21 }\r\n  ],\r\n  \"supplierName\": \"Tema Wholesale\",\r\n  \"supplierPhone\": \"0302111222\",\r\n  \"dueDate\": \"2026-07-15\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/purchases",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "purchases"
+          ]
+        },
+        "description": "CREDIT PURCHASE — Buy stock from a NEW supplier on credit\n\nRecords buying inventory where you pay the supplier later.  \nStock increases, you now owe the supplier. Creates a new  \ncreditor (the supplier) and a payable (the amount owed).\n\nUse when the supplier is NEW. For a returning supplier, use  \n\"Old Creditor Purchase\" instead.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/purchases  \nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nBODY:  \n{  \n\"paymentMethod\": \"credit\",  \n\"items\": \\[  \n{ \"productId\": \"uuid\", \"quantity\": number > 0,  \n\"unitCost\": number >= 0 }  \n\\],  \n\"supplierName\": \"string (REQUIRED for a new supplier)\",  \n\"supplierPhone\": \"string (optional)\",  \n\"dueDate\": \"string (optional, e.g. 2026-07-15)\",  \n\"notes\": \"string (optional)\"  \n}\n\nEFFECT:  \n→ product stock increased, weighted-avg cost + last cost updated  \n→ journal: DEBIT Stock, CREDIT Creditors  \n→ creates a creditor (supplier) + a payable (amount owed)\n\nThe returned creditorId identifies this supplier — save it to  \nlink future credit purchases to the same supplier.\n\nRESPONSES:  \n201 → { referenceNumber, totalPurchaseValue, itemCount,  \nisCredit: true, creditorId }  \n400 → credit purchase requires a supplier name (if none given)  \n404 → one or more products not found / inactive  \n403 → onboarding not completed"
+      },
+      "response": []
+    },
+    {
+      "name": "Old Creditor Purchase",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/purchases",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "purchases"
+          ]
+        },
+        "description": "OLD CREDITOR PURCHASE — Buy on credit from an EXISTING supplier\n\nRecords a credit purchase from a supplier ALREADY in the system.  \nInstead of creating a new creditor, links the new payable to the  \nexisting one — so the supplier's payables accumulate under a  \nsingle identity (mirrors how repeat credit customers work).\n\nUse when the frontend supplier-picker selects an existing  \ncreditor. Send creditorId instead of supplierName.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/purchases  \nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nBODY:  \n{  \n\"paymentMethod\": \"credit\",  \n\"items\": \\[  \n{ \"productId\": \"uuid\", \"quantity\": number > 0,  \n\"unitCost\": number >= 0 }  \n\\],  \n\"creditorId\": \"uuid (REQUIRED — the existing supplier's ID)\",  \n\"dueDate\": \"string (optional)\",  \n\"notes\": \"string (optional)\"  \n}\n\nNo supplierName needed — creditorId identifies the existing  \nsupplier. The system verifies the creditor belongs to this  \nbusiness, then creates a NEW payable under them. The supplier  \nremains ONE record; total owed is the sum of their open payables.\n\nRESPONSES:  \n201 → { referenceNumber, totalPurchaseValue, itemCount,  \nisCredit: true, creditorId }  \n404 → selected supplier (creditorId) not found  \n403 → onboarding not completed"
+      },
+      "response": []
+    },
+    {
+      "name": "Create a product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Cowbell Milk Powder 400g\",\r\n  \"sellingPrice\": 25,\r\n  \"costPrice\": 20,\r\n  \"openingQty\": 50,\r\n  \"minimumStockQty\": 10,\r\n  \"unitOfMeasure\": \"piece\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Products",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products"
+          ]
+        },
+        "description": "LIST PRODUCTS — Get the product catalogue\n\nReturns the business's products. Any authenticated user  \n(cashiers need to see products to sell). Defaults to active  \nproducts only.\n\nAUTH: Bearer access token (any role)\n\nQUERY PARAMS (all optional):  \nsearch → filter by name (e.g. ?search=cowbell)  \ncategoryId → filter by category  \nisActive → 'false' to see deactivated products  \n(default shows active only)\n\nRESPONSES:  \n200 → array of products (sorted by name)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "c0f449fe-ef10-49f1-af24-66baf80806f1"
+            }
+          ]
+        },
+        "description": "GET PRODUCT — Get one product by ID\n\nReturns a single product. Any authenticated user.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the product's UUID\n\nRESPONSES:  \n200 → the product  \n404 → product not found (or not in your business)"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"sellingPrice\": 27 }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "c0f449fe-ef10-49f1-af24-66baf80806f1"
+            }
+          ]
+        },
+        "description": "UPDATE PRODUCT — Edit a product\n\nUpdates a product. Owner/manager only. Send only the fields  \nyou want to change. You cannot change opening quantity here —  \nstock changes happen through sales and purchases.\n\nAUTH: Bearer access token (owner or manager)\n\nPATH PARAM:  \nid → the product's UUID\n\nBODY (all optional — send only what changes):  \n{  \n\"name\": \"string\",  \n\"sellingPrice\": number,  \n\"costPrice\": number,  \n\"minimumStockQty\": number,  \n\"unitOfMeasure\": \"string\",  \n\"sku\": \"string\",  \n\"categoryId\": \"uuid or null (null removes the category)\"  \n}\n\nRESPONSES:  \n200 → the updated product  \n404 → product or category not found  \n400 → validation error  \n401/403 → not authenticated / not owner-manager"
+      },
+      "response": []
+    },
+    {
+      "name": "Deactivate Product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "c0f449fe-ef10-49f1-af24-66baf80806f1"
+            }
+          ]
+        },
+        "description": "DEACTIVATE PRODUCT — Soft-delete a product\n\nSets the product to inactive (isActive = false). This is a  \nSOFT delete — the product is hidden from the catalogue but not  \nremoved, because past sales reference it. Owner/manager only.\n\nAUTH: Bearer access token (owner or manager)\n\nPATH PARAM:  \nid → the product's UUID\n\nRESPONSES:  \n200 → the deactivated product  \n404 → product not found  \n401/403 → not authenticated / not owner-manager"
+      },
+      "response": []
+    },
+    {
+      "name": "Owner Deposit",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"amount\": 1000,\r\n  \"paymentMethod\": \"cash\",\r\n  \"notes\": \"Added personal funds to the shop\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "POST {{baseUrl}}/api/v1/owner/deposit",
+          "host": [
+            "POST {{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "owner",
+            "deposit"
+          ]
+        },
+        "description": "OWNER DEPOSIT — Owner puts personal money into the business\n\nRecords the owner adding their own money to the business. This  \nis NOT income — it increases the owner's capital (equity), not  \nprofit. Affects cash, not the P&L.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/owner/deposit  \nAUTH: Bearer access token\n\nBODY:  \namount number required, > 0  \npaymentMethod string required: cash | mtn_momo | telecel | airtel | bank  \nnotes string optional\n\nJOURNAL EFFECT:  \nDEBIT (cash goes up)  \nCREDIT Owner capital (owner's stake goes up)\n\nRESPONSES:  \n201 → { referenceNumber (DEP-...), type, amount, paymentMethod }  \n400 → amount <= 0, credit not allowed, or stray field  \n401 → no/invalid token  \n403 → onboarding not complete"
+      },
+      "response": []
+    },
+    {
+      "name": "Owner Withdrawal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"amount\": 500,\r\n  \"paymentMethod\": \"cash\",\r\n  \"notes\": \"Personal use\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/owner/withdrawal",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "owner",
+            "withdrawal"
+          ]
+        },
+        "description": "OWNER WITHDRAWAL — Owner takes money out for personal use\n\nRecords the owner taking money from the business for themselves  \n(drawings). This is NOT an expense — it reduces the owner's  \nequity, not profit. Affects cash, not the P&L.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/owner/withdrawal  \nAUTH: Bearer access token\n\nBODY:  \namount number required, > 0  \npaymentMethod string required: cash | mtn_momo | telecel | airtel | bank  \nnotes string optional\n\nJOURNAL EFFECT:  \nDEBIT Owner drawings (drawings up, reduces equity)  \nCREDIT (cash goes down)\n\nRESPONSES:  \n201 → { referenceNumber (WDR-...), type, amount, paymentMethod }  \n400 → amount <= 0, credit not allowed, or stray field  \n401 → no/invalid token  \n403 → onboarding not complete"
+      },
+      "response": []
+    },
+    {
+      "name": "List Owner Deposits",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "LIST OWNER DEPOSITS — History of money the owner put in\n\nReturns all owner deposits with a running total. Reads from the  \njournal. These are equity contributions (not income).\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/owner/deposits  \nAUTH: Bearer access token\n\nQUERY PARAMS (optional):  \nfrom start date YYYY-MM-DD  \nto end date YYYY-MM-DD  \nIf omitted → returns ALL deposits (all time).\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"deposits\": \\[  \n{  \n\"id\": \"...\",  \n\"referenceNumber\": \"DEP-2026-00001\",  \n\"date\": \"2026-06-19\",  \n\"amount\": 1000,  \n\"paymentMethod\": \"cash\",  \n\"moneyAccount\": \"Cash in hand\",  \n\"notes\": \"Added personal funds\"  \n}  \n\\],  \n\"totalDeposited\": 1000,  \n\"count\": 1  \n}  \n}"
+      },
+      "response": []
+    },
+    {
+      "name": "List Owner Withdrawals",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "LIST OWNER WITHDRAWALS — History of money the owner took out\n\nReturns all owner withdrawals (drawings) with a running total.  \nReads from the journal. These reduce equity (not expenses).\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/owner/withdrawals  \nAUTH: Bearer access token\n\nQUERY PARAMS (optional): from, to (YYYY-MM-DD). Omitted → all time.\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"withdrawals\": \\[  \n{  \n\"id\": \"...\",  \n\"referenceNumber\": \"WDR-2026-00001\",  \n\"date\": \"2026-06-19\",  \n\"amount\": 500,  \n\"paymentMethod\": \"cash\",  \n\"moneyAccount\": \"Cash in hand\",  \n\"notes\": \"Personal use\"  \n}  \n\\],  \n\"totalWithdrawn\": 500,  \n\"count\": 1  \n}  \n}"
+      },
+      "response": []
+    },
+    {
+      "name": "Complete Onboarding",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {\r",
+              "  const res = pm.response.json();\r",
+              "  console.log(\"Onboarding reference: \" + res.data.referenceNumber);\r",
+              "  console.log(\"Owner capital: \" + res.data.ownerCapital);\r",
+              "  console.log(\"Lines posted: \" + res.data.linesPosted);\r",
+              "\r",
+              "  // Sanity check — owner capital should equal assets minus liabilities\r",
+              "  pm.test(\"Onboarding succeeded\", () => {\r",
+              "    pm.expect(res.data.onboardingComplete).to.be.true;\r",
+              "  });\r",
+              "} else {\r",
+              "  console.log(\"Onboarding response: \" + pm.response.code);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"cashInHand\": 500,\r\n  \"mtnMomo\": 1200,\r\n  \"bankBalance\": 2000,\r\n  \"stockValue\": 4000,\r\n  \"debtorsTotal\": 800,\r\n  \"creditorsTotal\": 600\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/onboarding/complete",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "onboarding",
+            "complete"
+          ]
+        },
+        "description": "COMPLETE ONBOARDING — Set opening balances\n\nPosts the business's opening balance as the first journal  \nentry and marks onboarding complete. Owner-only, requires  \na valid access token.\n\nMETHOD: POST  \nAUTH: Bearer access token (required, owner role)\n\nBODY (all fields optional, but TOTAL ASSETS must be > 0):  \n{  \n\"cashInHand\": number, // physical cash  \n\"mtnMomo\": number, // MTN mobile money  \n\"telecel\": number, // Telecel cash  \n\"airtel\": number, // AirtelTigo money  \n\"bankBalance\": number, // bank account  \n\"stockValue\": number, // inventory value  \n\"debtorsTotal\": number, // money owed TO the business  \n\"creditorsTotal\": number // money the business OWES  \n}\n\nOwner capital is calculated automatically (Assets − Liabilities).\n\nRESPONSES:  \n200 → { referenceNumber, ownerCapital, linesPosted, onboardingComplete }  \n400 → total assets must be > 0 (can't open with only debts)  \n403 → not the owner / no permission  \n409 → onboarding already completed  \n401 → no/invalid access token"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Expense",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"category\": \"rent\",\r\n  \"amount\": 500,\r\n  \"paymentMethod\": \"cash\",\r\n  \"paidTo\": \"Landlord\",\r\n  \"notes\": \"December rent\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/expenses",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "expenses"
+          ]
+        },
+        "description": "CREATE EXPENSE — Record a business expense\n\nRecords money spent on a running cost (rent, wages, transport, etc.).  \nPosts a balanced journal entry behind the scenes and stores the  \nexpense with its details. Paid immediately — no credit.\n\nMETHOD: POST  \nURL: {{baseUrl}}/api/v1/expenses  \nAUTH: Bearer access token (owner/manager)\n\nBODY FIELDS:\n\nREQUIRED:  \ncategory string the kind of expense (see allowed values)  \namount number amount spent (> 0)  \npaymentMethod string how it was paid (see allowed values)\n\nOPTIONAL:  \npaidTo string who it was paid to (e.g. \"Landlord\", \"ECG\")  \nnotes string the owner's own note (e.g. \"December rent\")\n\nALLOWED VALUES:\n\ncategory: rent | wages | utilities | transport |  \nmomo_charges | bank_charges | packaging | other\n\npaymentMethod: cash | mtn_momo | telecel | airtel | bank  \n(NO credit — expenses are paid immediately)\n\nEXAMPLE:  \n{  \n\"category\": \"rent\",  \n\"amount\": 500,  \n\"paymentMethod\": \"cash\",  \n\"paidTo\": \"Landlord\",  \n\"notes\": \"December rent\"  \n}\n\nMINIMAL (only required):  \n{  \n\"category\": \"transport\",  \n\"amount\": 50,  \n\"paymentMethod\": \"cash\"  \n}\n\nRESPONSES:  \n201 → the created expense (id, reference, category, amount, ...)  \n400 → validation error (bad/missing field, amount <= 0, or  \npaymentMethod \"credit\" which isn't allowed)  \n401 → no/invalid access token  \n403 → onboarding not complete\n\nNOTE: \"category\" maps to an expense account. The category breakdown  \nand totals come from these accounts, so net profit = revenue − COGS  \n− all expenses is computed from them."
+      },
+      "response": []
+    },
+    {
+      "name": "List Expenses",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/expenses",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "expenses"
+          ]
+        },
+        "description": "LIST EXPENSES — Get recorded expenses\n\nReturns expenses with totals. Category is derived from each  \nexpense's account.\n\nMETHOD: GET  \nURL: {{baseUrl}}/api/v1/expenses  \nAUTH: Bearer access token\n\nQUERY PARAMS (all optional):  \ncategory filter to one category (rent, wages, ...)  \nfrom start date (YYYY-MM-DD)  \nto end date (YYYY-MM-DD)\n\nRESPONSE 200:  \n{  \n\"data\": {  \n\"expenses\": \\[  \n{  \n\"id\": \"...\",  \n\"referenceNumber\": \"...\",  \n\"date\": \"...\",  \n\"category\": \"rent\",  \n\"categoryName\": \"Rent\",  \n\"amount\": 500,  \n\"paymentMethod\": \"cash\",  \n\"paidTo\": \"Landlord\",  \n\"notes\": \"December rent\"  \n}  \n\\],  \n\"totalSpent\": 500,  \n\"count\": 1  \n}  \n}"
+      },
+      "response": []
+    },
+    {
+      "name": "List Debtors",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/debtors?search=Kofi&isActive=true&hasDebt=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "debtors"
+          ],
+          "query": [
+            {
+              "key": "search",
+              "value": "Kofi"
+            },
+            {
+              "key": "isActive",
+              "value": "true"
+            },
+            {
+              "key": "hasDebt",
+              "value": "true",
+              "type": "text"
+            }
+          ]
+        },
+        "description": "LIST DEBTORS — Flexible query for the customer/debt views\n\nReturns the business's debtors, each with their computed total  \nowed and open debt count. ONE endpoint that powers several  \ndifferent screens via filters. Any authenticated user.\n\nAUTH: Bearer access token (any role)\n\nQUERY PARAMS (all optional, combine as needed):  \nsearch → filter by name (case-insensitive contains)  \nhasDebt → 'true' = only debtors who currently owe  \n'false' = only debtors who are fully settled  \nisActive → 'false' = deactivated/archived debtors  \n(defaults to active debtors when omitted)\n\nUSE CASES — how the frontend uses this endpoint:\n\nCustomer picker (credit sale):  \nGET /debtors?search=kofi  \n→ find a specific customer to link a credit sale to\n\n\"Who owes me\" screen:  \nGET /debtors?hasDebt=true  \n→ everyone with an outstanding balance, sorted by name\n\nFull customer list:  \nGET /debtors  \n→ all active credit customers\n\nSettled customers:  \nGET /debtors?hasDebt=false  \n→ customers who have paid everything off\n\nArchived customers:  \nGET /debtors?isActive=false  \n→ customers that have been deactivated/hidden\n\nNOTE: isActive (the record's status) and hasDebt (whether they  \nowe) are INDEPENDENT. A customer can be active+owing,  \nactive+settled, or inactive+settled.\n\nRESPONSES:  \n200 → array of debtors, each:  \n{ id, name, phone, notes, isActive, totalOwed, openDebtCount }"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Debtor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/debtors/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "debtors",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "beaec6c6-23b8-4a54-bbea-8af480934bb2"
+            }
+          ]
+        },
+        "description": "GET DEBTOR — One customer's full debt picture\n\nReturns a single debtor with ALL their debts (oldest first) and  \nrecent payments, plus computed total owed. Powers the debtor  \ndetail screen shown before recording a payment.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the debtor's UUID\n\nRESPONSES:  \n200 → { id, name, phone, notes, isActive, totalOwed,  \ndebts: \\[ {id, amountOriginal, amountOutstanding,  \ndebtDate, dueDate, status} \\],  \nrecentPayments: \\[ {id, amountPaid, paymentMethod,  \npaymentDate, notes} \\] }  \n404 → debtor not found"
+      },
+      "response": []
+    },
+    {
+      "name": "Record Payment",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"amount\": 50,\r\n  \"paymentMethod\": \"cash\",\r\n  \"notes\": \"Partial payment\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/debtors/:id/payments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "debtors",
+            ":id",
+            "payments"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "beaec6c6-23b8-4a54-bbea-8af480934bb2"
+            }
+          ]
+        },
+        "description": "RECORD PAYMENT — Customer pays toward their debt\n\nRecords a payment and applies it across the debtor's open debts  \nOLDEST-FIRST (FIFO). Posts the journal (money in, Debtors down)  \nand updates each affected debt. Cannot exceed total owed.\n\nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nPATH PARAM:  \nid → the debtor's UUID\n\nBODY:  \n{  \n\"amount\": number > 0,  \n\"paymentMethod\": \"cash | mtn_momo | telecel | airtel | bank\",  \n\"notes\": \"string (optional)\"  \n}\n\nThe payment clears the oldest debt first, rolling any remainder  \nto the next. A fully paid debt → 'paid'; partly paid → 'partial'.\n\nRESPONSES:  \n201 → { referenceNumber, amountPaid, debtsAffected,  \ndebtsClearedCount, remainingOwed }  \n400 → payment exceeds total owed, OR no outstanding debts  \n404 → debtor not found  \n403 → onboarding not completed"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Debtor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"phone\": \"0209876543\",\r\n  \"notes\": \"Prefers MoMo payments\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/debtors/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "debtors",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "beaec6c6-23b8-4a54-bbea-8af480934bb2"
+            }
+          ]
+        },
+        "description": "UPDATE DEBTOR — Edit a customer's details\n\nUpdates name, phone, or notes. Any authenticated user (cashiers  \ndeal with customers daily). Send only the fields to change.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the debtor's UUID\n\nBODY (all optional):  \n{ \"name\": \"string\", \"phone\": \"string\", \"notes\": \"string\" }\n\nRESPONSES:  \n200 → the updated debtor  \n404 → debtor not found"
+      },
+      "response": []
+    },
+    {
+      "name": "Deactivate Debtor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/debtors/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "debtors",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "beaec6c6-23b8-4a54-bbea-8af480934bb2"
+            }
+          ]
+        },
+        "description": "1. DEACTIVATE DEBTOR — Hide a settled customerSoft-deletes a debtor (isActive = false). Any authenticated  \n    user. BLOCKED if the debtor still owes — settle their debts  \n    first. Used for list hygiene: removing customers who are gone,  \n    duplicates, or mistakes.AUTH: Bearer access token (any role)PATH PARAM:  \n    id → the debtor's UUIDRESPONSES:  \n    200 → the deactivated debtor  \n    400 → debtor still has outstanding debts  \n    404 → debtor not found"
+      },
+      "response": []
+    },
+    {
+      "name": "List Creditors",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/creditors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "creditors"
+          ]
+        },
+        "description": "LIST CREDITORS — Suppliers the business owes\n\nReturns the business's creditors (suppliers), each with the  \ncomputed total owed and open payable count. One flexible endpoint  \nserving several screens. Any authenticated user. Defaults to  \nactive creditors.\n\nAUTH: Bearer access token (any role)\n\nQUERY PARAMS (all optional, combine as needed):  \nsearch → filter by supplier name (case-insensitive)  \nhasDebt → 'true' = only suppliers you currently owe  \n'false' = only fully-settled suppliers  \nisActive → 'false' = deactivated/archived suppliers  \n(defaults to active when omitted)\n\nUSE CASES:  \nSupplier picker (credit purchase):  \nGET /creditors?search=tema  \n\"Who I owe\" screen:  \nGET /creditors?hasDebt=true  \nFull supplier list:  \nGET /creditors  \nSettled suppliers:  \nGET /creditors?hasDebt=false  \nArchived suppliers:  \nGET /creditors?isActive=false\n\nNOTE: isActive (record status) and hasDebt (whether you owe them)  \nare INDEPENDENT.\n\nRESPONSES:  \n200 → array of creditors, each:  \n{ id, name, phone, notes, isActive, totalOwed, openPayableCount }"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Creditor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "GET CREDITOR — One supplier's full picture\n\nReturns a single creditor with ALL their payables (oldest first)  \nand recent payments, plus computed total owed. Powers the  \nsupplier detail screen shown before paying them.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the creditor's UUID\n\nRESPONSES:  \n200 → { id, name, phone, notes, isActive, totalOwed,  \npayables: \\[ {id, amountOriginal, amountOutstanding,  \ndebtDate, dueDate, status} \\],  \nrecentPayments: \\[ {id, amountPaid, paymentMethod,  \npaymentDate, notes} \\] }  \n404 → creditor not found"
+      },
+      "response": []
+    },
+    {
+      "name": "Record Payment",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/creditors/:id/payments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "creditors",
+            ":id",
+            "payments"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1a4ec5ef-bb3e-439f-87b0-cf18b959fbf7"
+            }
+          ]
+        },
+        "description": "RECORD PAYMENT — Pay a supplier\n\nRecords a payment TO a supplier and applies it across their open  \npayables OLDEST-FIRST (FIFO). Posts the journal (Creditors down,  \nmoney out) and updates each affected payable. Cannot exceed what  \nyou owe.\n\nAUTH: Bearer access token (any role)  \nREQUIRES: onboarding completed\n\nPATH PARAM:  \nid → the creditor's UUID\n\nBODY:  \n{  \n\"amount\": number > 0,  \n\"paymentMethod\": \"cash | mtn_momo | telecel | airtel | bank\",  \n\"notes\": \"string (optional)\"  \n}\n\nThe payment clears the oldest payable first, rolling any remainder  \nto the next. A fully paid payable → 'paid'; partly paid → 'partial'.\n\nEFFECT (journal — opposite of a debtor payment):  \nDEBIT Creditors (you owe less)  \nCREDIT Cash/MoMo/Bank (money leaves)\n\nRESPONSES:  \n201 → { referenceNumber, amountPaid, payablesAffected,  \npayablesClearedCount, remainingOwed }  \n400 → payment exceeds what you owe, OR no outstanding debts  \n404 → creditor not found  \n403 → onboarding not completed"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Creditor",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/creditors/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "creditors",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1a4ec5ef-bb3e-439f-87b0-cf18b959fbf7"
+            }
+          ]
+        },
+        "description": "UPDATE CREDITOR — Edit a supplier's details\n\nUpdates name, phone, or notes. Any authenticated user. Send only  \nthe fields to change.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the creditor's UUID\n\nBODY (all optional):  \n{ \"name\": \"string\", \"phone\": \"string\", \"notes\": \"string\" }\n\nRESPONSES:  \n200 → the updated creditor  \n404 → creditor not found"
+      },
+      "response": []
+    },
+    {
+      "name": "Deactivate Creditor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/creditors/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "creditors",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1a4ec5ef-bb3e-439f-87b0-cf18b959fbf7"
+            }
+          ]
+        },
+        "description": "DEACTIVATE CREDITOR — Hide a settled supplier\n\nSoft-deletes a creditor (isActive = false). Any authenticated  \nuser. BLOCKED if you still owe them — settle what you owe first.  \nUsed for list hygiene: removing suppliers you no longer use.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the creditor's UUID\n\nRESPONSES:  \n200 → the deactivated creditor  \n400 → you still owe this supplier money  \n404 → creditor not found"
+      },
+      "response": []
+    },
+    {
+      "name": "Signup",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"businessName\": \"Grandy Store\",\r\n  \"businessType\": \"provision_stor\",\r\n  \"ownerName\": \"Bismark Grandy\",\r\n  \"phoneNumber\": \"0244123456\",\r\n  \"locationRegion\": \"Ashanti\",\r\n  \"locationDistrict\": \"Kumasi\",\r\n  \"tier\": \"tier2\",\r\n  \"recordingMode\": \"transaction\",\r\n  \"email\": \"bismarkakwah86@gmail.com\",\r\n  \"password\": \"password123\"\r\n}\r\n\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/signup",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "signup"
+          ]
+        },
+        "description": "SIGNUP — Create a new business account\n\nCreates a business, its owner user, and the full chart of  \naccounts (25 accounts) in one atomic operation. Returns an  \naccess token and a refresh token (both auto-saved by the  \ntest script).\n\nAfter signup, onboardingComplete is false — the user must  \ncomplete onboarding (set opening balances) next.\n\nMETHOD: POST  \nAUTH: None\n\nBODY (all fields required):  \n{  \n\"businessName\": \"string\",  \n\"businessType\": \"see allowed values\",  \n\"ownerName\": \"string\",  \n\"phoneNumber\": \"string (min 10 digits)\",  \n\"locationRegion\": \"string\",  \n\"locationDistrict\": \"string\",  \n\"tier\": \"tier1 | tier2\",  \n\"recordingMode\": \"daily_summary | transaction\",  \n\"email\": \"valid email\",  \n\"password\": \"string (min 8 chars)\"  \n}\n\nbusinessType allowed values:  \nprovision_store, supermarket, pharmacy, spare_parts,  \nhardware, boutique, wholesale, cosmetics, electronics,  \nstationery, phone_accessories, other\n\nRESPONSES:  \n201 → { accessToken, refreshToken, business, user }  \n409 → email already exists  \n400 → validation error (missing/invalid fields)"
+      },
+      "response": []
+    },
+    {
+      "name": "Verify Email",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();\r",
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+              "pm.test(\"Tokens returned\", () => {\r",
+              "  pm.expect(res.data.accessToken).to.be.a('string');\r",
+              "  pm.expect(res.data.refreshToken).to.be.a('string');\r",
+              "});\r",
+              "pm.test(\"Verified\", () => pm.expect(res.data.user.emailVerified).to.be.true);\r",
+              "if (res.data?.accessToken) {\r",
+              "  pm.collectionVariables.set(\"accessToken\", res.data.accessToken);\r",
+              "  pm.collectionVariables.set(\"refreshToken\", res.data.refreshToken);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"bismarkakwah86@gmail.com\",\r\n  \"code\": \"173027\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/verify-email",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "verify-email"
+          ]
+        },
+        "description": "VERIFY EMAIL\n\nConfirms the 6-digit code sent during signup. On success, marks the  \naccount verified, seeds the chart of accounts, and issues access +  \nrefresh tokens (this is where the user is logged in).\n\nMETHOD: POST /api/v1/auth/verify-email  \nAUTH: none\n\nBODY:  \nemail string required, the signup email  \ncode string required, the 6-digit OTP from the email\n\nRESPONSES:  \n200 → { accessToken, refreshToken, business, user(emailVerified:true) }  \n400 → incorrect code / expired / no active code  \n409 → email already verified  \n429 → too many failed attempts (request a new code)"
+      },
+      "response": []
+    },
+    {
+      "name": "Resend Verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"bismarkakwah86+test1@gmail.com\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/resend-verification",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "resend-verification"
+          ]
+        },
+        "description": "RESEND VERIFICATION\n\nSends a fresh verification code to an unverified account. Returns a  \nneutral response regardless of whether the account exists or is already  \nverified (prevents account enumeration). Rate-limited.\n\nMETHOD: POST /api/v1/auth/resend-verification  \nAUTH: none\n\nBODY:  \nemail string required\n\nRESPONSES:  \n200 → neutral \"If the account exists, a new code has been sent.\"  \n(a new code is emailed only if an UNVERIFIED account exists)  \n429 → rate limit exceeded (max requests per window)\n\nNOTE: a new code invalidates any previous code for that account."
+      },
+      "response": []
+    },
+    {
+      "name": "Forgot Password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"bismarkakwah86+test1@gmail.com\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "forgot-password"
+          ]
+        },
+        "description": "FORGOT PASSWORD\n\nStarts the password-reset flow. If a VERIFIED account exists for the  \nemail, a 6-digit reset code is emailed. Returns a neutral response  \nregardless (prevents account enumeration). Rate-limited.\n\nMETHOD: POST /api/v1/auth/forgot-password  \nAUTH: none\n\nBODY:  \nemail string required\n\nRESPONSES:  \n200 → neutral \"If the account exists, a reset code has been sent.\"  \n(reset code emailed only if a VERIFIED account exists)  \n429 → rate limit exceeded\n\nNOTE: unverified accounts cannot reset (they never finished signup) —  \nthe response is still neutral, but no email is sent."
+      },
+      "response": []
+    },
+    {
+      "name": "Reset Password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"bismarkakwah86@gmail.com\",\r\n  \"code\": \"519274\",\r\n  \"newPassword\": \"newSecurePass123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "/api/v1/auth/reset-password",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "reset-password"
+          ]
+        },
+        "description": "RESET PASSWORD\n\nConfirms the reset code and sets a new password. On success, updates the  \npassword and REVOKES ALL existing sessions (the user must log in again  \neverywhere with the new password). Rate-limited.\n\nMETHOD: POST /api/v1/auth/reset-password  \nAUTH: none\n\nBODY:  \nemail string required  \ncode string required, 6-digit reset code from email  \nnewPassword string required, min 8 characters\n\nRESPONSES:  \n200 → \"Password reset successfully. Please log in with your new password.\"  \n400 → incorrect code / expired / no active code / weak password  \n429 → too many failed attempts\n\nSECURITY: all refresh tokens are revoked on success — every device is  \nlogged out and must re-authenticate with the new password."
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {\r",
+              "  const res = pm.response.json();\r",
+              "  pm.environment.set(\"accessToken\", res.data.accessToken);\r",
+              "  pm.environment.set(\"refreshToken\", res.data.refreshToken);\r",
+              "  console.log(\"Login tokens saved\");\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"strategy\": \"email_password\",\r\n  \"email\": \"akosua@example1.com\",\r\n  \"password\": \"password123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "LOGIN — Authenticate and get tokens\n\nVerifies credentials using the chosen strategy and returns  \na fresh access + refresh token pair (auto-saved by the test  \nscript).\n\nMETHOD: POST  \nAUTH: None\n\nBODY:  \n{  \n\"strategy\": \"email_password\",  \n\"email\": \"valid email\",  \n\"password\": \"string\"  \n}\n\nCurrently only \"email_password\" strategy is available.  \ngoogle_oauth and phone_otp are planned.\n\nRESPONSES:  \n200 → { accessToken, refreshToken, business, user }  \n401 → invalid email or password  \n403 → account deactivated"
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {\r",
+              "  const res = pm.response.json();\r",
+              "  pm.environment.set(\"accessToken\", res.data.accessToken);\r",
+              "  pm.environment.set(\"refreshToken\", res.data.refreshToken);\r",
+              "  console.log(\"Tokens rotated and saved\");\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/refresh",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "refresh"
+          ]
+        },
+        "description": "REFRESH — Get a new access token\n\nExchanges a valid refresh token for a NEW access + refresh  \ntoken pair (rotation). The old refresh token is revoked.  \nCall this automatically when any request returns 401 due to  \nan expired access token.\n\nIMPORTANT: refresh tokens are single-use. Each refresh  \nreturns a new pair — replace both on the client.\n\nMETHOD: POST  \nAUTH: None (the refresh token in the body IS the auth)\n\nBODY:  \n{  \n\"refreshToken\": \"string\"  \n}\n\nRESPONSES:  \n200 → { accessToken, refreshToken, business, user }  \n401 → invalid/expired token, OR reuse detected (all the  \nuser's tokens get revoked — user must log in again)"
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {\r",
+              "  pm.environment.set(\"accessToken\", \"\");      \r",
+              "  pm.environment.set(\"refreshToken\", \"\");     \r",
+              "  console.log(\"Tokens cleared\");\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "logout"
+          ]
+        },
+        "description": "LOGOUT — End the current session (one device)\n\nRevokes the given refresh token. The access token will still  \nwork until it expires (max 15 min) but cannot be refreshed.\n\nMETHOD: POST  \nAUTH: None (refresh token in body)\n\nBODY:  \n{  \n\"refreshToken\": \"string\"  \n}\n\nRESPONSES:  \n200 → logged out"
+      },
+      "response": []
+    },
+    {
+      "name": "Logout All Devices",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {\r",
+              "  pm.environment.set(\"accessToken\", \"\");\r",
+              "  pm.environment.set(\"refreshToken\", \"\");\r",
+              "  console.log(\"All sessions ended — tokens cleared\");\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/logout-all",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "logout-all"
+          ]
+        },
+        "description": "LOGOUT ALL — End all sessions (every device)\n\nRevokes ALL of the user's refresh tokens across every device.  \nUse for \"sign out everywhere\", stolen device, or after a  \npassword change. Requires a valid access token.\n\nMETHOD: POST  \nAUTH: Bearer access token (required)\n\nBODY: none\n\nRESPONSES:  \n200 → logged out of all devices  \n401 → no/invalid access token"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    }
+  ]
+}

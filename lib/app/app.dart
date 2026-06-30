@@ -1,7 +1,8 @@
+import 'package:finmind/app/config/app_constants.dart';
 import 'package:flutter/material.dart';
 
-import 'config/app_constants.dart';
 import 'router/app_router.dart';
+import 'router/routes.dart';
 import '../core/theme/app_theme.dart';
 
 class FinmindApp extends StatelessWidget {
@@ -15,7 +16,7 @@ class FinmindApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      initialRoute: AppConfig.initialRoute,
+      initialRoute: AppRoutes.welcome,
       onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }

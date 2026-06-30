@@ -10,12 +10,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:finmind/app/app.dart';
 
 void main() {
-  testWidgets('renders the Finmind starter shell', (
+  testWidgets('renders the welcome screen', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const FinmindApp());
+    await tester.pumpAndSettle();
 
-    expect(find.text('Finmind'), findsOneWidget);
-    expect(find.text('A clean starting point for Finmind'), findsOneWidget);
+    expect(find.textContaining('Know your'), findsOneWidget);
+    expect(find.text('Create your shop account'), findsOneWidget);
   });
 }
