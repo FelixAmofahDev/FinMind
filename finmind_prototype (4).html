@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinMind — Clickable Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#185FA5;   --blue-d:#0C447C;  --blue-l:#E6F1FB;  --blue-mid:#378ADD;
+    --teal:#1D9E75;   --teal-d:#0F6E56;  --teal-l:#E1F5EE;
+    --amber:#EF9F27;  --amber-d:#854F0B; --amber-l:#FAEEDA;
+    --purple:#534AB7; --purple-d:#3C3489;--purple-l:#EEEDFE;
+    --coral:#D05538;  --coral-d:#993C1D; --coral-l:#FAECE7;
+    --ink:#1A2230; --ink-soft:#46505F; --mute:#8893A2; --line:#E7EBF0;
+    --paper:#F4F7FB; --white:#FFFFFF;
+    --f:'Inter',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--f);background:#0E1B2A;color:#dfe7f0;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ---------- page chrome ---------- */
+  .top{max-width:1200px;margin:0 auto;padding:48px 28px 18px}
+  .brand{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+  .logo{width:44px;height:44px;border-radius:13px;background:var(--blue);display:grid;place-items:center;flex-shrink:0}
+  .logo svg{width:25px;height:25px}
+  .brand .nm{font-weight:800;font-size:20px;letter-spacing:-.02em;color:#fff}
+  .brand .tg{margin-left:auto;font-size:12.5px;color:#8aa0bb}
+  .top h1{font-weight:800;letter-spacing:-.03em;font-size:clamp(26px,4vw,40px);line-height:1.08;color:#fff;max-width:20ch}
+  .top h1 em{color:var(--amber);font-style:normal}
+  .top p.lede{margin-top:14px;max-width:62ch;color:#a8bdd6;font-size:15.5px;line-height:1.6}
+  .hint{margin-top:16px;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:30px;padding:7px 15px;font-size:13px;color:#bcd0e6}
+  .hint svg{width:15px;height:15px;color:var(--amber)}
+
+  /* ---------- stage layout ---------- */
+  .stage{max-width:1200px;margin:0 auto;padding:14px 28px 80px;display:grid;grid-template-columns:auto 1fr;gap:38px;align-items:start}
+  @media (max-width:880px){.stage{grid-template-columns:1fr;gap:26px}}
+
+  /* phone */
+  .phone-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;position:sticky;top:24px}
+  .phone{width:380px;background:#0a1420;border-radius:44px;padding:10px;box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06)}
+  .device{background:var(--paper);border-radius:35px;overflow:hidden;height:760px;position:relative;display:flex;flex-direction:column}
+  .sb{height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600;color:var(--ink)}
+  .sb .r{display:flex;gap:5px;align-items:center}.sb svg{width:15px;height:15px}
+  .views{flex:1;position:relative;overflow:hidden}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+  .screen.on{display:flex}
+  .screen > *{flex-shrink:0}
+  .screen .grow{flex:1 0 auto;min-height:8px}
+  .screen::-webkit-scrollbar{width:0}
+
+  .reset{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#bcd0e6;font-family:var(--f);font-size:12.5px;font-weight:600;padding:8px 15px;border-radius:30px;cursor:pointer}
+  .reset:hover{background:rgba(255,255,255,.12)}
+  .reset svg{width:14px;height:14px}
+
+  /* ---------- right panel (endpoint annotation) ---------- */
+  .panel{position:sticky;top:24px}
+  .panel .crumb{font-size:12.5px;color:#7e96b3;margin-bottom:10px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .panel .crumb b{color:#cfe0f2;font-weight:600}
+  .pcard{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:20px 22px}
+  .pcard h3{font-weight:700;font-size:17px;color:#fff;margin-bottom:4px;letter-spacing:-.01em}
+  .pcard .desc{font-size:13.5px;color:#9fb4cd;line-height:1.6;margin-bottom:16px}
+  .ep{padding:13px 0;border-top:1px dashed rgba(255,255,255,.12)}
+  .ep:first-of-type{border-top:none;padding-top:2px}
+  .ep .ln{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .meth{font-weight:700;font-size:10.5px;letter-spacing:.04em;padding:3px 8px;border-radius:6px;color:#fff}
+  .m-get{background:#2E7D5B}.m-post{background:var(--blue)}.m-patch{background:#9a7416}.m-del{background:#a23b2c}
+  .path{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#e4edf7;font-weight:500}
+  .lock{font-size:11px;color:#86d0b0}
+  .ep p{font-size:12.5px;color:#9fb4cd;line-height:1.6}
+  .ep p b{color:#cfe0f2;font-weight:600}
+  .ep code{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;color:#f0d9a0}
+  .nomap{font-size:13px;color:#7e96b3;font-style:italic;padding:6px 0}
+
+  /* screen map */
+  .map{margin-top:20px}
+  .map .mt{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6f87a5;margin-bottom:11px}
+  .map .grp{margin-bottom:14px}
+  .map .gl{font-size:12px;color:#8aa0bb;margin-bottom:6px;font-weight:600}
+  .map .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .mchip{font-size:11.5px;padding:5px 11px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#a8bdd6;cursor:pointer;transition:all .15s}
+  .mchip:hover{border-color:var(--blue-mid);color:#fff}
+  .mchip.cur{background:var(--blue);border-color:var(--blue);color:#fff}
+
+  /* ============ in-screen UI ============ */
+  .pad{padding:0 22px}
+  .gap{height:16px}.gap-s{height:9px}.gap-l{height:26px}.grow{flex:1}
+  .h1{font-weight:800;font-size:25px;letter-spacing:-.03em;color:var(--ink)}
+  .h2{font-weight:700;font-size:17px;letter-spacing:-.02em;color:var(--ink)}
+  .sub{color:var(--mute);font-size:14px;margin-top:7px;line-height:1.5}
+  .lab{font-size:11.5px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+
+  .topbar{display:flex;align-items:center;gap:13px;padding:12px 20px 14px}
+  .back{width:38px;height:38px;border-radius:12px;background:var(--white);border:1px solid var(--line);display:grid;place-items:center;cursor:pointer}
+  .back svg{width:18px;height:18px;color:var(--ink)}
+  .topbar .ttl{font-weight:700;font-size:16px;color:var(--ink)}
+
+  .applogo{width:48px;height:48px;border-radius:14px;background:var(--blue);display:grid;place-items:center;margin-bottom:20px}
+  .applogo svg{width:27px;height:27px}
+
+  /* progress dots for multi-step */
+  .steps{display:flex;gap:6px;padding:2px 22px 4px}
+  .steps .d{height:4px;border-radius:3px;background:var(--line);flex:1;transition:background .2s}
+  .steps .d.on{background:var(--blue)}
+
+  /* fields */
+  .field{margin:0 22px 15px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:7px}
+  .inp{width:100%;background:var(--white);border:1.5px solid var(--line);border-radius:13px;padding:14px 15px;font-size:15px;font-family:var(--f);color:var(--ink);cursor:text}
+  .inp.big{font-weight:800;font-size:28px;padding:16px;letter-spacing:-.02em}
+  .inp.sel{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+  .inp.sel .ph{color:#aab4c2}.inp.sel .val{color:var(--ink);font-weight:600}
+  .inp.sel svg{width:18px;height:18px;color:var(--mute)}
+  .iwrap{position:relative}
+  .iwrap .cur{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-weight:800;font-size:17px;color:var(--mute)}
+  .iwrap .inp.big.cur-pad{padding-left:54px}
+  .hintrow{font-size:12px;color:var(--mute);margin:0 22px 14px;line-height:1.5}
+
+  /* choice cards (tier/mode/type) */
+  .choices{margin:0 22px 16px;display:flex;flex-direction:column;gap:10px}
+  .choice{border:1.5px solid var(--line);background:var(--white);border-radius:15px;padding:15px 16px;cursor:pointer;display:flex;gap:13px;align-items:flex-start;transition:all .15s}
+  .choice .ci{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex-shrink:0}
+  .choice .ci svg{width:21px;height:21px}
+  .choice .ct{font-weight:700;font-size:15px;color:var(--ink)}
+  .choice .cs{font-size:12.5px;color:var(--mute);margin-top:2px;line-height:1.45}
+  .choice .ck{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;display:grid;place-items:center}
+  .choice.sel{border-color:var(--blue);background:var(--blue-l)}
+  .choice.sel .ck{border-color:var(--blue);background:var(--blue)}
+  .choice.sel .ck svg{width:12px;height:12px;color:#fff;display:block}
+  .choice .ck svg{display:none}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:0 22px 15px}
+  .grid2 .field{margin:0}
+
+  /* buttons */
+  .btn{display:block;width:calc(100% - 44px);margin:0 22px;background:var(--blue);color:#fff;border:none;border-radius:15px;padding:16px;font-family:var(--f);font-weight:700;font-size:15.5px;text-align:center;cursor:pointer}
+  .btn:active{transform:scale(.99)}
+  .btn.teal{background:var(--teal)}
+  .btn.ghost{background:transparent;color:var(--blue);border:1.5px solid var(--line)}
+  .btn.amber{background:var(--amber);color:#3a2607}
+  .link{text-align:center;font-size:13.5px;color:var(--mute);padding:16px 22px 6px}
+  .link a{color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer}
+
+  /* segmented */
+  .seg{display:flex;background:#E8EDF3;border-radius:13px;padding:4px;margin:0 22px 16px}
+  .seg .s{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:600;color:var(--ink-soft);border-radius:10px;cursor:pointer}
+  .seg .s.on{background:var(--white);color:var(--blue);box-shadow:0 2px 5px -3px rgba(0,0,0,.25)}
+
+  /* otp */
+  .otp{display:flex;gap:9px;justify-content:center;margin:6px 22px 18px}
+  .otp .b{width:44px;height:54px;border-radius:13px;background:var(--white);border:1.5px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:23px;color:var(--ink)}
+  .otp .b.f{border-color:var(--blue);color:var(--blue)}
+
+  /* dashboard */
+  .apphead{display:flex;align-items:center;gap:12px;padding:6px 20px 14px}
+  .av{width:42px;height:42px;border-radius:13px;background:var(--amber);display:grid;place-items:center;font-weight:800;color:#3a2607;font-size:16px;flex-shrink:0}
+  .apphead .hi{font-size:12.5px;color:var(--mute);font-weight:500}
+  .apphead .who{font-weight:700;font-size:16px;color:var(--ink)}
+  .bell{margin-left:auto;width:40px;height:40px;border-radius:12px;background:var(--white);border:1px solid var(--line);display:grid;place-items:center;position:relative;cursor:pointer}
+  .bell svg{width:19px;height:19px;color:var(--ink-soft)}
+  .bell .dot{position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--coral);border:2px solid var(--white)}
+
+  .hero{margin:2px 20px 0;border-radius:22px;padding:22px 20px;color:#eaf4ff;background:var(--blue);position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
+  .hero .l{font-size:12.5px;color:#b9d4ef;font-weight:600;position:relative}
+  .hero .amt{font-weight:800;font-size:38px;letter-spacing:-.03em;margin-top:6px;line-height:1;position:relative}
+  .hero .amt span{font-size:17px;font-weight:600;color:#b9d4ef;margin-right:5px;vertical-align:5px}
+  .hero .tr{display:inline-flex;align-items:center;gap:5px;margin-top:12px;background:rgba(255,255,255,.16);padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:600;position:relative}
+  .hero .tr svg{width:13px;height:13px}
+  .hero .sp{display:flex;margin-top:18px;position:relative;border-top:1px solid rgba(255,255,255,.18);padding-top:14px}
+  .hero .sp .c{flex:1}.hero .sp .c+.c{border-left:1px solid rgba(255,255,255,.18);padding-left:14px}
+  .hero .sp .k{font-size:11.5px;color:#b9d4ef}
+  .hero .sp .v{font-weight:700;font-size:17px;margin-top:3px}
+
+  .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:18px 20px 4px}
+  .qa{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+  .qa .i{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--line);background:var(--white)}
+  .qa .i svg{width:22px;height:22px}
+  .qa.p .i{background:var(--blue);border-color:var(--blue)}.qa.p .i svg{color:#fff}
+  .qa span{font-size:11.5px;font-weight:600;color:var(--ink-soft)}
+
+  .secrow{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 11px}
+  .secrow a{font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;text-decoration:none}
+  .mini2{display:flex;gap:11px;margin:0 20px}
+  .mini{flex:1;background:var(--white);border:1px solid var(--line);border-radius:15px;padding:14px}
+  .mini .k{font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+  .mini .v{font-weight:800;font-size:20px;margin-top:5px}
+
+  .card{background:var(--white);border:1px solid var(--line);border-radius:16px;margin:0 20px;overflow:hidden}
+  .row{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+  .row+.row{border-top:1px solid var(--line)}
+  .row .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex-shrink:0}
+  .row .ic svg{width:18px;height:18px}
+  .ic-in{background:var(--teal-l)}.ic-in svg{color:var(--teal-d)}
+  .ic-out{background:var(--coral-l)}.ic-out svg{color:var(--coral-d)}
+  .ic-debt{background:var(--amber-l)}.ic-debt svg{color:var(--amber-d)}
+  .ic-blue{background:var(--blue-l)}.ic-blue svg{color:var(--blue)}
+  .row .m{flex:1;min-width:0}
+  .row .m .t{font-size:14.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .m .s{font-size:12px;color:var(--mute);margin-top:1px}
+  .row .a{font-weight:700;font-size:15px;color:var(--ink)}
+  .row .a.pos{color:var(--teal-d)}.row .a.neg{color:var(--coral-d)}
+  .row .chev{width:17px;height:17px;color:var(--mute);flex-shrink:0}
+
+  .nav{position:absolute;bottom:0;left:0;right:0;height:72px;background:var(--white);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:0 6px 12px;z-index:5}
+  .nav .n{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--mute);flex:1;cursor:pointer}
+  .nav .n svg{width:21px;height:21px}
+  .nav .n span{font-size:10px;font-weight:600}
+  .nav .n.on{color:var(--blue)}
+  .nav .fab{width:52px;height:52px;border-radius:17px;background:var(--blue);display:grid;place-items:center;margin-top:-24px;cursor:pointer;box-shadow:0 10px 22px -8px rgba(24,95,165,.7)}
+  .nav .fab svg{width:25px;height:25px;color:#fff}
+
+  /* POS */
+  .search{margin:6px 20px 12px;position:relative}
+  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--mute)}
+  .search input{width:100%;background:var(--white);border:1.5px solid var(--line);border-radius:13px;padding:13px 14px 13px 42px;font-size:14.5px;font-family:var(--f);color:var(--ink)}
+  .results{margin:0 20px}
+  .pres{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--white);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;cursor:pointer}
+  .pres .nm{flex:1}.pres .nm .t{font-size:14.5px;font-weight:600;color:var(--ink)}.pres .nm .s{font-size:12px;color:var(--mute);margin-top:1px}
+  .pres .pr{font-weight:700;font-size:14.5px;color:var(--ink)}
+  .pres .add{width:30px;height:30px;border-radius:9px;background:var(--blue-l);display:grid;place-items:center}
+  .pres .add svg{width:18px;height:18px;color:var(--blue)}
+  .freq{padding:0 20px}.freq .fl{font-size:12px;color:var(--mute);margin-bottom:8px;font-weight:600}
+  .fchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .fchip{padding:9px 13px;border-radius:13px;background:var(--white);border:1px solid var(--line);cursor:pointer;min-width:90px}
+  .fchip .t{font-size:13px;font-weight:600;color:var(--ink)}.fchip .p{font-size:12px;color:var(--mute);margin-top:1px}
+  .cart{margin:0 20px;min-height:48px;max-height:208px;overflow-y:auto;flex-shrink:0}
+  .cart::-webkit-scrollbar{width:4px}.cart::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .citem{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .citem .nm{flex:1}.citem .nm .t{font-size:14.5px;font-weight:600;color:var(--ink)}.citem .nm .s{font-size:12px;color:var(--mute);margin-top:1px}
+  .qty{display:flex;align-items:center;gap:11px}
+  .qbtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--white);display:grid;place-items:center;cursor:pointer;font-size:17px;font-weight:600;color:var(--ink);line-height:1}
+  .qty .q{font-weight:700;font-size:15px;min-width:18px;text-align:center}
+  .cart-empty{font-size:13px;color:var(--mute);text-align:center;padding:14px 0}
+  .paylab{font-size:12px;font-weight:600;color:var(--mute);padding:14px 20px 8px}
+  .pays{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 20px}
+  .pay{display:flex;align-items:center;gap:9px;padding:13px;border-radius:13px;border:1.5px solid var(--line);background:var(--white);cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink-soft)}
+  .pay svg{width:18px;height:18px;color:var(--mute)}
+  .pay.on{border-color:var(--blue);background:var(--blue-l);color:var(--blue-d)}
+  .pay.on svg{color:var(--blue)}
+  .creditbox{margin:14px 20px 0;background:var(--amber-l);border:1px solid #f0dcaf;border-radius:14px;padding:14px;display:none}
+  .creditbox.on{display:block}
+  .creditbox .cl{font-size:12.5px;font-weight:600;color:var(--amber-d);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .creditbox .cl svg{width:15px;height:15px}
+  .creditbox input{width:100%;background:var(--white);border:1.5px solid #f0dcaf;border-radius:11px;padding:11px 12px;font-size:14px;font-family:var(--f);margin-bottom:8px;color:var(--ink)}
+  .creditbox input:last-child{margin-bottom:0}
+  .checkout{margin:16px 20px 0;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .checkout .tot{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .checkout .tot .k{font-size:14px;color:var(--ink-soft)}
+  .checkout .tot .v{font-weight:800;font-size:24px;color:var(--ink)}
+  .checkout .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--mute)}
+
+  /* confirm screen */
+  .confirm{display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 30px}
+  .confirm .ok{width:78px;height:78px;border-radius:50%;background:var(--teal-l);display:grid;place-items:center;margin-bottom:22px}
+  .confirm .ok svg{width:40px;height:40px;color:var(--teal-d)}
+  .confirm h2{font-weight:800;font-size:23px;color:var(--ink);letter-spacing:-.02em}
+  .confirm .ref{font-size:13.5px;color:var(--mute);margin-top:7px}
+  .recap{width:100%;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:6px 16px;margin-top:24px}
+  .recap .r{display:flex;justify-content:space-between;padding:11px 0;font-size:13.5px}
+  .recap .r+.r{border-top:1px solid var(--line)}
+  .recap .r .k{color:var(--ink-soft)}.recap .r .v{font-weight:700;color:var(--ink)}
+  .recap .r .v.green{color:var(--teal-d)}
+
+  /* pills */
+  .pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .pill.over{background:var(--coral-l);color:var(--coral-d)}
+  .pill.soon{background:var(--amber-l);color:var(--amber-d)}
+  .pill.ok{background:var(--teal-l);color:var(--teal-d)}
+
+  /* reports */
+  .bigfig{text-align:center;padding:10px 0 4px}
+  .bigfig .l{font-size:11.5px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+  .bigfig .v{font-weight:800;font-size:42px;letter-spacing:-.03em;margin-top:6px}
+  .est{display:flex;gap:9px;align-items:flex-start;margin:0 20px 16px;background:var(--amber-l);border:1px solid #f0dcaf;border-radius:13px;padding:12px 14px}
+  .est svg{width:17px;height:17px;color:var(--amber-d);flex-shrink:0;margin-top:1px}
+  .est p{font-size:12.5px;color:#7a5a12;line-height:1.5}
+  .est.ok{background:var(--teal-l);border-color:#bfe0cd}
+  .est.ok svg{color:var(--teal-d)}
+  .est.ok p{color:var(--teal-d)}
+  .pnl{margin:0 20px;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:16px}
+  .pnl .l{display:flex;justify-content:space-between;padding:11px 0;font-size:14px}
+  .pnl .l+.l{border-top:1px solid var(--line)}
+  .pnl .l .k{color:var(--ink-soft)}.pnl .l .v{font-weight:700;color:var(--ink)}
+  .pnl .l.tot{border-top:2px solid var(--ink);margin-top:3px}
+  .pnl .l.tot .k{font-weight:700;color:var(--ink)}.pnl .l.tot .v{color:var(--teal-d);font-size:17px}
+  .chips3{display:flex;gap:8px;padding:0 20px 14px}
+  .tchip{padding:7px 13px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;background:var(--white);border:1px solid var(--line);color:var(--ink-soft)}
+  .tchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* sheet picker */
+  .sheet{position:absolute;inset:0;background:rgba(20,30,45,.4);display:none;align-items:flex-end;z-index:30}
+  .sheet.on{display:flex}
+  .sheet .inner{background:var(--white);width:100%;border-radius:24px 24px 0 0;padding:8px 0 18px;max-height:74%;overflow-y:auto}
+  .sheet .grab{width:38px;height:4px;border-radius:3px;background:var(--line);margin:8px auto 10px}
+  .sheet h4{font-weight:700;font-size:16px;color:var(--ink);padding:4px 22px 12px}
+  .sopt{padding:13px 22px;font-size:14.5px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px}
+  .sopt:hover{background:var(--paper)}
+  .sopt svg{width:17px;height:17px;color:var(--blue);opacity:0;flex-shrink:0}
+  .sopt.sel svg{opacity:1}.sopt.sel{font-weight:600}
+
+  .b80{height:84px}
+
+  /* register Sell/Restock toggle */
+  .regtog{display:flex;background:#E8EDF3;border-radius:13px;padding:4px;margin:2px 20px 12px}
+  .regtog .rt{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;font-size:13.5px;font-weight:700;color:var(--ink-soft);border-radius:10px;cursor:pointer}
+  .regtog .rt svg{width:16px;height:16px}
+  .regtog .rt.on{background:var(--white);box-shadow:0 2px 5px -3px rgba(0,0,0,.25)}
+  .regtog .rt.on.sell{color:var(--blue)}
+  .regtog .rt.on.buy{color:var(--purple)}
+
+  /* restock line */
+  .rline{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-bottom:9px}
+  .rline .top{display:flex;align-items:flex-start;gap:9px;margin-bottom:11px}
+  .rline .top .nm{flex:1}.rline .top .nm .t{font-size:14.5px;font-weight:600;color:var(--ink)}
+  .rline .top .nm .s{font-size:12px;color:var(--mute);margin-top:1px}
+  .rline .rm{width:26px;height:26px;border-radius:8px;background:var(--coral-l);display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+  .rline .rm svg{width:15px;height:15px;color:var(--coral-d)}
+  .rline .ins{display:flex;gap:9px;align-items:flex-end}
+  .rline .ins .fc{flex:1}
+  .rline .ins .fc label{display:block;font-size:11px;font-weight:600;color:var(--mute);margin-bottom:4px}
+  .rline .ins .fc .ib{display:flex;align-items:center;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:0 10px}
+  .rline .ins .fc .ib span{font-size:12px;color:var(--mute);font-weight:600}
+  .rline .ins .fc .ib input{width:100%;border:none;background:transparent;padding:9px 4px;font-size:14.5px;font-weight:600;font-family:var(--f);color:var(--ink);outline:none;text-align:right}
+  .rline .ins .lt{flex-shrink:0;text-align:right;padding-bottom:9px;min-width:62px}
+  .rline .ins .lt .ll{font-size:11px;color:var(--mute);font-weight:600;margin-bottom:4px}
+  .rline .ins .lt .lv{font-size:14.5px;font-weight:700;color:var(--ink)}
+  .supbox{margin:14px 20px 0;background:var(--purple-l);border:1px solid #d8d4f3;border-radius:14px;padding:14px;display:none}
+  .supbox.on{display:block}
+  .supbox .cl{font-size:12.5px;font-weight:600;color:var(--purple-d);margin-bottom:11px;display:flex;align-items:center;gap:6px}
+  .supbox .cl svg{width:15px;height:15px}
+  .supseg{display:flex;background:rgba(255,255,255,.7);border-radius:11px;padding:3px;margin-bottom:10px}
+  .supseg .ss{flex:1;text-align:center;padding:8px;font-size:12.5px;font-weight:600;color:var(--purple-d);border-radius:9px;cursor:pointer}
+  .supseg .ss.on{background:var(--white);color:var(--purple-d);box-shadow:0 1px 4px -2px rgba(0,0,0,.3)}
+  .supbox .sel-existing,.supbox .sel-new{display:none}
+  .supbox.exist .sel-existing{display:block}.supbox.newsup .sel-new{display:block}
+  .supbox .pick{background:var(--white);border:1.5px solid #d8d4f3;border-radius:11px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+  .supbox .pick .v{font-weight:600;color:var(--ink);font-size:14px}
+  .supbox .pick svg{width:17px;height:17px;color:var(--purple)}
+  .supbox input{width:100%;background:var(--white);border:1.5px solid #d8d4f3;border-radius:11px;padding:11px 12px;font-size:14px;font-family:var(--f);margin-bottom:8px;color:var(--ink)}
+  .supbox input:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13.5L9 9l4 3.5L20 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="6" r="2.3" fill="#EF9F27"/></svg></div>
+    <span class="nm">FinMind</span>
+    <span class="tg">Clickable prototype · for frontend · v2</span>
+  </div>
+  <h1>Tap through the <em>whole flow.</em></h1>
+  <p class="lede">A working click-through of the FinMind app — signup, the POS, recording money, debtors, and reports. Tap buttons, cards, and the bottom nav to move between screens. The panel on the right always shows the exact API call the screen you're on would make.</p>
+  <div class="hint"><svg viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3 8-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Everything you tap is live — start at the welcome screen or jump anywhere from the map.</div>
+</header>
+
+<div class="stage">
+  <!-- ============ PHONE ============ -->
+  <div class="phone-wrap">
+    <div class="phone"><div class="device">
+      <div class="sb"><span>9:41</span><span class="r">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h2v3H2zM6 13h2v7H6zM10 9h2v11h-2zM14 5h2v15h-2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 6c3.5 0 6.7 1.3 9 3.5l-1.4 1.4C16.8 8.9 14 8 12 8s-4.8.9-7.6 2.9L3 9.5C5.3 7.3 8.5 6 12 6z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="10" rx="2.5"/><rect x="21" y="10" width="1.5" height="4" rx="1"/></svg>
+      </span></div>
+      <div class="views">
+
+      <!-- ===== WELCOME ===== -->
+      <div class="screen on" id="s-welcome">
+        <div style="height:60px"></div>
+        <div class="pad">
+          <div class="applogo" style="width:56px;height:56px;border-radius:17px"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13.5L9 9l4 3.5L20 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="6" r="2.3" fill="#EF9F27"/></svg></div>
+          <h1 class="h1" style="font-size:30px">Know your<br>money. Daily.</h1>
+          <p class="sub" style="font-size:15px;max-width:30ch">The simple books for your shop — sales, stock, who owes you, and your profit. All in one place.</p>
+        </div>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('signup1')">Create your shop account</button>
+        <div class="gap-s"></div>
+        <button class="btn ghost" onclick="go('login')">I already have an account</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== SIGNUP STEP 1 — business ===== -->
+      <div class="screen" id="s-signup1">
+        <div class="topbar"><div class="back" onclick="go('welcome')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Create account</span></div>
+        <div class="steps"><div class="d on"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+        <div class="gap"></div>
+        <div class="pad"><span class="h2">Tell us about your shop</span><p class="sub">Step 1 of 4 — the basics.</p></div>
+        <div class="gap"></div>
+        <div class="field"><label>Shop name</label><input class="inp" value="Akosua Provisions" readonly></div>
+        <div class="field"><label>What kind of business?</label>
+          <div class="inp sel" onclick="openSheet('type')"><span class="val" id="typeVal">Provision store</span><svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <p class="hintrow">Pick the closest — it's only used to personalise your app, not your accounting.</p>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('signup2')">Continue</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== SIGNUP STEP 2 — owner + location ===== -->
+      <div class="screen" id="s-signup2">
+        <div class="topbar"><div class="back" onclick="go('signup1')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Create account</span></div>
+        <div class="steps"><div class="d on"></div><div class="d on"></div><div class="d"></div><div class="d"></div></div>
+        <div class="gap"></div>
+        <div class="pad"><span class="h2">You & where you trade</span><p class="sub">Step 2 of 4 — owner and location.</p></div>
+        <div class="gap"></div>
+        <div class="field"><label>Your name</label><input class="inp" value="Akosua Mensah" readonly></div>
+        <div class="field"><label>Phone number</label><input class="inp" value="024 412 3456" readonly></div>
+        <div class="field"><label>Region</label>
+          <div class="inp sel" onclick="openSheet('region')"><span class="val" id="regionVal">Greater Accra</span><svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="field"><label>District</label>
+          <div class="inp sel" onclick="openSheet('district')"><span class="val" id="districtVal">Ablekuma North</span><svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('signup3')">Continue</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== SIGNUP STEP 3 — tier + mode ===== -->
+      <div class="screen" id="s-signup3">
+        <div class="topbar"><div class="back" onclick="go('signup2')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Create account</span></div>
+        <div class="steps"><div class="d on"></div><div class="d on"></div><div class="d on"></div><div class="d"></div></div>
+        <div class="gap"></div>
+        <div class="pad"><span class="h2">How do you want to track?</span><p class="sub">Step 3 of 4 — you can change this later.</p></div>
+        <div class="gap"></div>
+        <p class="lab" style="margin:0 22px 9px">Your level</p>
+        <div class="choices">
+          <div class="choice" id="tier-1" onclick="pickChoice('tier',1)">
+            <div class="ci" style="background:var(--teal-l)"><svg viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#0F6E56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#0F6E56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="ct">Tier 1 — Daily totals</div><div class="cs">Enter your day's sales and expenses once each evening. Simplest.</div></div>
+            <div class="ck"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="choice sel" id="tier-2" onclick="pickChoice('tier',2)">
+            <div class="ci" style="background:var(--blue-l)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h2l2.4 12.3a1 1 0 0 0 1 .7h9.7a1 1 0 0 0 1-.8L21 8H6" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.3" fill="#185FA5"/><circle cx="18" cy="21" r="1.3" fill="#185FA5"/></svg></div>
+            <div><div class="ct">Tier 2 — Sell with POS</div><div class="cs">Ring up each sale by product. Tracks stock and profit per item.</div></div>
+            <div class="ck"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('signup4')">Continue</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== SIGNUP STEP 4 — email + password ===== -->
+      <div class="screen" id="s-signup4">
+        <div class="topbar"><div class="back" onclick="go('signup3')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Create account</span></div>
+        <div class="steps"><div class="d on"></div><div class="d on"></div><div class="d on"></div><div class="d on"></div></div>
+        <div class="gap"></div>
+        <div class="pad"><span class="h2">Your login</span><p class="sub">Step 4 of 4 — we'll email a code to confirm it's you.</p></div>
+        <div class="gap"></div>
+        <div class="field"><label>Email</label><input class="inp" value="akosua@gmail.com" readonly></div>
+        <div class="field"><label>Password</label><input class="inp" type="password" value="goodpass12" readonly></div>
+        <p class="hintrow">At least 8 characters. You'll use this to sign in next time.</p>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('otp')">Create account & send code</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== OTP ===== -->
+      <div class="screen" id="s-otp">
+        <div class="topbar"><div class="back" onclick="go('signup4')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Verify email</span></div>
+        <div style="height:24px"></div>
+        <div class="pad">
+          <div style="width:56px;height:56px;border-radius:17px;background:var(--blue-l);display:grid;place-items:center;margin-bottom:20px"><svg viewBox="0 0 24 24" fill="none" style="width:27px;height:27px"><path d="M3 8l9 6 9-6" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="#185FA5" stroke-width="2"/></svg></div>
+          <span class="h1" style="font-size:23px">Check your email</span>
+          <p class="sub">We sent a 6-digit code to<br><b style="color:var(--ink)">akosua@gmail.com</b></p>
+        </div>
+        <div style="height:26px"></div>
+        <div class="otp"><div class="b f">4</div><div class="b f">8</div><div class="b f">3</div><div class="b f">9</div><div class="b">_</div><div class="b">_</div></div>
+        <button class="btn teal" onclick="go('dashboard')">Verify & continue</button>
+        <div class="link">Didn't get it? <a>Resend code</a> · <span class="num" style="color:var(--mute)">0:42</span></div>
+      </div>
+
+      <!-- ===== LOGIN ===== -->
+      <div class="screen" id="s-login">
+        <div class="topbar"><div class="back" onclick="go('welcome')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Sign in</span></div>
+        <div style="height:20px"></div>
+        <div class="pad"><div class="applogo"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13.5L9 9l4 3.5L20 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="6" r="2.3" fill="#EF9F27"/></svg></div>
+          <span class="h1" style="font-size:24px">Welcome back</span><p class="sub">Sign in to Akosua Provisions.</p></div>
+        <div style="height:24px"></div>
+        <div class="field"><label>Email</label><input class="inp" value="akosua@gmail.com" readonly></div>
+        <div class="field"><label>Password</label><input class="inp" type="password" value="goodpass12" readonly></div>
+        <div style="display:flex;justify-content:flex-end;margin:0 22px 20px"><a style="font-size:13px;font-weight:600;color:var(--blue);cursor:pointer">Forgot password?</a></div>
+        <button class="btn" onclick="go('dashboard')">Sign in</button>
+        <div class="link">New here? <a onclick="go('signup1')">Create an account</a></div>
+      </div>
+
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="screen" id="s-dashboard">
+        <div class="apphead">
+          <div class="av">A</div>
+          <div><div class="hi">Good morning</div><div class="who">Akosua 👋</div></div>
+          <div class="bell"><svg viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 1 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="dot"></span></div>
+        </div>
+        <div class="hero">
+          <div class="l">Cash on hand · all accounts</div>
+          <div class="amt"><span>GHS</span>3,420<span style="font-size:21px;vertical-align:2px">.50</span></div>
+          <div class="tr"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5-5 4 4 5-7" stroke="#9be9c4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Up GHS 480 this week</div>
+          <div class="sp">
+            <div class="c"><div class="k">Owed to you</div><div class="v num">GHS 1,240</div></div>
+            <div class="c"><div class="k">You owe</div><div class="v num">GHS 600</div></div>
+          </div>
+        </div>
+        <div class="quick">
+          <div class="qa p" onclick="go('pos')"><div class="i"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h2l2.4 12.3a1 1 0 0 0 1 .7h9.7a1 1 0 0 0 1-.8L21 8H6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.4" fill="#fff"/><circle cx="18" cy="21" r="1.4" fill="#fff"/></svg></div><span>Sell</span></div>
+          <div class="qa" onclick="go('restock')"><div class="i" style="background:var(--purple-l);border-color:#d8d4f3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12M7 10l5 5 5-5" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/></svg></div><span>Restock</span></div>
+          <div class="qa" onclick="go('expense')"><div class="i"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#D05538" stroke-width="2.2" stroke-linecap="round"/></svg></div><span>Expense</span></div>
+          <div class="qa" onclick="go('people')"><div class="i"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke="#854F0B" stroke-width="2"/><path d="M5 20a7 7 0 0 1 14 0" stroke="#854F0B" stroke-width="2" stroke-linecap="round"/></svg></div><span>People</span></div>
+        </div>
+        <div class="secrow"><span class="h2">This month</span><a onclick="go('reportPnl')">See report →</a></div>
+        <div class="mini2">
+          <div class="mini"><div class="k">Sales</div><div class="v num" style="color:var(--ink)">8,140</div></div>
+          <div class="mini"><div class="k">Profit · <span style="color:var(--amber-d)">est</span></div><div class="v num" style="color:var(--teal-d)">~1,860</div></div>
+        </div>
+        <div class="secrow"><span class="h2">Recent</span><a>All activity →</a></div>
+        <div class="card">
+          <div class="row"><div class="ic ic-in"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="m"><div class="t">Sale · cash</div><div class="s">Today, 8:24 AM</div></div><div class="a pos num">+120.00</div></div>
+          <div class="row"><div class="ic ic-out"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="m"><div class="t">Transport</div><div class="s">Today, 7:50 AM</div></div><div class="a neg num">−35.00</div></div>
+          <div class="row"><div class="ic ic-debt"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="2"/><path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="m"><div class="t">Kofi paid his debt</div><div class="s">Yesterday</div></div><div class="a pos num">+200.00</div></div>
+        </div>
+        <div class="b80"></div>
+        <div class="nav">
+          <div class="n on"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></div>
+          <div class="n" onclick="go('reportPnl')"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Reports</span></div>
+          <div class="fab" onclick="go('pos')"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+          <div class="n" onclick="go('people')"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="2"/><path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>People</span></div>
+          <div class="n"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 0 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 4 13.6a2 2 0 0 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 10.6 5a2 2 0 0 1 4 0 1.6 1.6 0 0 0 2.7 1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 19 9.4Z" stroke="currentColor" stroke-width="1.7"/></svg><span>Settings</span></div>
+        </div>
+      </div>
+
+      <!-- ===== PRODUCTS (catalogue) ===== -->
+      <div class="screen" id="s-products">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Products</span>
+          <div style="margin-left:auto" class="back" onclick="go('productNew')"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#185FA5" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input placeholder="Search products…" readonly></div>
+        <div class="card">
+          <div class="row"><div class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2"/></svg></div><div class="m"><div class="t">Cowbell Milk 400g</div><div class="s">48 in stock · sells GHS 25</div></div><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="row"><div class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2"/></svg></div><div class="m"><div class="t">Rice 5kg</div><div class="s">30 in stock · sells GHS 50</div></div><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="row"><div class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2"/></svg></div><div class="m"><div class="t">Cooking Oil 1L</div><div class="s"><span class="pill over">8 left</span> · sells GHS 35</div></div><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="row"><div class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2"/></svg></div><div class="m"><div class="t">Milo 500g</div><div class="s">18 in stock · sells GHS 45</div></div><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="row"><div class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2"/></svg></div><div class="m"><div class="t">Key Soap</div><div class="s">90 in stock · sells GHS 6</div></div><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="gap"></div>
+        <div style="display:flex;gap:10px;margin:0 22px">
+          <button class="btn ghost" style="width:auto;flex:1;margin:0" onclick="go('productNew')">+ Add product</button>
+          <button class="btn" style="width:auto;flex:1;margin:0;background:var(--purple)" onclick="go('restock')">↓ Restock</button>
+        </div>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== NEW PRODUCT ===== -->
+      <div class="screen" id="s-productNew">
+        <div class="topbar"><div class="back" onclick="go('products')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">New product</span></div>
+        <div class="gap"></div>
+        <div class="field"><label>Product name</label><input class="inp" value="Cowbell Milk 400g" readonly></div>
+        <div class="grid2">
+          <div class="field"><label>Selling price</label><div class="iwrap"><span class="cur" style="font-size:14px">GHS</span><input class="inp" style="padding-left:48px" value="25.00" readonly></div></div>
+          <div class="field"><label>Cost price</label><div class="iwrap"><span class="cur" style="font-size:14px">GHS</span><input class="inp" style="padding-left:48px" value="20.00" readonly></div></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Opening stock</label><input class="inp" value="50" readonly></div>
+          <div class="field"><label>Low-stock alert</label><input class="inp" value="10" readonly></div>
+        </div>
+        <div class="field"><label>Unit</label>
+          <div class="inp sel"><span class="val">Piece</span><svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+        <p class="hintrow">Selling and cost price are required — the cost is what lets FinMind work out your profit on every sale.</p>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('products')">Save product</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== POS ===== -->
+      <div class="screen" id="s-pos">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="ttl">Register</div><div style="font-size:11.5px;color:var(--mute)">Akosua Provisions · Till 1</div></div>
+        </div>
+        <div class="regtog">
+          <div class="rt on sell"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h2l2.4 12.3a1 1 0 0 0 1 .7h9.7a1 1 0 0 0 1-.8L21 8H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.3" fill="currentColor"/><circle cx="18" cy="21" r="1.3" fill="currentColor"/></svg>Sell</div>
+          <div class="rt buy" onclick="go('restock')"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Restock</div>
+        </div>
+        <div class="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="posSearch" placeholder="Search products to add…" autocomplete="off"></div>
+        <div class="results" id="posResults"></div>
+        <div class="freq" id="posFreq">
+          <div class="fl">Frequent items — tap to add</div>
+          <div class="fchips" id="freqChips"></div>
+        </div>
+        <div class="paylab" style="padding-top:4px">In the cart</div>
+        <div class="cart" id="posCart"></div>
+        <div class="paylab">How did they pay?</div>
+        <div class="pays" id="payPills">
+          <div class="pay on" data-pm="cash" onclick="selectPay('cash')"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" stroke="currentColor" stroke-width="2"/></svg>Cash</div>
+          <div class="pay" data-pm="mtn_momo" onclick="selectPay('mtn_momo')"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>MTN MoMo</div>
+          <div class="pay" data-pm="bank" onclick="selectPay('bank')"><svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V10M19 21V10M3 10l9-6 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Bank</div>
+          <div class="pay" data-pm="credit" onclick="selectPay('credit')"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="2"/><path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>On credit</div>
+        </div>
+        <div class="creditbox" id="creditBox">
+          <div class="cl"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg>Who's buying on credit?</div>
+          <input placeholder="Customer name (required)" value="Kwame Boateng" readonly>
+          <input placeholder="Phone (optional)" value="020 765 4321" readonly>
+        </div>
+        <div class="checkout">
+          <div class="tot"><span class="k">Total</span><span class="v num" id="posTotal">GHS 0.00</span></div>
+          <div class="meta"><span><span id="posCount">0</span> items</span><span>Profit <span id="posProfit" class="num">GHS 0.00</span></span></div>
+        </div>
+        <div class="gap"></div>
+        <button class="btn teal" onclick="completeSale()">Complete sale</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== SALE CONFIRM ===== -->
+      <div class="screen" id="s-posConfirm">
+        <div class="confirm">
+          <div class="ok"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h2>Sale recorded</h2>
+          <div class="ref num" id="confRef">RCP-2026-00042</div>
+          <div class="recap">
+            <div class="r"><span class="k">Total</span><span class="v num" id="confTotal">GHS 0.00</span></div>
+            <div class="r"><span class="k">Items</span><span class="v num" id="confItems">0</span></div>
+            <div class="r"><span class="k">Payment</span><span class="v" id="confPay">Cash</span></div>
+            <div class="r"><span class="k">Profit on this sale</span><span class="v green num" id="confProfit">GHS 0.00</span></div>
+          </div>
+        </div>
+        <div class="grow"></div>
+        <button class="btn" onclick="resetPos();go('pos')">New sale</button>
+        <div class="gap-s"></div>
+        <button class="btn ghost" onclick="resetPos();go('dashboard')">Back to home</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== RESTOCK (purchase) ===== -->
+      <div class="screen" id="s-restock">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="ttl">Register</div><div style="font-size:11.5px;color:var(--mute)">Akosua Provisions · Till 1</div></div>
+        </div>
+        <div class="regtog">
+          <div class="rt sell" onclick="go('pos')"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h2l2.4 12.3a1 1 0 0 0 1 .7h9.7a1 1 0 0 0 1-.8L21 8H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.3" fill="currentColor"/><circle cx="18" cy="21" r="1.3" fill="currentColor"/></svg>Sell</div>
+          <div class="rt on buy"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Restock</div>
+        </div>
+        <div class="hintrow" style="margin:0 20px 12px">Add stock you bought. Set the quantity and what each unit cost you — that updates your stock and your average cost.</div>
+        <div class="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="rsSearch" placeholder="Search products you bought…" autocomplete="off"></div>
+        <div class="results" id="rsResults"></div>
+        <div class="freq" id="rsFreq">
+          <div class="fl">Frequent items — tap to add</div>
+          <div class="fchips" id="rsFreqChips"></div>
+        </div>
+        <div class="paylab" style="padding-top:4px">Items received</div>
+        <div class="cart" id="rsCart" style="max-height:300px"></div>
+        <div class="paylab">How did you pay the supplier?</div>
+        <div class="pays" id="rsPayPills">
+          <div class="pay on" data-pm="cash" onclick="rsPay('cash')"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" stroke="currentColor" stroke-width="2"/></svg>Cash</div>
+          <div class="pay" data-pm="mtn_momo" onclick="rsPay('mtn_momo')"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>MTN MoMo</div>
+          <div class="pay" data-pm="bank" onclick="rsPay('bank')"><svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V10M19 21V10M3 10l9-6 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Bank</div>
+          <div class="pay" data-pm="credit" onclick="rsPay('credit')"><svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V10M19 21V10M3 10l9-6 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>On credit</div>
+        </div>
+        <div class="supbox exist" id="supBox">
+          <div class="cl"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7h18l-1.5 12.5a1 1 0 0 1-1 .9H5.5a1 1 0 0 1-1-.9L3 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="2"/></svg>Which supplier did you take it from on credit?</div>
+          <div class="supseg">
+            <div class="ss on" onclick="supMode('exist')">Existing supplier</div>
+            <div class="ss" onclick="supMode('newsup')">New supplier</div>
+          </div>
+          <div class="sel-existing">
+            <div class="pick" onclick="openSheet('supplier')"><span class="v" id="supplierVal">Melcom Supplies</span><svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="sel-new">
+            <input placeholder="Supplier name (required)" value="Adabraka Wholesale" readonly>
+            <input placeholder="Phone (optional)" value="030 222 1144" readonly>
+            <input placeholder="Pay back by (optional date)" value="2026-07-15" readonly>
+          </div>
+        </div>
+        <div class="checkout">
+          <div class="tot"><span class="k">Total purchase</span><span class="v num" id="rsTotal">GHS 0.00</span></div>
+          <div class="meta"><span><span id="rsCount">0</span> items</span><span id="rsStockNote">Stock goes up · no profit yet</span></div>
+        </div>
+        <div class="gap"></div>
+        <button class="btn" style="background:var(--purple)" onclick="completeRestock()">Record restock</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== RESTOCK CONFIRM ===== -->
+      <div class="screen" id="s-restockConfirm">
+        <div class="confirm">
+          <div class="ok" style="background:var(--purple-l)"><svg viewBox="0 0 24 24" fill="none" style="color:var(--purple-d)"><path d="M12 3v12M7 10l5 5 5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+          <h2>Stock added</h2>
+          <div class="ref num" id="rsConfRef">PUR-2026-00018</div>
+          <div class="recap">
+            <div class="r"><span class="k">Total purchase</span><span class="v num" id="rsConfTotal">GHS 0.00</span></div>
+            <div class="r"><span class="k">Items</span><span class="v num" id="rsConfItems">0</span></div>
+            <div class="r"><span class="k">Paid by</span><span class="v" id="rsConfPay">Cash</span></div>
+            <div class="r" id="rsConfSupRow" style="display:none"><span class="k">Owed to</span><span class="v" id="rsConfSup">—</span></div>
+          </div>
+          <div style="margin-top:18px;background:var(--teal-l);border:1px solid #bfe0cd;border-radius:13px;padding:12px 14px;display:flex;gap:9px;align-items:flex-start;width:100%">
+            <svg viewBox="0 0 24 24" fill="none" style="width:17px;height:17px;color:var(--teal-d);flex-shrink:0;margin-top:1px"><path d="M9 11l3 3 8-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p style="font-size:12.5px;color:var(--teal-d);line-height:1.5;text-align:left">Stock levels updated and each product's average cost recalculated from what you just paid.</p>
+          </div>
+        </div>
+        <div class="grow"></div>
+        <button class="btn" style="background:var(--purple)" onclick="resetRestock();go('restock')">Restock more</button>
+        <div class="gap-s"></div>
+        <button class="btn ghost" onclick="resetRestock();go('dashboard')">Back to home</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== EXPENSE ===== -->
+      <div class="screen" id="s-expense">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Record an expense</span></div>
+        <div class="gap"></div>
+        <p class="lab" style="margin:0 22px 8px">Amount spent</p>
+        <div class="field"><div class="iwrap"><span class="cur">GHS</span><input class="inp big cur-pad" value="35.00" readonly></div></div>
+        <p class="lab" style="margin:0 22px 10px">Category</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 22px 16px">
+          <div style="padding:11px 8px;border-radius:12px;background:var(--blue);color:#fff;text-align:center;font-size:12.5px;font-weight:600">Transport</div>
+          <div style="padding:11px 8px;border-radius:12px;background:var(--white);border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-soft)">Rent</div>
+          <div style="padding:11px 8px;border-radius:12px;background:var(--white);border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-soft)">Wages</div>
+          <div style="padding:11px 8px;border-radius:12px;background:var(--white);border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-soft)">Utilities</div>
+          <div style="padding:11px 8px;border-radius:12px;background:var(--white);border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-soft)">Packaging</div>
+          <div style="padding:11px 8px;border-radius:12px;background:var(--white);border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-soft)">Other</div>
+        </div>
+        <p class="lab" style="margin:0 22px 10px">Paid with</p>
+        <div class="seg"><div class="s on">Cash</div><div class="s">MoMo</div><div class="s">Bank</div></div>
+        <div class="field"><label>Paid to (optional)</label><input class="inp" placeholder="e.g. Trotro fare" readonly></div>
+        <div class="grow"></div>
+        <button class="btn" onclick="go('dashboard')">Save expense</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== PEOPLE (debtors/creditors) ===== -->
+      <div class="screen" id="s-people">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">People</span></div>
+        <div class="seg"><div class="s on">Owes you</div><div class="s">You owe</div></div>
+        <div style="margin:0 20px 8px;background:var(--blue);border-radius:16px;padding:17px 19px;color:#eaf4ff">
+          <div style="font-size:12.5px;color:#b9d4ef;font-weight:600">Total owed to you</div>
+          <div class="num" style="font-weight:800;font-size:29px;margin-top:4px">GHS 1,240.00</div>
+          <div style="font-size:12.5px;color:#cfe2f7;margin-top:5px">5 people · <span style="color:#f3c969;font-weight:600">2 overdue</span></div>
+        </div>
+        <div class="secrow" style="padding-bottom:8px"><span class="lab">Most urgent first</span></div>
+        <div class="card">
+          <div class="row" onclick="go('payment')"><div class="ic ic-debt"><span style="font-weight:700;color:var(--amber-d);font-size:15px">K</span></div><div class="m"><div class="t">Kwame Boateng</div><div class="s"><span class="pill over">Overdue 4d</span></div></div><div class="a num">520.00</div></div>
+          <div class="row" onclick="go('payment')"><div class="ic ic-debt"><span style="font-weight:700;color:var(--amber-d);font-size:15px">A</span></div><div class="m"><div class="t">Ama Serwaa</div><div class="s"><span class="pill over">Overdue 1d</span></div></div><div class="a num">300.00</div></div>
+          <div class="row" onclick="go('payment')"><div class="ic ic-debt"><span style="font-weight:700;color:var(--amber-d);font-size:15px">Y</span></div><div class="m"><div class="t">Yaw Mensah</div><div class="s"><span class="pill soon">Due in 3d</span></div></div><div class="a num">220.00</div></div>
+          <div class="row" onclick="go('payment')"><div class="ic ic-debt"><span style="font-weight:700;color:var(--amber-d);font-size:15px">E</span></div><div class="m"><div class="t">Efua Darko</div><div class="s">No due date</div></div><div class="a num">120.00</div></div>
+          <div class="row" onclick="go('payment')"><div class="ic ic-debt"><span style="font-weight:700;color:var(--amber-d);font-size:15px">K</span></div><div class="m"><div class="t">Kojo Antwi</div><div class="s">No due date</div></div><div class="a num">80.00</div></div>
+        </div>
+        <div class="b80"></div>
+        <div class="nav">
+          <div class="n" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></div>
+          <div class="n" onclick="go('reportPnl')"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Reports</span></div>
+          <div class="fab" onclick="go('pos')"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+          <div class="n on"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="2"/><path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>People</span></div>
+          <div class="n"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 0 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 4 13.6a2 2 0 0 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 10.6 5a2 2 0 0 1 4 0 1.6 1.6 0 0 0 2.7 1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 19 9.4Z" stroke="currentColor" stroke-width="1.7"/></svg><span>Settings</span></div>
+        </div>
+      </div>
+
+      <!-- ===== RECORD PAYMENT ===== -->
+      <div class="screen" id="s-payment">
+        <div class="topbar"><div class="back" onclick="go('people')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Record payment</span></div>
+        <div class="gap"></div>
+        <div style="margin:0 22px 18px;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:15px 17px;display:flex;align-items:center;gap:13px">
+          <div class="ic ic-debt" style="width:46px;height:46px;border-radius:14px;display:grid;place-items:center"><span style="font-weight:700;color:var(--amber-d);font-size:17px">K</span></div>
+          <div style="flex:1"><div style="font-weight:700;font-size:16px;color:var(--ink)">Kwame Boateng</div><div style="font-size:12.5px;color:var(--mute)">Owes <b class="num" style="color:var(--coral-d)">GHS 520.00</b> · <span style="color:var(--coral-d);font-weight:600">overdue</span></div></div>
+        </div>
+        <p class="lab" style="margin:0 22px 8px">Amount received</p>
+        <div class="field"><div class="iwrap"><span class="cur">GHS</span><input class="inp big cur-pad" value="520.00" readonly></div></div>
+        <div style="display:flex;gap:9px;padding:0 22px 16px">
+          <div style="flex:1;padding:9px;border-radius:11px;background:var(--teal-l);color:var(--teal-d);text-align:center;font-size:12.5px;font-weight:700;border:1px solid #bfe0cd">Full amount</div>
+          <div style="flex:1;padding:9px;border-radius:11px;background:var(--white);border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-soft)">Part payment</div>
+        </div>
+        <p class="lab" style="margin:0 22px 10px">Received as</p>
+        <div class="seg"><div class="s on">Cash</div><div class="s">MoMo</div><div class="s">Bank</div></div>
+        <div class="grow"></div>
+        <button class="btn teal" onclick="go('people')">Record GHS 520.00</button>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== REPORT: P&L ===== -->
+      <div class="screen" id="s-reportPnl">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Reports</span></div>
+        <div class="seg"><div class="s on">Profit</div><div class="s" onclick="go('reportCash')">Cash</div><div class="s" onclick="go('reportPeople')">People</div></div>
+        <div class="chips3" id="pnlChips">
+          <div class="tchip on" data-pd="this" onclick="setPeriod('this')">This month</div>
+          <div class="tchip" data-pd="last" onclick="setPeriod('last')">Last month</div>
+          <div class="tchip" data-pd="custom" onclick="setPeriod('custom')">Custom</div>
+        </div>
+        <div id="pnlCustom" style="display:none;margin:0 20px 14px;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:12px 14px">
+          <div style="display:flex;gap:10px">
+            <div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--mute);margin-bottom:4px">From</div><div class="inp sel" style="padding:10px 12px"><span class="val" style="font-size:14px">1 Jan 2026</span><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+            <div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--mute);margin-bottom:4px">To</div><div class="inp sel" style="padding:10px 12px"><span class="val" style="font-size:14px">25 Jun 2026</span><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+          </div>
+        </div>
+        <div class="bigfig"><div class="l" id="pnlLabel">Estimated profit · June</div><div class="v num" id="pnlFigure" style="color:var(--teal-d)">~1,860<span style="font-size:19px;color:var(--mute);font-weight:600">.00</span></div></div>
+        <div class="gap"></div>
+        <div id="pnlEst"></div>
+        <div class="pnl" id="pnlLines"></div>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== REPORT: CASH ===== -->
+      <div class="screen" id="s-reportCash">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Reports</span></div>
+        <div class="seg"><div class="s" onclick="go('reportPnl')">Profit</div><div class="s on">Cash</div><div class="s" onclick="go('reportPeople')">People</div></div>
+        <div class="bigfig"><div class="l">Total cash & balances</div><div class="v num" style="color:var(--ink)">3,420<span style="font-size:19px;color:var(--mute);font-weight:600">.50</span></div></div>
+        <div class="gap"></div>
+        <p class="lab" style="margin:0 20px 10px">Where your money is</p>
+        <div class="card">
+          <div class="row"><div class="ic ic-in"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12.5" r="2.4" stroke="currentColor" stroke-width="2"/></svg></div><div class="m"><div class="t">Cash on hand</div><div class="s">In the till</div></div><div class="a num">1,840.50</div></div>
+          <div class="row"><div class="ic" style="background:#fde9d8"><span style="font-weight:800;font-size:10px;color:#cc6b1f">MTN</span></div><div class="m"><div class="t">MTN MoMo</div><div class="s">Mobile money</div></div><div class="a num">980.00</div></div>
+          <div class="row"><div class="ic" style="background:var(--blue-l)"><span style="font-weight:800;font-size:10px;color:var(--blue)">TEL</span></div><div class="m"><div class="t">Telecel Cash</div><div class="s">Mobile money</div></div><div class="a num">120.00</div></div>
+          <div class="row"><div class="ic ic-in"><svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V10M19 21V10M3 10l9-6 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="m"><div class="t">Bank account</div><div class="s">GCB</div></div><div class="a num">480.00</div></div>
+        </div>
+        <div class="gap-l"></div>
+      </div>
+
+      <!-- ===== REPORT: PEOPLE ===== -->
+      <div class="screen" id="s-reportPeople">
+        <div class="topbar"><div class="back" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="ttl">Reports</span></div>
+        <div class="seg"><div class="s" onclick="go('reportPnl')">Profit</div><div class="s" onclick="go('reportCash')">Cash</div><div class="s on">People</div></div>
+        <div style="display:flex;gap:11px;margin:0 20px 16px">
+          <div style="flex:1;background:var(--blue);border-radius:15px;padding:15px;color:#eaf4ff"><div style="font-size:11.5px;color:#b9d4ef;font-weight:600">Owed to you</div><div class="num" style="font-weight:800;font-size:22px;margin-top:4px">1,240</div></div>
+          <div style="flex:1;background:var(--white);border:1px solid var(--line);border-radius:15px;padding:15px"><div style="font-size:11.5px;color:var(--mute);font-weight:600">You owe</div><div class="num" style="font-weight:800;font-size:22px;margin-top:4px;color:var(--coral-d)">600</div></div>
+        </div>
+        <div style="margin:0 20px 18px;background:var(--amber-l);border:1px solid #f0dcaf;border-radius:14px;padding:14px;text-align:center"><div style="font-size:12.5px;color:var(--amber-d);font-weight:600">Net position</div><div class="num" style="font-weight:800;font-size:23px;color:#8a6d12;margin-top:3px">+ GHS 640.00</div></div>
+        <p class="lab" style="margin:0 20px 10px">Owes you · top</p>
+        <div class="card" style="margin-bottom:14px">
+          <div class="row"><div class="m"><div class="t">Kwame Boateng</div><div class="s"><span class="pill over">Overdue</span></div></div><div class="a num">520.00</div></div>
+          <div class="row"><div class="m"><div class="t">Ama Serwaa</div><div class="s"><span class="pill over">Overdue</span></div></div><div class="a num">300.00</div></div>
+          <div class="row"><div class="m"><div class="t">Yaw Mensah</div><div class="s"><span class="pill soon">Due soon</span></div></div><div class="a num">220.00</div></div>
+        </div>
+        <p class="lab" style="margin:0 20px 10px">You owe · top</p>
+        <div class="card"><div class="row"><div class="m"><div class="t">Melcom Supplies</div><div class="s">No due date</div></div><div class="a neg num">400.00</div></div>
+          <div class="row"><div class="m"><div class="t">Kasapreko Depot</div><div class="s">Due in 5d</div></div><div class="a neg num">200.00</div></div>
+        </div>
+        <div class="gap-l"></div>
+      </div>
+
+      </div><!-- /views -->
+
+      <!-- bottom sheet picker -->
+      <div class="sheet" id="sheet"><div class="inner"><div class="grab"></div><h4 id="sheetTitle">Pick one</h4><div id="sheetOpts"></div></div></div>
+
+    </div></div><!-- /device /phone -->
+    <button class="reset" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Restart from welcome</button>
+  </div>
+
+
+  <!-- ============ RIGHT PANEL ============ -->
+  <div class="panel">
+    <div class="crumb" id="crumb"></div>
+    <div class="pcard" id="pcard"></div>
+
+    <div class="map">
+      <div class="mt">Jump to any screen</div>
+      <div class="grp"><div class="gl">1 · Getting in</div><div class="chips">
+        <span class="mchip" data-go="welcome">Welcome</span>
+        <span class="mchip" data-go="signup1">Signup 1–4</span>
+        <span class="mchip" data-go="otp">Verify</span>
+        <span class="mchip" data-go="login">Login</span>
+      </div></div>
+      <div class="grp"><div class="gl">2 · Home</div><div class="chips">
+        <span class="mchip" data-go="dashboard">Dashboard</span>
+      </div></div>
+      <div class="grp"><div class="gl">3 · The POS</div><div class="chips">
+        <span class="mchip" data-go="products">Products</span>
+        <span class="mchip" data-go="productNew">Add product</span>
+        <span class="mchip" data-go="pos">Sell (POS)</span>
+        <span class="mchip" data-go="posConfirm">Sale done</span>
+        <span class="mchip" data-go="restock">Restock</span>
+        <span class="mchip" data-go="restockConfirm">Restock done</span>
+      </div></div>
+      <div class="grp"><div class="gl">4 · Money in & out</div><div class="chips">
+        <span class="mchip" data-go="expense">Expense</span>
+        <span class="mchip" data-go="people">Debtors</span>
+        <span class="mchip" data-go="payment">Take payment</span>
+      </div></div>
+      <div class="grp"><div class="gl">5 · Reports</div><div class="chips">
+        <span class="mchip" data-go="reportPnl">Profit</span>
+        <span class="mchip" data-go="reportCash">Cash</span>
+        <span class="mchip" data-go="reportPeople">People</span>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- endpoint annotations per screen ----------
+const A = {
+  welcome:{c:"1 · Getting in › Welcome",h:"Landing",d:"The entry point. No API calls — just routes to signup or login.",eps:[]},
+  signup1:{c:"1 · Getting in › Sign up (1/4)",h:"Sign up — step 1",d:"A multi-step form so the 10 signup fields don't overwhelm. Nothing is sent until the last step; these steps just collect input on the device.",eps:[
+    {m:"info",note:"Collects <code>businessName</code> + <code>businessType</code>. <code>businessType</code> is one of: provision_store, supermarket, pharmacy, … or <code>other</code> (shown as \"Kofi's Business\")."}]},
+  signup2:{c:"1 · Getting in › Sign up (2/4)",h:"Sign up — step 2",d:"Owner identity and where the shop trades. Still local — no request yet.",eps:[
+    {m:"info",note:"Collects <code>ownerName</code>, <code>phoneNumber</code>, <code>locationRegion</code>, <code>locationDistrict</code>. Region/district feed the two pickers."}]},
+  signup3:{c:"1 · Getting in › Sign up (3/4)",h:"Sign up — step 3",d:"How the business records money. This decides which home screen they get.",eps:[
+    {m:"info",note:"Collects <code>tier</code> (tier1 / tier2) and <code>recordingMode</code> (daily_summary / transaction). Tier 2 unlocks the POS."}]},
+  signup4:{c:"1 · Getting in › Sign up (4/4)",h:"Sign up — submit",d:"The login details. Tapping the button is the one moment all 10 fields are sent. The account is created unverified and a code is emailed.",eps:[
+    {m:"POST",p:"/auth/signup",note:"Body has all 10 fields: <code>businessName, businessType, ownerName, phoneNumber, locationRegion, locationDistrict, tier, recordingMode, email, password</code>. Returns <code>{ message, email }</code> — <b>no tokens yet</b>. Then go to the verify screen. Existing verified email → <code>409</code>."}]},
+  otp:{c:"1 · Getting in › Verify email",h:"Verify email — the unlock",d:"Owner types the 6-digit code. On success the account is verified, the 25-account chart is seeded, and tokens come back. This is the real login moment.",eps:[
+    {m:"POST",p:"/auth/verify-email",note:"Body <code>{ email, code }</code> → returns <code>accessToken, refreshToken, business, user</code>. <b>Store the tokens</b> and go to Dashboard. Wrong code → <code>400</code>; too many tries → <code>429</code>."},
+    {m:"POST",p:"/auth/resend-verification",note:"For \"Resend code\". Body <code>{ email }</code>, rate-limited — respect the countdown."}]},
+  login:{c:"1 · Getting in › Login",h:"Log in",d:"Returning owners. Returns the same token + business + user payload as verify.",eps:[
+    {m:"POST",p:"/auth/login",note:"Body <code>{ strategy:\"email_password\", email, password }</code> → tokens + business + user. Unverified account → <code>403</code> (a fresh code is sent) → route to Verify."},
+    {m:"POST",p:"/auth/forgot-password",note:"\"Forgot password?\" emails a reset code, then <code>/auth/reset-password { email, code, newPassword }</code> completes it."}]},
+  dashboard:{c:"2 · Home › Dashboard",h:"Dashboard — the money glance",d:"Loads on open. The three numbers an owner needs: cash now, who-owes-who, this month. Several read endpoints in parallel; every one needs the Bearer token.",eps:[
+    {m:"GET",p:"/reports/cash-position",lock:1,note:"The hero \"Cash on hand\" — total across cash, each MoMo wallet, and bank."},
+    {m:"GET",p:"/reports/debtors-summary",lock:1,note:"\"Owed to you\" = its <code>totalOwed</code>."},
+    {m:"GET",p:"/reports/creditors-summary",lock:1,note:"\"You owe\" = its <code>totalOwed</code>."},
+    {m:"GET",p:"/reports/profit-loss",lock:1,note:"\"This month\" sales + profit. Show \"~ est\" when <code>confidenceLevel</code> isn't <code>high</code>."},
+    {m:"info",note:"Greeting name + business come from the stored login/verify response (a live <code>/auth/me</code> isn't built yet). \"Recent\" can be assembled from each module's latest records for now."}]},
+  products:{c:"3 · The POS › Products",h:"Product catalogue",d:"The owner's product list — search-first, since the POS searches the same way. Reading is open to any signed-in user (cashiers must see products to sell).",eps:[
+    {m:"GET",p:"/products",lock:1,note:"Lists active products. Add <code>?search=cowbell</code> to filter by name. Each has <code>sellingPrice, costPrice, currentStockQty, minimumStockQty</code> — the low-stock pill compares the last two."},
+    {m:"GET",p:"/products/:id",lock:1,note:"Tapping a product opens its detail/edit view."},
+    {m:"DEL",p:"/products/:id",lock:1,note:"Deactivates (soft-delete) — owner/manager only. History is preserved."}]},
+  productNew:{c:"3 · The POS › Add product",h:"Create a product",d:"Catalogue data only — adding a product posts nothing to the books. Owner/manager only.",eps:[
+    {m:"POST",p:"/products",lock:1,note:"Body: <code>name, sellingPrice</code> (req), <code>costPrice</code> (req), <code>openingQty</code> (→ becomes current stock), <code>minimumStockQty</code>, <code>unitOfMeasure</code> (default \"piece\"), optional <code>sku</code>, <code>categoryId</code>. Returns <code>201</code> with the product. <b>Cost price is required</b> — it's how profit is computed on every sale."}]},
+  pos:{c:"3 · The POS › Sell",h:"The POS — record a sale",d:"Search-first cart. The cashier sends only product IDs + quantities; the backend looks up prices and does all the accounting. Picking \"On credit\" reveals the customer fields. Try it — search, tap, change quantities, switch payment.",eps:[
+    {m:"GET",p:"/products?search=",lock:1,note:"Powers the live product search and the frequent-items shortcuts."},
+    {m:"POST",p:"/sales",lock:1,note:"Body: <code>paymentMethod</code> (cash / mtn_momo / telecel / airtel / bank / credit) + <code>items: [{ productId, quantity }]</code> (≥1, quantity &gt; 0). <b>No prices sent</b> — the server reads them. If <code>credit</code>, <code>customerName</code> is <b>required</b> (+ optional <code>customerPhone</code>, <code>dueDate</code>) and a debtor record is created. Returns <code>{ referenceNumber, totalRevenue, totalCogs, grossProfit, itemCount, isCredit }</code>."}]},
+  posConfirm:{c:"3 · The POS › Sale done",h:"Sale confirmation",d:"Renders the response from POST /sales. No new call — this is just the returned receipt.",eps:[
+    {m:"info",note:"Shows <code>referenceNumber</code>, <code>totalRevenue</code>, <code>itemCount</code>, and <code>grossProfit</code> straight from the create-sale response. Stock and the 4 journal lines were updated server-side, invisibly."}]},
+  restock:{c:"3 · The POS › Restock",h:"Restock — the mirror of a sale",d:"Same register, opposite direction. A sale sends stock and COGS out; a restock brings stock in. Per line you set quantity <b>and unit cost</b> — that cost is what recalculates each product's weighted-average cost. No profit or COGS here; buying stock isn't a sale.",eps:[
+    {m:"GET",p:"/products?search=",lock:1,note:"Same product search as the sell side, powering the search box and frequent-item shortcuts."},
+    {m:"POST",p:"/purchases",lock:1,note:"Body: <code>paymentMethod</code> + <code>items: [{ productId, quantity, unitCost }]</code> — note <b>unitCost is sent</b> (unlike a sale, where the server reads the price). Effect: stock goes <b>up</b>, <code>costPrice</code> becomes the weighted average <code>(oldQty×oldCost + buyQty×buyCost) / (oldQty+buyQty)</code>, and 2 journal lines post (debit Stock, credit the money/Creditors account)."},
+    {m:"info",note:"If <code>credit</code>: send <code>creditorId</code> for an existing supplier, or <code>supplierName</code> (+ optional <code>supplierPhone</code>, <code>dueDate</code>) for a new one — that's the \"Existing / New supplier\" toggle. A creditor + payable record is created. Gated to owner / manager / stock_manager and requires onboarding."}]},
+  restockConfirm:{c:"3 · The POS › Restock done",h:"Restock confirmation",d:"Renders the response from POST /purchases. No new call.",eps:[
+    {m:"info",note:"Shows <code>referenceNumber</code> (PUR-…), <code>totalPurchaseValue</code>, <code>itemCount</code>, and the supplier owed if it was credit. Stock and each product's average cost were updated server-side."}]},
+  expense:{c:"4 · Money › Expense",h:"Record an expense",d:"Amount + category + how it was paid. The category maps to the expense account, the payment method to the money account it left.",eps:[
+    {m:"POST",p:"/expenses",lock:1,note:"Body: <code>amount, category</code> (rent / wages / transport / …), <code>paymentMethod</code>, optional <code>paidTo</code>, <code>notes</code>. Returns the created expense."}]},
+  people:{c:"4 · Money › Debtors",h:"Debtors — who owes you",d:"Sorted most-urgent-first with an overdue count. The \"You owe\" tab is the same screen for suppliers.",eps:[
+    {m:"GET",p:"/reports/debtors-summary",lock:1,note:"Top strip + the per-person list with <code>isOverdue</code> / <code>isDueSoon</code> for the pills."},
+    {m:"GET",p:"/reports/creditors-summary",lock:1,note:"The \"You owe\" tab — same shape, for suppliers."}]},
+  payment:{c:"4 · Money › Take payment",h:"Record a debtor payment",d:"Tapping a person opens this. Full or part payment, and how it came in. Reduces what they owe, increases the chosen money account.",eps:[
+    {m:"POST",p:"/debtors/:id/payments",lock:1,note:"Body: <code>amountPaid, paymentMethod, paymentDate</code>, optional <code>notes</code>. Updates the debt's <code>amountOutstanding</code> and status (partial / paid). <b>Mirror for suppliers:</b> <code>POST /creditors/:id/payments</code>."}]},
+  reportPnl:{c:"5 · Reports › Profit",h:"Profit & loss",d:"\"Am I making money?\" Sales − cost of goods − expenses over a range. Profit is shown honestly as an estimate with a confidence level.",eps:[
+    {m:"GET",p:"/reports/profit-loss",lock:1,note:"Optional <code>?startDate=&endDate=</code> drive the period chips. Returns <code>totalSales, cogs, otherIncome, totalExpenses, netProfit</code> + <code>confidenceLevel</code>. Render \"~\" + the note whenever it isn't <code>high</code>."}]},
+  reportCash:{c:"5 · Reports › Cash",h:"Cash position",d:"\"How much do I have, and where?\" Total plus a breakdown by cash / each MoMo wallet / bank.",eps:[
+    {m:"GET",p:"/reports/cash-position",lock:1,note:"Returns <code>totalCash</code> + a per-account list (<code>accountName, subtype, balance</code>). Same call feeds the dashboard hero."}]},
+  reportPeople:{c:"5 · Reports › People",h:"People — net position",d:"Both sides on one screen: what you're owed, what you owe, and the net.",eps:[
+    {m:"GET",p:"/reports/debtors-summary",lock:1,note:"\"Owed to you\" + top debtors."},
+    {m:"GET",p:"/reports/creditors-summary",lock:1,note:"\"You owe\" + top creditors. <b>Net</b> = debtors − creditors, computed on the client."}]}
+};
+
+const screenForMap = id => (id.startsWith('signup')?'signup1':id);
+
+function renderPanel(id){
+  const a = A[id]; if(!a) return;
+  document.getElementById('crumb').innerHTML = a.c.split('›').map((p,i)=> i? '<span style="color:#5f7794">›</span> <b>'+p.trim()+'</b>' : '<b>'+p.trim()+'</b>').join(' ');
+  let html = '<h3>'+a.h+'</h3><div class="desc">'+a.d+'</div>';
+  if(!a.eps.length){ html += '<div class="nomap">No API call on this screen.</div>'; }
+  a.eps.forEach(e=>{
+    if(e.m==='info'){
+      html += '<div class="ep"><div class="ln"><span class="meth" style="background:#5a6b80">NOTE</span></div><p>'+e.note+'</p></div>';
+    } else {
+      const cls = {GET:'m-get',POST:'m-post',PATCH:'m-patch',DEL:'m-del'}[e.m];
+      html += '<div class="ep"><div class="ln"><span class="meth '+cls+'">'+e.m+'</span><span class="path">'+e.p+'</span>'+(e.lock?'<span class="lock">🔒</span>':'')+'</div><p>'+e.note+'</p></div>';
+    }
+  });
+  document.getElementById('pcard').innerHTML = html;
+  // map active state
+  const cur = screenForMap(id);
+  document.querySelectorAll('.mchip').forEach(c=>c.classList.toggle('cur', c.dataset.go===cur));
+}
+
+let current='welcome';
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const el = document.getElementById('s-'+id);
+  if(el){ el.classList.add('on'); el.scrollTop=0; current=id; renderPanel(id); }
+  closeSheet();
+}
+document.querySelectorAll('.mchip').forEach(c=>c.onclick=()=>go(c.dataset.go));
+
+// ---------- bottom-sheet pickers ----------
+const SHEETS = {
+  type:{title:"What kind of business?",target:"typeVal",opts:["Provision store","Supermarket","Pharmacy","Hardware store","Cosmetics shop","Phone accessories","Other"]},
+  region:{title:"Region",target:"regionVal",opts:["Greater Accra","Ashanti","Western","Eastern","Central","Northern","Volta"]},
+  district:{title:"District",target:"districtVal",opts:["Ablekuma North","Ayawaso West","Okaikwei North","Tema West","Ga East","Ledzokuku"]},
+  supplier:{title:"Choose supplier",target:"supplierVal",opts:["Melcom Supplies","Kasapreko Depot","Unilever Distributor","Cowbell Agent","Local market trader"]}
+};
+let activeSheet=null;
+function openSheet(key){
+  activeSheet=key; const s=SHEETS[key];
+  document.getElementById('sheetTitle').textContent=s.title;
+  const cur=document.getElementById(s.target).textContent;
+  document.getElementById('sheetOpts').innerHTML = s.opts.map(o=>
+    '<div class="sopt'+(o===cur?' sel':'')+'" onclick="pickSheet(\''+o.replace(/'/g,"")+'\')"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+o+'</div>').join('');
+  document.getElementById('sheet').classList.add('on');
+}
+function pickSheet(val){ const s=SHEETS[activeSheet]; document.getElementById(s.target).textContent=val; closeSheet(); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); }
+document.getElementById('sheet').addEventListener('click',e=>{ if(e.target.id==='sheet') closeSheet(); });
+
+function pickChoice(group,val){
+  document.querySelectorAll('[id^="'+group+'-"]').forEach(c=>c.classList.remove('sel'));
+  document.getElementById(group+'-'+val).classList.add('sel');
+}
+
+// ---------- POS cart ----------
+const CATALOGUE = [
+  {id:'p1',name:'Cowbell Milk 400g',price:25,cost:20,stock:48,freq:true},
+  {id:'p2',name:'Rice 5kg',price:50,cost:40,stock:30,freq:true},
+  {id:'p3',name:'Cooking Oil 1L',price:35,cost:28,stock:8,freq:true},
+  {id:'p4',name:'Milo 500g',price:45,cost:38,stock:18,freq:true},
+  {id:'p5',name:'Sugar 1kg',price:12,cost:9,stock:60,freq:false},
+  {id:'p6',name:'Key Soap',price:6,cost:4,stock:90,freq:false},
+];
+let cart={}, payMethod='cash';
+const money = n => 'GHS '+n.toFixed(2);
+const $ = id => document.getElementById(id);
+
+function renderFreq(){
+  $('freqChips').innerHTML = CATALOGUE.filter(p=>p.freq).map(p=>
+    '<div class="fchip" onclick="addCart(\''+p.id+'\')"><div class="t">'+p.name.split(' ')[0]+'</div><div class="p">'+money(p.price)+'</div></div>').join('');
+}
+function renderResults(q){
+  const box=$('posResults');
+  if(!q.trim()){ box.innerHTML=''; $('posFreq').style.display='block'; return; }
+  $('posFreq').style.display='none';
+  const m=CATALOGUE.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
+  if(!m.length){ box.innerHTML='<div style="font-size:13px;color:var(--mute);padding:6px 2px 12px">No products found</div>'; return; }
+  box.innerHTML=m.map(p=>
+    '<div class="pres" onclick="addCart(\''+p.id+'\')"><div class="nm"><div class="t">'+p.name+'</div><div class="s">'+p.stock+' in stock</div></div><div class="pr">'+money(p.price)+'</div><div class="add"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>').join('');
+}
+function addCart(id){
+  const p=CATALOGUE.find(x=>x.id===id);
+  if(!cart[id]) cart[id]={...p,qty:0};
+  if(cart[id].qty<p.stock) cart[id].qty++;
+  $('posSearch').value=''; renderResults(''); renderCart();
+}
+function chQty(id,d){ if(!cart[id])return; cart[id].qty+=d; if(cart[id].qty<=0) delete cart[id]; else if(cart[id].qty>cart[id].stock) cart[id].qty=cart[id].stock; renderCart(); }
+function renderCart(){
+  const items=Object.values(cart); const el=$('posCart');
+  if(!items.length){ el.innerHTML='<div class="cart-empty">Cart is empty — search or tap a frequent item</div>'; }
+  else {
+    el.innerHTML=items.map(it=>
+      '<div class="citem"><div class="nm"><div class="t">'+it.name+'</div><div class="s">'+money(it.price)+' each</div></div><div class="qty"><div class="qbtn" onclick="chQty(\''+it.id+'\',-1)">−</div><span class="q num">'+it.qty+'</span><div class="qbtn" onclick="chQty(\''+it.id+'\',1)">+</div></div></div>').join('');
+  }
+  const total=items.reduce((s,it)=>s+it.price*it.qty,0);
+  const cogs=items.reduce((s,it)=>s+it.cost*it.qty,0);
+  const count=items.reduce((s,it)=>s+it.qty,0);
+  $('posTotal').textContent=money(total);
+  $('posCount').textContent=count;
+  $('posProfit').textContent=money(total-cogs);
+}
+function selectPay(pm){
+  payMethod=pm;
+  document.querySelectorAll('#payPills .pay').forEach(b=>b.classList.toggle('on',b.dataset.pm===pm));
+  $('creditBox').classList.toggle('on',pm==='credit');
+}
+function completeSale(){
+  const items=Object.values(cart);
+  if(!items.length){ alert('Add at least one item first.'); return; }
+  const total=items.reduce((s,it)=>s+it.price*it.qty,0);
+  const cogs=items.reduce((s,it)=>s+it.cost*it.qty,0);
+  const count=items.reduce((s,it)=>s+it.qty,0);
+  const labels={cash:'Cash',mtn_momo:'MTN MoMo',bank:'Bank',credit:'On credit'};
+  $('confTotal').textContent=money(total);
+  $('confItems').textContent=count;
+  $('confPay').textContent=labels[payMethod];
+  $('confProfit').textContent=money(total-cogs);
+  $('confRef').textContent='RCP-2026-000'+(42+Math.floor(Math.random()*8));
+  go('posConfirm');
+}
+function resetPos(){ cart={}; payMethod='cash'; renderCart(); selectPay('cash'); $('posSearch').value=''; renderResults(''); }
+
+// ---------- RESTOCK (purchase) ----------
+let rsCart={}, rsPayMethod='cash', supModeVal='exist';
+function rsRenderFreq(){
+  $('rsFreqChips').innerHTML = CATALOGUE.filter(p=>p.freq).map(p=>
+    '<div class="fchip" onclick="rsAdd(\''+p.id+'\')"><div class="t">'+p.name.split(' ')[0]+'</div><div class="p">cost '+money(p.cost)+'</div></div>').join('');
+}
+function rsRenderResults(q){
+  const box=$('rsResults');
+  if(!q.trim()){ box.innerHTML=''; $('rsFreq').style.display='block'; return; }
+  $('rsFreq').style.display='none';
+  const m=CATALOGUE.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
+  if(!m.length){ box.innerHTML='<div style="font-size:13px;color:var(--mute);padding:6px 2px 12px">No products found</div>'; return; }
+  box.innerHTML=m.map(p=>
+    '<div class="pres" onclick="rsAdd(\''+p.id+'\')"><div class="nm"><div class="t">'+p.name+'</div><div class="s">'+p.stock+' in stock · last cost '+money(p.cost)+'</div></div><div class="add"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>').join('');
+}
+function rsAdd(id){
+  const p=CATALOGUE.find(x=>x.id===id);
+  if(!rsCart[id]) rsCart[id]={...p,qty:10,unitCost:p.cost};
+  $('rsSearch').value=''; rsRenderResults(''); rsRenderCart();
+}
+function rsRemove(id){ delete rsCart[id]; rsRenderCart(); }
+function rsSet(id,field,val){
+  if(!rsCart[id])return;
+  const n=parseFloat(val); rsCart[id][field]= isNaN(n)?0:n; rsRenderTotals();
+}
+function rsRenderCart(){
+  const items=Object.values(rsCart); const el=$('rsCart');
+  if(!items.length){ el.innerHTML='<div class="cart-empty">Nothing added yet — search or tap a frequent item</div>'; rsRenderTotals(); return; }
+  el.innerHTML=items.map(it=>{
+    const lt=(it.qty*it.unitCost)||0;
+    return '<div class="rline"><div class="top"><div class="nm"><div class="t">'+it.name+'</div><div class="s">now '+it.stock+' in stock · avg cost updates</div></div><div class="rm" onclick="rsRemove(\''+it.id+'\')"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>'+
+    '<div class="ins"><div class="fc"><label>Quantity</label><div class="ib"><input type="number" value="'+it.qty+'" oninput="rsSet(\''+it.id+'\',\'qty\',this.value)"></div></div>'+
+    '<div class="fc"><label>Unit cost</label><div class="ib"><span>GHS</span><input type="number" value="'+it.unitCost+'" oninput="rsSet(\''+it.id+'\',\'unitCost\',this.value)"></div></div>'+
+    '<div class="lt"><div class="ll">Line</div><div class="lv num" id="rslt-'+it.id+'">'+money(lt)+'</div></div></div></div>';
+  }).join('');
+  rsRenderTotals();
+}
+function rsRenderTotals(){
+  const items=Object.values(rsCart);
+  let total=0,count=0;
+  items.forEach(it=>{ const lt=(it.qty*it.unitCost)||0; total+=lt; count+=Number(it.qty)||0; const e=$('rslt-'+it.id); if(e)e.textContent=money(lt); });
+  $('rsTotal').textContent=money(total);
+  $('rsCount').textContent=count;
+}
+function rsPay(pm){
+  rsPayMethod=pm;
+  document.querySelectorAll('#rsPayPills .pay').forEach(b=>b.classList.toggle('on',b.dataset.pm===pm));
+  $('supBox').classList.toggle('on',pm==='credit');
+  $('rsStockNote').textContent = pm==='credit' ? 'Stock up · you\u2019ll owe the supplier' : 'Stock goes up · no profit yet';
+}
+function supMode(m){
+  supModeVal=m;
+  document.querySelectorAll('#supBox .ss').forEach((s,i)=>s.classList.toggle('on',(m==='exist'&&i===0)||(m==='newsup'&&i===1)));
+  $('supBox').classList.remove('exist','newsup'); $('supBox').classList.add(m);
+}
+function completeRestock(){
+  const items=Object.values(rsCart);
+  if(!items.length){ alert('Add at least one item first.'); return; }
+  const total=items.reduce((s,it)=>s+(it.qty*it.unitCost||0),0);
+  const count=items.reduce((s,it)=>s+(Number(it.qty)||0),0);
+  const labels={cash:'Cash',mtn_momo:'MTN MoMo',bank:'Bank',credit:'On credit'};
+  $('rsConfTotal').textContent=money(total);
+  $('rsConfItems').textContent=count;
+  $('rsConfPay').textContent=labels[rsPayMethod];
+  $('rsConfRef').textContent='PUR-2026-000'+(18+Math.floor(Math.random()*8));
+  const supRow=$('rsConfSupRow');
+  if(rsPayMethod==='credit'){
+    supRow.style.display='flex';
+    $('rsConfSup').textContent = supModeVal==='exist' ? $('supplierVal').textContent : 'Adabraka Wholesale';
+  } else { supRow.style.display='none'; }
+  go('restockConfirm');
+}
+function resetRestock(){ rsCart={}; rsPayMethod='cash'; rsRenderCart(); rsPay('cash'); supMode('exist'); $('rsSearch').value=''; rsRenderResults(''); }
+
+function resetAll(){ resetPos(); go('welcome'); }
+
+// ---------- P&L period switcher ----------
+const PNL = {
+  this:{ label:'Estimated profit · June', fig:'~1,860', dec:'.00', custom:false,
+    est:{cls:'',html:'<b>Medium confidence.</b> Based on your margins — do a quick stock count to turn this into an exact figure.'},
+    lines:[['Sales','8,140.00',''],['Cost of goods sold','−5,180.00','coral'],['Other income','120.00',''],['Expenses','−1,220.00','coral']],
+    total:['Estimated profit','~1,860.00'] },
+  last:{ label:'Net profit · May', fig:'1,500', dec:'.00', custom:false,
+    est:{cls:'ok',html:'<b>Confirmed.</b> May is closed and was trued up with an end-of-month stock count — this figure is exact.'},
+    lines:[['Sales','6,920.00',''],['Cost of goods sold','−4,410.00','coral'],['Other income','80.00',''],['Expenses','−1,090.00','coral']],
+    total:['Net profit','1,500.00'] },
+  custom:{ label:'Estimated profit · 1 Jan – 25 Jun', fig:'~9,420', dec:'.00', custom:true,
+    est:{cls:'',html:'<b>Medium confidence.</b> Spans months with no stock count — treat as an estimate.'},
+    lines:[['Sales','41,300.00',''],['Cost of goods sold','−26,180.00','coral'],['Other income','540.00',''],['Expenses','−6,240.00','coral']],
+    total:['Estimated profit','~9,420.00'] }
+};
+function setPeriod(pd){
+  const d=PNL[pd];
+  document.querySelectorAll('#pnlChips .tchip').forEach(c=>c.classList.toggle('on',c.dataset.pd===pd));
+  document.getElementById('pnlCustom').style.display = d.custom ? 'block' : 'none';
+  document.getElementById('pnlLabel').textContent = d.label;
+  const teal = pd==='last' ? 'var(--teal-d)' : 'var(--teal-d)';
+  document.getElementById('pnlFigure').innerHTML = d.fig + '<span style="font-size:19px;color:var(--mute);font-weight:600">'+d.dec+'</span>';
+  document.getElementById('pnlFigure').style.color = teal;
+  document.getElementById('pnlEst').innerHTML =
+    '<div class="est '+d.est.cls+'"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg><p>'+d.est.html+'</p></div>';
+  let html = d.lines.map(l=>'<div class="l"><span class="k">'+l[0]+'</span><span class="v num"'+(l[2]==='coral'?' style="color:var(--coral-d)"':'')+'>'+l[1]+'</span></div>').join('');
+  html += '<div class="l tot"><span class="k">'+d.total[0]+'</span><span class="v num">'+d.total[1]+'</span></div>';
+  document.getElementById('pnlLines').innerHTML = html;
+}
+
+// init
+$('posSearch').addEventListener('input',e=>renderResults(e.target.value));
+$('rsSearch').addEventListener('input',e=>rsRenderResults(e.target.value));
+renderFreq(); renderCart(); selectPay('cash');
+rsRenderFreq(); rsRenderCart(); rsPay('cash'); supMode('exist');
+setPeriod('this');
+renderPanel('welcome');
+</script>
+</body>
+</html>
