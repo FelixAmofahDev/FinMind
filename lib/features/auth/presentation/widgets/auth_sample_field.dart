@@ -7,16 +7,32 @@ class AuthSampleField extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
+    this.controller,
     this.obscureText = false,
+    this.readOnly = true,
     this.suffix,
     this.prefixText,
+    this.keyboardType,
+    this.textInputAction,
+    this.autofillHints,
+    this.onChanged,
+    this.onTap,
+    this.autofocus = false,
   });
 
   final String label;
   final String value;
+  final TextEditingController? controller;
   final bool obscureText;
+  final bool readOnly;
   final Widget? suffix;
   final String? prefixText;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final List<String>? autofillHints;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +50,16 @@ class AuthSampleField extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         TextFormField(
-          initialValue: value,
+          controller: controller,
+          initialValue: controller == null ? value : null,
           obscureText: obscureText,
-          readOnly: true,
+          readOnly: readOnly,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          autofillHints: autofillHints,
+          onChanged: onChanged,
+          onTap: onTap,
+          autofocus: autofocus,
           decoration: InputDecoration(
             prefixText: prefixText,
             suffixIcon: suffix,

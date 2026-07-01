@@ -24,8 +24,21 @@ class AuthService {
 
   Future<String?> getRefreshToken() => _secureStorageService.getRefreshToken();
 
-  Future<void> clearAuthData() async {
-    await _secureStorageService.deleteToken();
-    await _secureStorageService.deleteRefreshToken();
-  }
+  Future<void> saveAuthSession({
+    required String accessToken,
+    required String refreshToken,
+    required Map<String, dynamic> user,
+    required Map<String, dynamic> business,
+  }) => _secureStorageService.saveAuthSession(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: user,
+        business: business,
+      );
+
+  Future<Map<String, dynamic>?> getUser() => _secureStorageService.getUser();
+
+  Future<Map<String, dynamic>?> getBusiness() => _secureStorageService.getBusiness();
+
+  Future<void> clearAuthData() => _secureStorageService.clearAuthData();
 }
