@@ -284,8 +284,8 @@ class AuthNotifier extends AsyncNotifier<AuthSession?> {
       );
       state = const AsyncData(null);
       return email;
-    } catch (error, stackTrace) {
-      state = AsyncError(error, stackTrace);
+    } catch (error) {
+      state = AsyncError(error, StackTrace.current);
       return null;
     }
   }
@@ -307,7 +307,7 @@ class AuthNotifier extends AsyncNotifier<AuthSession?> {
       final resendVerificationUseCase = await ref.read(resendVerificationUseCaseProvider.future);
       await resendVerificationUseCase(email: email);
       ref.read(verificationResendCooldownProvider.notifier).startCooldown(seconds: 60);
-    } catch (error, stackTrace) {
+    } catch (error) {
       if (error is ServerException && error.code == 429) {
         ref.read(verificationResendCooldownProvider.notifier).startCooldown(seconds: 60);
       }
