@@ -1,4 +1,5 @@
 import 'package:finmind/app/config/app_constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
 import 'router/app_router.dart';
@@ -10,14 +11,16 @@ class FinmindApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConfig.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      initialRoute: AppRoutes.welcome,
-      onGenerateRoute: AppRouter.onGenerateRoute,
+    return ProviderScope(
+      child: MaterialApp(
+        title: AppConfig.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: ThemeMode.system,
+        initialRoute: AppRoutes.authGate,
+        onGenerateRoute: AppRouter.onGenerateRoute,
+      ),
     );
   }
 }

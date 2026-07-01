@@ -2,7 +2,6 @@ import 'package:finmind/shared/widgets/app_logo.dart';
 import 'package:flutter/material.dart';
 
 import 'package:finmind/app/router/routes.dart';
-import 'package:finmind/core/theme/colors.dart';
 import 'package:finmind/core/theme/text_styles.dart';
 import 'package:finmind/shared/widgets/primary_button.dart';
 

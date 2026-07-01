@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../features/auth/presentation/pages/auth_gate_page.dart';
 import '../../features/auth/presentation/pages/email_verification_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_business_page.dart';
 import '../../features/auth/presentation/pages/signup_credentials_page.dart';
 import '../../features/auth/presentation/pages/signup_location_page.dart';
 import '../../features/auth/presentation/pages/signup_tracking_page.dart';
+import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import 'routes.dart';
 
@@ -14,6 +17,8 @@ class AppRouter {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case AppRoutes.authGate:
+        return _buildRoute(settings, const AuthGatePage());
       case AppRoutes.welcome:
         return _buildRoute(settings, const WelcomePage());
       case AppRoutes.signupBusiness:
@@ -28,14 +33,10 @@ class AppRouter {
         return _buildRoute(settings, const EmailVerificationPage());
       case AppRoutes.login:
         return _buildRoute(settings, const LoginPage());
+      case AppRoutes.onboardingComplete:
+        return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:
-        return _buildRoute(
-          settings,
-          const _ComingSoonPage(
-            title: 'Dashboard',
-            message: 'Dashboard feature is not implemented yet.',
-          ),
-        );
+        return _buildRoute(settings, const DashboardPage());
       default:
         return _buildRoute(settings, const _NotFoundPage());
     }
@@ -48,29 +49,6 @@ class AppRouter {
     return MaterialPageRoute<dynamic>(
       settings: settings,
       builder: (_) => child,
-    );
-  }
-}
-
-class _ComingSoonPage extends StatelessWidget {
-  const _ComingSoonPage({
-    required this.title,
-    required this.message,
-  });
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(message, textAlign: TextAlign.center),
-        ),
-      ),
     );
   }
 }

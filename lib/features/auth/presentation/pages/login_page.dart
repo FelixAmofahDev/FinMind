@@ -1,17 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:finmind/app/router/routes.dart';
 import 'package:finmind/core/theme/colors.dart';
 import 'package:finmind/core/theme/text_styles.dart';
 import 'package:finmind/shared/widgets/primary_button.dart';
 
-import '../widgets/auth_sample_field.dart';
+import '../providers/auth_provider.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends ConsumerState<LoginPage> {
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isLoading = authState.isLoading;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -52,9 +78,23 @@ class LoginPage extends StatelessWidget {
                 style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 24),
-              const AuthSampleField(label: 'Email', value: 'akosua@gmail.com'),
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 15),
-              const AuthSampleField(label: 'Password', value: 'goodpass12', obscureText: true),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
@@ -65,8 +105,8 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               PrimaryButton(
-                label: 'Sign in',
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.dashboard),
+                label: isLoading ? 'Signing in...' : 'Sign in',
+                onPressed: isLoading ? null : _login,
                 expanded: true,
               ),
               const SizedBox(height: 14),
@@ -87,5 +127,26 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _login() async {
+    final notifier = ref.read(authProvider.notifier);
+    final session = await notifier.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+    final authState = ref.read(authProvider);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (session != null) {
+      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
+      return;
+    }
+
+    final message = authState.error?.toString() ?? 'Login failed. Please try again.';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }
