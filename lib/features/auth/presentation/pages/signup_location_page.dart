@@ -168,7 +168,7 @@ class _SignupLocationPageState extends ConsumerState<SignupLocationPage> {
                   _FieldLabel(label: 'Region', helper: 'Select the Ghana region where you trade.'),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _regionController.text.isEmpty ? null : _regionController.text,
+                    initialValue: _regionController.text.isEmpty ? null : _regionController.text,
                     decoration: _fieldDecoration(hintText: 'Select region'),
                     icon: const Icon(Icons.keyboard_arrow_down_rounded),
                     items: _regions

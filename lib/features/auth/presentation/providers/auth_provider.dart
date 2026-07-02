@@ -223,7 +223,7 @@ class VerificationResendController extends Notifier<int> {
     final minutes = state ~/ 60;
     final seconds = state % 60;
     final secondsText = seconds.toString().padLeft(2, '0');
-    return 'Resend code in ${minutes}:${secondsText}';
+    return 'Resend code in $minutes:$secondsText';
   }
 }
 

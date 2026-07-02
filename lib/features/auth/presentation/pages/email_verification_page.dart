@@ -212,6 +212,6 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
   String _formatCooldown(int seconds) {
     final minutes = seconds ~/ 60;
     final remainder = seconds % 60;
-    return '${minutes}:${remainder.toString().padLeft(2, '0')}';
+    return '$minutes:${remainder.toString().padLeft(2, '0')}';
   }
 }

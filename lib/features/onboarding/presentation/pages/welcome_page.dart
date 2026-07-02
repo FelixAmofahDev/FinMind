@@ -59,7 +59,7 @@ class WelcomePage extends StatelessWidget {
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        '.',
+                        'No credit card required',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: const Color(0xFFBCD0E6),
                           fontSize: 13,
