@@ -4,16 +4,20 @@ class OnboardingPayloadModel {
   const OnboardingPayloadModel({
     required this.cashInHand,
     required this.mtnMomo,
+    required this.telecel,
+    required this.airtel,
     required this.bankBalance,
-    required this.stockValue,
+    this.stockValue,
     required this.debtorsTotal,
     required this.creditorsTotal,
   });
 
   final double cashInHand;
   final double mtnMomo;
+  final double telecel;
+  final double airtel;      
   final double bankBalance;
-  final double stockValue;
+  final double? stockValue;
   final double debtorsTotal;
   final double creditorsTotal;
 
@@ -21,6 +25,8 @@ class OnboardingPayloadModel {
     return OnboardingPayloadModel(
       cashInHand: payload.cashInHand,
       mtnMomo: payload.mtnMomo,
+      telecel: payload.telecel,
+      airtel: payload.airtel,
       bankBalance: payload.bankBalance,
       stockValue: payload.stockValue,
       debtorsTotal: payload.debtorsTotal,
@@ -32,8 +38,10 @@ class OnboardingPayloadModel {
     return <String, dynamic>{
       'cashInHand': cashInHand,
       'mtnMomo': mtnMomo,
+      'telecel': telecel,
+      'airtel': airtel,
       'bankBalance': bankBalance,
-      'stockValue': stockValue,
+      if (stockValue != null) 'stockValue': stockValue,
       'debtorsTotal': debtorsTotal,
       'creditorsTotal': creditorsTotal,
     };

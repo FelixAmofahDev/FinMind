@@ -10,6 +10,7 @@ class AppRoutes {
   static const String signupCredentials = '/auth/signup/credentials';
   static const String verifyEmail = '/auth/verify-email';
   static const String login = '/auth/login';
+  static const String products = '/products';
   static const String onboardingComplete = '/onboarding/complete';
   static const String dashboard = '/dashboard';
 }

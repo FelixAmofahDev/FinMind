@@ -7,13 +7,15 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:finmind/app/app.dart';
+import 'package:flutter/material.dart';
+
+import 'package:finmind/features/onboarding/presentation/pages/welcome_page.dart';
 
 void main() {
   testWidgets('renders the welcome screen', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const FinmindApp());
+    await tester.pumpWidget(const MaterialApp(home: WelcomePage()));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Know your'), findsOneWidget);

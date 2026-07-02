@@ -57,6 +57,8 @@ class _OnboardingCompletionPageState extends ConsumerState<OnboardingCompletionP
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isLoading = authState.isLoading;
+    final session = authState.asData?.value;
+    final isTier2 = session?.business.tier.trim().toLowerCase() == 'tier2';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Complete onboarding')),
@@ -68,12 +70,14 @@ class _OnboardingCompletionPageState extends ConsumerState<OnboardingCompletionP
             padding: const EdgeInsets.all(24),
             children: [
               Text(
-                'Set your opening balances',
+                isTier2 ? 'Set opening balances after adding products' : 'Set your opening balances',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'Dashboard access is blocked until onboarding is completed.',
+                isTier2
+                    ? 'Tier 2 businesses must add products first. Stock value will be calculated automatically from your product catalogue.'
+                    : 'Dashboard access is blocked until onboarding is completed.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -81,8 +85,12 @@ class _OnboardingCompletionPageState extends ConsumerState<OnboardingCompletionP
               const SizedBox(height: 24),
               _AmountField(label: 'Cash in hand', controller: _cashController),
               _AmountField(label: 'MTN MoMo', controller: _mtnController),
+              _AmountField(label: 'Telecel Cash', controller: _telecelController),
+              _AmountField(label: 'Airtel Money', controller: _airtelController),
               _AmountField(label: 'Bank balance', controller: _bankController),
-              _AmountField(label: 'Stock value', controller: _stockController),
+              if (!isTier2) _AmountField(label: 'Stock value', controller: _stockController),
+              if (isTier2)
+               
               _AmountField(label: 'Debtors total', controller: _debtorsController),
               _AmountField(label: 'Creditors total', controller: _creditorsController),
               const SizedBox(height: 20),
@@ -103,24 +111,29 @@ class _OnboardingCompletionPageState extends ConsumerState<OnboardingCompletionP
       return;
     }
 
+    final session = ref.read(authProvider).asData?.value;
+    final isTier2 = session?.business.tier.trim().toLowerCase() == 'tier2';
+
     final payload = OnboardingPayload(
       cashInHand: _toDouble(_cashController.text),
       mtnMomo: _toDouble(_mtnController.text),
+      airtel: _toDouble(_airtelController.text),
+      telecel: _toDouble(_telecelController.text),
       bankBalance: _toDouble(_bankController.text),
-      stockValue: _toDouble(_stockController.text),
+      stockValue: isTier2 ? null : _toDouble(_stockController.text),
       debtorsTotal: _toDouble(_debtorsController.text),
       creditorsTotal: _toDouble(_creditorsController.text),
     );
 
     final notifier = ref.read(authProvider.notifier);
-    final session = await notifier.completeOnboarding(payload: payload);
+    final completedSession = await notifier.completeOnboarding(payload: payload);
     final authState = ref.read(authProvider);
 
     if (!mounted) {
       return;
     }
 
-    if (session != null) {
+    if (completedSession != null) {
       Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
       return;
     }

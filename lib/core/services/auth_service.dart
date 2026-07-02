@@ -1,9 +1,22 @@
 import '../storage/secure_storage_service.dart';
+import '../constants/api_constants.dart';
+import 'package:dio/dio.dart';
 
 class AuthService {
   AuthService(this._secureStorageService);
 
   final SecureStorageService _secureStorageService;
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 20),
+      sendTimeout: const Duration(seconds: 20),
+      responseType: ResponseType.json,
+      contentType: Headers.jsonContentType,
+      headers: const <String, dynamic>{'Accept': 'application/json'},
+    ),
+  );
 
   Future<void> saveToken(String token) => _secureStorageService.saveToken(token);
 
@@ -17,7 +30,30 @@ class AuthService {
       return false;
     }
 
-    return false;
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiConstants.refreshToken,
+        data: <String, dynamic>{'refreshToken': refreshToken},
+      );
+
+      final json = response.data ?? <String, dynamic>{};
+      final dynamic rawData = json['data'];
+      if (rawData is! Map<String, dynamic>) {
+        return false;
+      }
+
+      final newAccessToken = rawData['accessToken'] as String? ?? '';
+      final newRefreshToken = rawData['refreshToken'] as String? ?? '';
+      if (newAccessToken.isEmpty || newRefreshToken.isEmpty) {
+        return false;
+      }
+
+      await _secureStorageService.saveToken(newAccessToken);
+      await _secureStorageService.saveRefreshToken(newRefreshToken);
+      return true;
+    } on DioException {
+      return false;
+    }
   }
 
   Future<void> saveRefreshToken(String token) => _secureStorageService.saveRefreshToken(token);

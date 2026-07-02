@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../products/presentation/pages/products_page.dart';
 import '../../../onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../../onboarding/presentation/pages/welcome_page.dart';
 import 'email_verification_page.dart';
@@ -24,6 +25,8 @@ class AuthGatePage extends ConsumerWidget {
             return const WelcomePage();
           case AuthNavigationState.needsEmailVerification:
             return EmailVerificationPage(initialEmail: session?.user.email);
+          case AuthNavigationState.needsProductsSetup:
+            return const ProductsPage(onboardingFlow: true);
           case AuthNavigationState.needsOnboarding:
             return const OnboardingCompletionPage();
           case AuthNavigationState.authenticated:

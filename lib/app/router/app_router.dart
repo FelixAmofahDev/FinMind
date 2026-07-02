@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/signup_credentials_page.dart';
 import '../../features/auth/presentation/pages/signup_location_page.dart';
 import '../../features/auth/presentation/pages/signup_tracking_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/products/presentation/pages/products_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import 'routes.dart';
@@ -33,6 +34,8 @@ class AppRouter {
         return _buildRoute(settings, const EmailVerificationPage());
       case AppRoutes.login:
         return _buildRoute(settings, const LoginPage());
+      case AppRoutes.products:
+        return _buildRoute(settings, const ProductsPage());
       case AppRoutes.onboardingComplete:
         return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:

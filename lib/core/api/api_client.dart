@@ -8,6 +8,8 @@ import '../errors/failures.dart';
 import '../services/auth_service.dart';
 
 class ApiClient {
+  static const String _refreshRetryKey = 'refresh_retry_attempted';
+
   ApiClient({
     String? baseUrl,
     Dio? dio,
@@ -42,6 +44,7 @@ class ApiClient {
             final refreshResult = await _tryRefreshToken();
             if (refreshResult) {
               final request = error.requestOptions;
+              request.extra[_refreshRetryKey] = true;
               final response = await this.dio.fetch(request);
               handler.resolve(response);
               return;
@@ -103,6 +106,22 @@ class ApiClient {
     );
   }
 
+  Future<Response<T>> patch<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) {
+    return dio.patch<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+    );
+  }
+
   Future<Response<T>> delete<T>(
     String path, {
     dynamic data,
@@ -131,7 +150,14 @@ class ApiClient {
 
   bool _shouldAttemptTokenRefresh(DioException error) {
     final statusCode = error.response?.statusCode;
-    return statusCode == 401 && _authService != null;
+    final request = error.requestOptions;
+    final alreadyRetried = request.extra[_refreshRetryKey] == true;
+    final isRefreshRequest = request.path.contains(ApiConstants.refreshToken);
+
+    return statusCode == 401 &&
+        _authService != null &&
+        !alreadyRetried &&
+        !isRefreshRequest;
   }
 
   Future<bool> _tryRefreshToken() async {

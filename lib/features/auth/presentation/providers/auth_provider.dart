@@ -22,10 +22,12 @@ import '../../domain/usecases/save_auth_session.dart';
 import '../../domain/usecases/resend_verification.dart';
 import '../../domain/usecases/signup.dart';
 import '../../domain/usecases/verify_email.dart';
+import '../../../products/presentation/providers/products_provider.dart';
 
 enum AuthNavigationState {
   unauthenticated,
   needsEmailVerification,
+  needsProductsSetup,
   needsOnboarding,
   authenticated,
 }
@@ -238,11 +240,25 @@ final authNavigationStateProvider = FutureProvider<AuthNavigationState>((ref) as
     return AuthNavigationState.needsEmailVerification;
   }
   final checkOnboardingStatus = await ref.watch(checkOnboardingStatusUseCaseProvider.future);
-  final hasCompletedOnboarding = await checkOnboardingStatus();
-  if (!hasCompletedOnboarding) {
+  try {
+    final hasCompletedOnboarding = await checkOnboardingStatus();
+    if (!hasCompletedOnboarding) {
+      if (session.business.tier.trim().toLowerCase() == 'tier2') {
+        final listProductsUseCase = await ref.watch(listProductsUseCaseProvider.future);
+        final products = await listProductsUseCase();
+        if (products.isEmpty) {
+          return AuthNavigationState.needsProductsSetup;
+        }
+      }
+      return AuthNavigationState.needsOnboarding;
+    }
+    return AuthNavigationState.authenticated;
+  } catch (_) {
+    if (session.business.tier.trim().toLowerCase() == 'tier2') {
+      return AuthNavigationState.needsProductsSetup;
+    }
     return AuthNavigationState.needsOnboarding;
   }
-  return AuthNavigationState.authenticated;
 });
 
 class AuthNotifier extends AsyncNotifier<AuthSession?> {
