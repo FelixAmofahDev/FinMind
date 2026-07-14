@@ -66,7 +66,7 @@ class ProductsCatalogSection extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: ProductCard(
                 product: product,
-                onDeactivate: onDeactivate == null ? null : () => onDeactivate!(product),
+                //onDeactivate: onDeactivate == null ? null : () => onDeactivate!(product),
               ),
             ),
           ),
