@@ -76,7 +76,7 @@ class ProductCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
-                            '${product.openingQty.toStringAsFixed(0)} left',
+                            '${product.currentStockQty.toStringAsFixed(0)} left',
                             style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 12,
                               color: const Color(0xFFB45309),
@@ -87,7 +87,7 @@ class ProductCard extends StatelessWidget {
                       ] else ...[
                         // Default "in stock" text
                         Text(
-                          '${product.openingQty.toStringAsFixed(0)} in stock',
+                          '${product.currentStockQty.toStringAsFixed(0)} in stock',
                           style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 13,
                             color: AppColors.textSecondary,
