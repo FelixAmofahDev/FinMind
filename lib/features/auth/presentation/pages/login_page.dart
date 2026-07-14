@@ -1,3 +1,4 @@
+import 'package:finmind/shared/widgets/app_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,15 +56,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(17),
-                ),
-                child: const Icon(Icons.show_chart_rounded, color: Colors.white),
-              ),
+              AppLogo(),
               const SizedBox(height: 20),
               Text(
                 'Welcome back',

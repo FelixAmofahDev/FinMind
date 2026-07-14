@@ -8,6 +8,7 @@ class Product {
     required this.minimumStockQty,
     required this.unitOfMeasure,
     required this.isActive,
+    required this.isLowStock,
   });
 
   final String id;
@@ -17,6 +18,7 @@ class Product {
   final double openingQty;
   final double minimumStockQty;
   final String unitOfMeasure;
+  final bool isLowStock;
   final bool isActive;
 
   double get stockValue => openingQty * costPrice;
@@ -30,6 +32,7 @@ class Product {
     double? minimumStockQty,
     String? unitOfMeasure,
     bool? isActive,
+    bool? isLowStock,
   }) {
     return Product(
       id: id ?? this.id,
@@ -39,6 +42,7 @@ class Product {
       openingQty: openingQty ?? this.openingQty,
       minimumStockQty: minimumStockQty ?? this.minimumStockQty,
       unitOfMeasure: unitOfMeasure ?? this.unitOfMeasure,
+      isLowStock: isLowStock ?? this.isLowStock,
       isActive: isActive ?? this.isActive,
     );
   }
@@ -56,9 +60,10 @@ class Product {
         other.openingQty == openingQty &&
         other.minimumStockQty == minimumStockQty &&
         other.unitOfMeasure == unitOfMeasure &&
-        other.isActive == isActive;
+        other.isActive == isActive &&
+        other.isLowStock == isLowStock;
   }
 
   @override
-  int get hashCode => Object.hash(id, name, sellingPrice, costPrice, openingQty, minimumStockQty, unitOfMeasure, isActive);
+  int get hashCode => Object.hash(id, name, sellingPrice, costPrice, openingQty, minimumStockQty, unitOfMeasure, isActive, isLowStock);
 }

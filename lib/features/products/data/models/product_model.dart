@@ -10,18 +10,23 @@ class ProductModel extends Product {
     required super.minimumStockQty,
     required super.unitOfMeasure,
     required super.isActive,
+    required super.isLowStock,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    final qty = _toDouble(json['openingQty'] ?? json['currentStockQty']);
+    final minQty = _toDouble(json['minimumStockQty']);
+
     return ProductModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       sellingPrice: _toDouble(json['sellingPrice']),
       costPrice: _toDouble(json['costPrice']),
-      openingQty: _toDouble(json['openingQty'] ?? json['currentStockQty']),
-      minimumStockQty: _toDouble(json['minimumStockQty']),
+      openingQty: qty,
+      minimumStockQty: minQty,
       unitOfMeasure: json['unitOfMeasure'] as String? ?? '',
       isActive: json['isActive'] as bool? ?? true,
+      isLowStock: json['isLowStock'] as bool? ?? (qty <= minQty),
     );
   }
 

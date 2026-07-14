@@ -223,9 +223,15 @@ class _SignupBusinessPageState extends ConsumerState<SignupBusinessPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
+                  GridView(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.25,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: _businessTypes
                         .map(
                           (option) => _BusinessTypeCard(
@@ -327,74 +333,76 @@ class _BusinessTypeCard extends StatelessWidget {
     final backgroundColor = selected ? AppColors.primary.withValues(alpha: 0.06) : Colors.white;
 
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        width: (MediaQuery.of(context).size.width - 20 - 20 - 18) / 2,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: borderColor, width: 1.3),
-          boxShadow: selected
-              ? const [
-                  BoxShadow(
-                    color: Color(0x12000000),
-                    blurRadius: 18,
-                    offset: Offset(0, 8),
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: selected ? 0.14 : 0.09),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(option.icon, color: AppColors.primary, size: 20),
-                ),
-                const Spacer(),
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: selected ? AppColors.primary : Colors.transparent,
-                    border: Border.all(color: selected ? AppColors.primary : AppColors.border, width: 1.8),
-                  ),
-                  child: selected ? const Icon(Icons.check, size: 11, color: Colors.white) : null,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              option.title,
-              style: AppTextStyles.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-                fontSize: 14.5,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              option.subtitle,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-                height: 1.35,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+       onTap: onTap,
+       borderRadius: BorderRadius.circular(18),
+       child: AnimatedContainer(
+         duration: const Duration(milliseconds: 160),
+         width: (MediaQuery.of(context).size.width - 20 - 20 - 18) / 2,
+         padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+         decoration: BoxDecoration(
+           color: backgroundColor,
+           borderRadius: BorderRadius.circular(18),
+           border: Border.all(color: borderColor, width: 1.3),
+           boxShadow: selected
+               ? const [
+                   BoxShadow(
+                     color: Color(0x12000000),
+                     blurRadius: 18,
+                     offset: Offset(0, 8),
+                   ),
+                 ]
+               : null,
+         ),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             Row(
+               children: [
+                 Container(
+                   width: 30,
+                   height: 30,
+                   decoration: BoxDecoration(
+                     color: AppColors.primary.withValues(alpha: selected ? 0.14 : 0.09),
+                     borderRadius: BorderRadius.circular(10),
+                   ),
+                   child: Icon(option.icon, color: AppColors.primary, size: 17),
+                 ),
+                 const Spacer(),
+                 Container(
+                   width: 18,
+                   height: 18,
+                   decoration: BoxDecoration(
+                     shape: BoxShape.circle,
+                     color: selected ? AppColors.primary : Colors.transparent,
+                     border: Border.all(color: selected ? AppColors.primary : AppColors.border, width: 1.8),
+                   ),
+                   child: selected ? Icon(Icons.check, size: 10, color: Colors.white) : null,
+                 ),
+               ],
+             ),
+             const SizedBox(height: 10),
+             Text(
+               option.title,
+               style: AppTextStyles.bodyLarge.copyWith(
+                 fontWeight: FontWeight.w700,
+                 color: AppColors.textPrimary,
+                 fontSize: 13.5,
+               ),
+             ),
+             const SizedBox(height: 3),
+             Expanded(
+               child: Text(
+                 option.subtitle,
+                 style: AppTextStyles.bodyMedium.copyWith(
+                   fontSize: 11,
+                   color: AppColors.textSecondary,
+                   height: 1.3,
+                 ),
+               ),
+             ),
+           ],
+         ),
+       ),
+     );
   }
 }

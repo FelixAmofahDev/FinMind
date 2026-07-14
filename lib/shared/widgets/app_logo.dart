@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:finmind/app/config/app_constants.dart';
 
 class AppLogo extends StatelessWidget {
-  const AppLogo({super.key});
+    
+  
+  const AppLogo({super.key, });
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +23,8 @@ class AppLogo extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           AppConfig.appName,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
             fontWeight: FontWeight.w800,
             fontSize: 20,
             letterSpacing: -0.3,

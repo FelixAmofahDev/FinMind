@@ -1,35 +1,69 @@
+import 'package:finmind/features/dashboard/presentation/widgets/bottom_nav.dart';
+import 'package:finmind/features/dashboard/presentation/widgets/header.dart';
+import 'package:finmind/features/dashboard/presentation/widgets/quick_action_grid.dart';
+import 'package:finmind/features/dashboard/presentation/widgets/recent_activity.dart';
+import 'package:finmind/features/dashboard/presentation/widgets/reports_card.dart';
+import 'package:finmind/features/dashboard/presentation/widgets/stats_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../auth/presentation/providers/auth_provider.dart';
+/// ---------------------------------------------------------------------
+///
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(authProvider).asData?.value;
-
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        actions: [
-          TextButton(
-            onPressed: () => ref.read(authProvider.notifier).signOut(),
-            child: const Text('Sign out'),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Welcome ${session?.user.fullName ?? 'User'}\n\n'
-            'Your account is verified and onboarding is complete.',
-            textAlign: TextAlign.center,
-          ),
+      backgroundColor: const Color(0xFFF4F7FB),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: const [
+            DashboardHeader(),
+            SizedBox(height: 6),
+            ReportCard(),
+            SizedBox(height: 18),
+            QuickActionsGrid(),
+            SizedBox(height: 18),
+            StatCardsRow(),
+            SizedBox(height: 20),
+            _SectionHeader(title: 'Recent activity', actionLabel: 'See all'),
+            ActivityListCard(),
+            SizedBox(height: 12),
+          ],
         ),
+      ),
+      bottomNavigationBar: const DashboardBottomNav(),
+    );
+  }
+}
+
+
+
+// ===========================================================================
+// SECTION HEADER — reusable title + "see all" link
+// ===========================================================================
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String actionLabel;
+  const _SectionHeader({required this.title, required this.actionLabel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          // TODO: onTap -> navigate to full list
+          Text(actionLabel,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF185FA5))),
+        ],
       ),
     );
   }
 }
+
