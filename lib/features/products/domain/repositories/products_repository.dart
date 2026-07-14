@@ -14,6 +14,7 @@ abstract class ProductsRepository {
     double? costPrice,
     double? minimumStockQty,
     String? unitOfMeasure,
+    String? sku,
     String? categoryId,
   });
 

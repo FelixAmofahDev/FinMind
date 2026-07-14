@@ -43,6 +43,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
     double? costPrice,
     double? minimumStockQty,
     String? unitOfMeasure,
+    String? sku,
     String? categoryId,
   }) {
     return _remoteDatasource.updateProduct(
@@ -53,6 +54,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
         costPrice: costPrice,
         minimumStockQty: minimumStockQty,
         unitOfMeasure: unitOfMeasure,
+        sku: sku,
         categoryId: categoryId,
       ),
     );

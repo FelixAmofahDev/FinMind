@@ -4,6 +4,7 @@ import 'package:finmind/core/theme/colors.dart';
 import 'package:finmind/core/theme/text_styles.dart';
 import 'package:finmind/shared/widgets/empty_state_widget.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
+import 'package:finmind/shared/widgets/primary_button.dart';
 
 import '../../domain/entities/product.dart';
 import 'product_card.dart';
@@ -14,12 +15,16 @@ class ProductsCatalogSection extends StatelessWidget {
     required this.products,
     required this.isLoading,
     required this.onboardingFlow,
+    this.onTap,
+    this.onAdd,
     this.onDeactivate,
   });
 
   final List<Product> products;
   final bool isLoading;
   final bool onboardingFlow;
+  final void Function(Product product)? onTap;
+  final VoidCallback? onAdd;
   final Future<void> Function(Product product)? onDeactivate;
 
   @override
@@ -56,8 +61,15 @@ class ProductsCatalogSection extends StatelessWidget {
               title: onboardingFlow ? 'No products yet' : 'Catalogue is empty',
               message: onboardingFlow
                   ? 'Add at least one product to continue onboarding.'
-                  : 'Use the form above to build your product catalogue.',
+                  : 'No products match your search. Add a product to build your catalogue.',
               icon: Icons.inventory_2_outlined,
+              action: onAdd == null
+                  ? null
+                  : PrimaryButton(
+                      label: 'Add product',
+                      onPressed: onAdd,
+                      expanded: false,
+                    ),
             ),
           )
         else
@@ -66,7 +78,7 @@ class ProductsCatalogSection extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: ProductCard(
                 product: product,
-                //onDeactivate: onDeactivate == null ? null : () => onDeactivate!(product),
+                onTap: onTap == null ? null : () => onTap!(product),
               ),
             ),
           ),

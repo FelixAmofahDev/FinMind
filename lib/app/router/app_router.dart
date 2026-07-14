@@ -9,6 +9,10 @@ import '../../features/auth/presentation/pages/signup_location_page.dart';
 import '../../features/auth/presentation/pages/signup_tracking_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/products/presentation/pages/products_page.dart';
+import '../../features/products/presentation/pages/product_detail_page.dart';
+import '../../features/products/presentation/pages/product_form_page.dart';
+import '../../features/products/presentation/pages/product_edit_page.dart';
+import '../../features/purchases/presentation/pages/restock_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import 'routes.dart';
@@ -36,6 +40,14 @@ class AppRouter {
         return _buildRoute(settings, const LoginPage());
       case AppRoutes.products:
         return _buildRoute(settings, const ProductsPage());
+      case AppRoutes.productDetail:
+        return _buildRoute(settings, const ProductDetailPage());
+      case AppRoutes.productCreate:
+        return _buildRoute(settings, const ProductFormPage());
+      case AppRoutes.productEdit:
+        return _buildRoute(settings, const ProductEditPage());
+      case AppRoutes.restock:
+        return _buildRoute(settings, const RestockPage());
       case AppRoutes.onboardingComplete:
         return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:

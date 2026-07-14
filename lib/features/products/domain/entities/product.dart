@@ -5,8 +5,11 @@ class Product {
     required this.sellingPrice,
     required this.costPrice,
     required this.openingQty,
+    required this.currentStockQty,
     required this.minimumStockQty,
     required this.unitOfMeasure,
+    required this.sku,
+    required this.categoryId,
     required this.isActive,
     required this.isLowStock,
   });
@@ -16,12 +19,17 @@ class Product {
   final double sellingPrice;
   final double costPrice;
   final double openingQty;
+  final double currentStockQty;
   final double minimumStockQty;
   final String unitOfMeasure;
+  final String sku;
+  final String? categoryId;
   final bool isLowStock;
   final bool isActive;
 
-  double get stockValue => openingQty * costPrice;
+  double get stockValue => currentStockQty * costPrice;
+
+  double get openingStockValue => openingQty * costPrice;
 
   Product copyWith({
     String? id,
@@ -29,8 +37,11 @@ class Product {
     double? sellingPrice,
     double? costPrice,
     double? openingQty,
+    double? currentStockQty,
     double? minimumStockQty,
     String? unitOfMeasure,
+    String? sku,
+    String? categoryId,
     bool? isActive,
     bool? isLowStock,
   }) {
@@ -40,10 +51,13 @@ class Product {
       sellingPrice: sellingPrice ?? this.sellingPrice,
       costPrice: costPrice ?? this.costPrice,
       openingQty: openingQty ?? this.openingQty,
+      currentStockQty: currentStockQty ?? this.currentStockQty,
       minimumStockQty: minimumStockQty ?? this.minimumStockQty,
       unitOfMeasure: unitOfMeasure ?? this.unitOfMeasure,
-      isLowStock: isLowStock ?? this.isLowStock,
+      sku: sku ?? this.sku,
+      categoryId: categoryId ?? this.categoryId,
       isActive: isActive ?? this.isActive,
+      isLowStock: isLowStock ?? this.isLowStock,
     );
   }
 
@@ -58,12 +72,28 @@ class Product {
         other.sellingPrice == sellingPrice &&
         other.costPrice == costPrice &&
         other.openingQty == openingQty &&
+        other.currentStockQty == currentStockQty &&
         other.minimumStockQty == minimumStockQty &&
         other.unitOfMeasure == unitOfMeasure &&
+        other.sku == sku &&
+        other.categoryId == categoryId &&
         other.isActive == isActive &&
         other.isLowStock == isLowStock;
   }
 
   @override
-  int get hashCode => Object.hash(id, name, sellingPrice, costPrice, openingQty, minimumStockQty, unitOfMeasure, isActive, isLowStock);
+  int get hashCode => Object.hash(
+        id,
+        name,
+        sellingPrice,
+        costPrice,
+        openingQty,
+        currentStockQty,
+        minimumStockQty,
+        unitOfMeasure,
+        sku,
+        categoryId,
+        isActive,
+        isLowStock,
+      );
 }

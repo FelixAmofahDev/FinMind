@@ -5,7 +5,7 @@ class CurrencyFormatter {
 
   static String format(
     num value, {
-    String symbol = r'$',
+    String symbol = r'GHS ',
     String? locale,
     int decimalDigits = 2,
   }) {

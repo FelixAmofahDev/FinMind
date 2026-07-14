@@ -13,6 +13,7 @@ class UpdateProduct {
     double? costPrice,
     double? minimumStockQty,
     String? unitOfMeasure,
+    String? sku,
     String? categoryId,
   }) {
     return _repository.updateProduct(
@@ -22,6 +23,7 @@ class UpdateProduct {
       costPrice: costPrice,
       minimumStockQty: minimumStockQty,
       unitOfMeasure: unitOfMeasure,
+      sku: sku,
       categoryId: categoryId,
     );
   }

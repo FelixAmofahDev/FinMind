@@ -5,6 +5,7 @@ class ProductUpdateRequestModel {
     this.costPrice,
     this.minimumStockQty,
     this.unitOfMeasure,
+    this.sku,
     this.categoryId,
   });
 
@@ -13,6 +14,7 @@ class ProductUpdateRequestModel {
   final double? costPrice;
   final double? minimumStockQty;
   final String? unitOfMeasure;
+  final String? sku;
   final String? categoryId;
 
   Map<String, dynamic> toJson() {
@@ -22,6 +24,7 @@ class ProductUpdateRequestModel {
       if (costPrice != null) 'costPrice': costPrice,
       if (minimumStockQty != null) 'minimumStockQty': minimumStockQty,
       if (unitOfMeasure != null) 'unitOfMeasure': unitOfMeasure,
+      if (sku != null) 'sku': sku,
       if (categoryId != null) 'categoryId': categoryId,
     };
   }

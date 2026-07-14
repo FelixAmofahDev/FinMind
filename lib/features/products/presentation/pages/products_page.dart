@@ -6,10 +6,10 @@ import 'package:finmind/core/theme/colors.dart';
 
 import '../../domain/entities/product.dart';
 import '../providers/products_provider.dart';
-import '../widgets/product_form_card.dart';
 import '../widgets/products_catalog_section.dart';
 import '../widgets/products_header_card.dart';
 import '../widgets/products_onboarding_footer.dart';
+import '../widgets/products_search_bar.dart';
 
 class ProductsPage extends ConsumerWidget {
   const ProductsPage({super.key, this.onboardingFlow = false});
@@ -36,6 +36,14 @@ class ProductsPage extends ConsumerWidget {
         ],
       ),
       backgroundColor: AppColors.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(context).pushNamed(
+          AppRoutes.productCreate,
+          arguments: <String, dynamic>{'onboardingFlow': onboardingFlow},
+        ),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add product'),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: controller.refreshProducts,
@@ -48,15 +56,20 @@ class ProductsPage extends ConsumerWidget {
                 productCount: products.length,
               ),
               const SizedBox(height: 18),
-              ProductFormCard(
-                onSubmit: (productInput) => controller.addProduct(input: productInput),
-              ),
+              const ProductsSearchBar(),
               const SizedBox(height: 18),
               ProductsCatalogSection(
                 products: products,
                 isLoading: productsState.isLoading,
                 onboardingFlow: onboardingFlow,
-                onDeactivate: (product) => controller.deactivateProduct(productId: product.id),
+                onTap: (product) => Navigator.of(context).pushNamed(
+                  AppRoutes.productDetail,
+                  arguments: <String, dynamic>{'productId': product.id},
+                ),
+                onAdd: () => Navigator.of(context).pushNamed(
+                  AppRoutes.productCreate,
+                  arguments: <String, dynamic>{'onboardingFlow': onboardingFlow},
+                ),
               ),
               if (onboardingFlow)
                 ProductsOnboardingFooter(

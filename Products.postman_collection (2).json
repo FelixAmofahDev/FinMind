@@ -1,0 +1,199 @@
+{
+  "info": {
+    "_postman_id": "d8d1127c-1ac5-4882-af42-7dbbb39fcc25",
+    "name": "Products",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56150297",
+    "_collection_link": "https://go.postman.co/collection/35033617-d8d1127c-1ac5-4882-af42-7dbbb39fcc25?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Create a product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Cowbell Milk Powder 400g\",\r\n  \"sellingPrice\": 25,\r\n  \"costPrice\": 20,\r\n  \"openingQty\": 50,\r\n  \"minimumStockQty\": 10,\r\n  \"unitOfMeasure\": \"piece\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Products",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products"
+          ]
+        },
+        "description": "LIST PRODUCTS — Get the product catalogue\n\nReturns the business's products. Any authenticated user  \n(cashiers need to see products to sell). Defaults to active  \nproducts only.\n\nAUTH: Bearer access token (any role)\n\nQUERY PARAMS (all optional):  \nsearch → filter by name (e.g. ?search=cowbell)  \ncategoryId → filter by category  \nisActive → 'false' to see deactivated products  \n(default shows active only)\n\nRESPONSES:  \n200 → array of products (sorted by name)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "c0f449fe-ef10-49f1-af24-66baf80806f1"
+            }
+          ]
+        },
+        "description": "GET PRODUCT — Get one product by ID\n\nReturns a single product. Any authenticated user.\n\nAUTH: Bearer access token (any role)\n\nPATH PARAM:  \nid → the product's UUID\n\nRESPONSES:  \n200 → the product  \n404 → product not found (or not in your business)"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"sellingPrice\": 27 }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "c0f449fe-ef10-49f1-af24-66baf80806f1"
+            }
+          ]
+        },
+        "description": "UPDATE PRODUCT — Edit a product\n\nUpdates a product. Owner/manager only. Send only the fields  \nyou want to change. You cannot change opening quantity here —  \nstock changes happen through sales and purchases.\n\nAUTH: Bearer access token (owner or manager)\n\nPATH PARAM:  \nid → the product's UUID\n\nBODY (all optional — send only what changes):  \n{  \n\"name\": \"string\",  \n\"sellingPrice\": number,  \n\"costPrice\": number,  \n\"minimumStockQty\": number,  \n\"unitOfMeasure\": \"string\",  \n\"sku\": \"string\",  \n\"categoryId\": \"uuid or null (null removes the category)\"  \n}\n\nRESPONSES:  \n200 → the updated product  \n404 → product or category not found  \n400 → validation error  \n401/403 → not authenticated / not owner-manager"
+      },
+      "response": []
+    },
+    {
+      "name": "Deactivate Product",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "c0f449fe-ef10-49f1-af24-66baf80806f1"
+            }
+          ]
+        },
+        "description": "DEACTIVATE PRODUCT — Soft-delete a product\n\nSets the product to inactive (isActive = false). This is a  \nSOFT delete — the product is hidden from the catalogue but not  \nremoved, because past sales reference it. Owner/manager only.\n\nAUTH: Bearer access token (owner or manager)\n\nPATH PARAM:  \nid → the product's UUID\n\nRESPONSES:  \n200 → the deactivated product  \n404 → product not found  \n401/403 → not authenticated / not owner-manager"
+      },
+      "response": []
+    }
+  ]
+}

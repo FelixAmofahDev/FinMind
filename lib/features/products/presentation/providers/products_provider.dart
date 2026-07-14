@@ -7,6 +7,7 @@ import '../../data/datasources/products_remote_datasource.dart';
 import '../../data/repositories/products_repository_impl.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_input.dart';
+import '../../domain/entities/products_query.dart';
 import '../../domain/repositories/products_repository.dart';
 import '../../domain/usecases/create_product.dart';
 import '../../domain/usecases/deactivate_product.dart';
@@ -34,6 +35,17 @@ final productsRepositoryProvider = Provider<ProductsRepository>((ref) {
   return ProductsRepositoryImpl(remoteDatasource: ref.read(productsRemoteDatasourceProvider));
 });
 
+final productsSearchProvider = NotifierProvider<ProductsSearchNotifier, String>(ProductsSearchNotifier.new);
+
+class ProductsSearchNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String value) {
+    state = value.trim();
+  }
+}
+
 final listProductsUseCaseProvider = FutureProvider<ListProducts>((ref) async {
   return ListProducts(ref.watch(productsRepositoryProvider));
 });
@@ -59,8 +71,14 @@ final productsControllerProvider = AsyncNotifierProvider<ProductsController, Lis
 class ProductsController extends AsyncNotifier<List<Product>> {
   @override
   Future<List<Product>> build() async {
+    final search = ref.watch(productsSearchProvider);
     final listProductsUseCase = await ref.watch(listProductsUseCaseProvider.future);
-    return listProductsUseCase();
+    return listProductsUseCase(
+      query: ProductsQuery(
+        search: search,
+        isActive: true,
+      ),
+    );
   }
 
   Future<Product?> addProduct({required ProductInput input}) async {
@@ -72,6 +90,10 @@ class ProductsController extends AsyncNotifier<List<Product>> {
 
   Future<void> refreshProducts() async {
     ref.invalidateSelf();
+  }
+
+  void updateSearch(String? value) {
+    ref.read(productsSearchProvider.notifier).state = value?.trim() ?? '';
   }
 
   Future<Product?> deactivateProduct({required String productId}) async {
@@ -88,6 +110,7 @@ class ProductsController extends AsyncNotifier<List<Product>> {
     double? costPrice,
     double? minimumStockQty,
     String? unitOfMeasure,
+    String? sku,
     String? categoryId,
   }) async {
     final updateProductUseCase = await ref.read(updateProductUseCaseProvider.future);
@@ -98,6 +121,7 @@ class ProductsController extends AsyncNotifier<List<Product>> {
       costPrice: costPrice,
       minimumStockQty: minimumStockQty,
       unitOfMeasure: unitOfMeasure,
+      sku: sku,
       categoryId: categoryId,
     );
     ref.invalidateSelf();
