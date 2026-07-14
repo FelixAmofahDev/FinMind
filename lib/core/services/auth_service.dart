@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../storage/secure_storage_service.dart';
 import '../constants/api_constants.dart';
 import 'package:dio/dio.dart';
@@ -6,6 +8,14 @@ class AuthService {
   AuthService(this._secureStorageService);
 
   final SecureStorageService _secureStorageService;
+  final _authFailureController = StreamController<void>.broadcast();
+
+  Stream<void> get onAuthFailure => _authFailureController.stream;
+
+  void notifyAuthFailure() {
+    _authFailureController.add(null);
+  }
+
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: ApiConstants.baseUrl,
@@ -63,5 +73,9 @@ class AuthService {
   Future<void> clearAuthData() async {
     await _secureStorageService.deleteToken();
     await _secureStorageService.deleteRefreshToken();
+  }
+
+  void dispose() {
+    _authFailureController.close();
   }
 }

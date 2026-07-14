@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/api/api_client.dart';
-import '../../../../core/storage/secure_storage_service.dart';
-import '../../../../core/services/auth_service.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../data/datasources/products_remote_datasource.dart';
 import '../../data/repositories/products_repository_impl.dart';
 import '../../domain/entities/product.dart';
@@ -14,18 +12,6 @@ import '../../domain/usecases/deactivate_product.dart';
 import '../../domain/usecases/get_product.dart';
 import '../../domain/usecases/list_products.dart';
 import '../../domain/usecases/update_product.dart';
-
-final secureStorageServiceProvider = Provider<SecureStorageService>((ref) {
-  return SecureStorageService();
-});
-
-final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(ref.read(secureStorageServiceProvider));
-});
-
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(authService: ref.read(authServiceProvider));
-});
 
 final productsRemoteDatasourceProvider = Provider<ProductsRemoteDatasource>((ref) {
   return ProductsRemoteDatasource(ref.read(apiClientProvider));

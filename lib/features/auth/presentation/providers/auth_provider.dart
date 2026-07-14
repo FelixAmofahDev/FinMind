@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/api/api_client.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/storage/local_storage_service.dart';
-import '../../../../core/storage/secure_storage_service.dart';
-import '../../../../core/services/auth_service.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth_session.dart';
@@ -18,8 +16,8 @@ import '../../domain/usecases/clear_auth_session.dart';
 import '../../domain/usecases/complete_onboarding.dart';
 import '../../domain/usecases/login.dart';
 import '../../domain/usecases/restore_auth_session.dart';
-import '../../domain/usecases/save_auth_session.dart';
 import '../../domain/usecases/resend_verification.dart';
+import '../../domain/usecases/save_auth_session.dart';
 import '../../domain/usecases/signup.dart';
 import '../../domain/usecases/verify_email.dart';
 import '../../../products/presentation/providers/products_provider.dart';
@@ -123,20 +121,9 @@ class SignupDraftNotifier extends Notifier<SignupDraft> {
 }
 
 final signupDraftProvider = NotifierProvider<SignupDraftNotifier, SignupDraft>(SignupDraftNotifier.new);
-final secureStorageServiceProvider = Provider<SecureStorageService>((ref) {
-  return SecureStorageService();
-});
 
 final localStorageServiceProvider = FutureProvider<LocalStorageService>((ref) {
   return LocalStorageService.create();
-});
-
-final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(ref.read(secureStorageServiceProvider));
-});
-
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(authService: ref.read(authServiceProvider));
 });
 
 final authRemoteDatasourceProvider = Provider<AuthRemoteDatasource>((ref) {

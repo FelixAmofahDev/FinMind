@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:finmind/core/constants/api_constants.dart';
 import 'package:finmind/core/constants/network_constants.dart';
@@ -45,9 +47,18 @@ class ApiClient {
             if (refreshResult) {
               final request = error.requestOptions;
               request.extra[_refreshRetryKey] = true;
+
+              final newToken = await _authService?.getToken();
+              if (newToken != null && newToken.isNotEmpty) {
+                request.headers['Authorization'] = 'Bearer $newToken';
+              }
+
               final response = await this.dio.fetch(request);
               handler.resolve(response);
               return;
+            } else {
+              await _authService?.clearAuthData();
+              _authService?.notifyAuthFailure();
             }
           }
           handler.next(error);
@@ -59,6 +70,7 @@ class ApiClient {
 
   final Dio dio;
   final AuthService? _authService;
+  Completer<bool>? _refreshCompleter;
 
   Future<Response<T>> get<T>(
     String path, {
@@ -165,6 +177,23 @@ class ApiClient {
     if (authService == null) {
       return false;
     }
-    return authService.refreshToken();
+
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    final completer = Completer<bool>();
+    _refreshCompleter = completer;
+
+    try {
+      final result = await authService.refreshToken();
+      completer.complete(result);
+      return result;
+    } catch (e) {
+      completer.complete(false);
+      return false;
+    } finally {
+      _refreshCompleter = null;
+    }
   }
 }
