@@ -1,3 +1,4 @@
+import 'package:finmind/app/router/routes.dart';
 import 'package:finmind/shared/widgets/quick_action.dart';
 import 'package:flutter/material.dart';
 
@@ -13,8 +14,16 @@ class QuickActionsGrid extends StatelessWidget {
       QuickAction(icon: Icons.inventory_2_outlined, label: 'Restock', onTap: () {
         Navigator.of(context).pushNamed('/products');
       }),
-      QuickAction(icon: Icons.people_outline, label: 'Money', onTap: () {}),
-      QuickAction(icon: Icons.insights_outlined, label: 'Insights', onTap: () {}),
+      QuickAction(
+        icon: Icons.receipt_long_outlined,
+        label: 'Expense',
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.expenses),
+      ),
+      QuickAction(
+        icon: Icons.people_outline,
+        label: 'Money',
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.moneyPeopleHub),
+      ),
     ];
 
     return Padding(

@@ -11,4 +11,13 @@ class ApiConstants {
   static const String products = '/api/v1/products';
   static const String purchases = '/api/v1/purchases';
   static const String sales = '/sales';
+
+  // Money & People
+  static const String debtorsSummary = '/api/v1/reports/debtors-summary';
+  static const String creditorsSummary = '/api/v1/reports/creditors-summary';
+  static const String debtors = '/api/v1/debtors';
+  static const String creditors = '/api/v1/creditors';
+  static const String expenses = '/api/v1/expenses';
+  static const String ownerDeposits = '/api/v1/owner-deposits';
+  static const String ownerWithdrawals = '/api/v1/owner-withdrawals';
 }

@@ -20,4 +20,12 @@ class AppRoutes {
   static const String restock = '/products/restock';
   //Dashboard//
   static const String dashboard = '/dashboard';
+  //Money & People//
+  static const String moneyPeopleHub = '/money';
+  static const String recordRepayment = '/money/debtors/repayment';
+  static const String debtorEdit = '/money/debtors/edit';
+  static const String recordSupplierPayment = '/money/creditors/payment';
+  static const String creditorEdit = '/money/creditors/edit';
+  static const String expenses = '/money/expenses';
+  static const String ownerTransactions = '/money/owner-transactions';
 }

@@ -15,6 +15,14 @@ import '../../features/products/presentation/pages/product_edit_page.dart';
 import '../../features/purchases/presentation/pages/restock_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
+import '../../features/money_people_hub/presentation/pages/money_people_hub_page.dart';
+import '../../features/debtors/presentation/pages/record_repayment_page.dart';
+import '../../features/debtors/presentation/pages/debtor_edit_page.dart';
+import '../../features/creditors/presentation/pages/record_supplier_payment_page.dart';
+import '../../features/creditors/presentation/pages/creditor_edit_page.dart';
+import '../../features/expenses/presentation/pages/expenses_page.dart';
+import '../../features/owner_transactions/domain/entities/owner_transaction_type.dart';
+import '../../features/owner_transactions/presentation/pages/owner_transactions_page.dart';
 import 'routes.dart';
 
 class AppRouter {
@@ -52,6 +60,28 @@ class AppRouter {
         return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:
         return _buildRoute(settings, const DashboardPage());
+      case AppRoutes.moneyPeopleHub:
+        return _buildRoute(settings, const MoneyPeopleHubPage());
+      case AppRoutes.recordRepayment:
+        return _buildRoute(settings, const RecordRepaymentPage());
+      case AppRoutes.debtorEdit:
+        return _buildRoute(settings, const DebtorEditPage());
+      case AppRoutes.recordSupplierPayment:
+        return _buildRoute(settings, const RecordSupplierPaymentPage());
+      case AppRoutes.creditorEdit:
+        return _buildRoute(settings, const CreditorEditPage());
+      case AppRoutes.expenses:
+        return _buildRoute(settings, const ExpensesPage());
+      case AppRoutes.ownerTransactions:
+        final args = settings.arguments;
+        final initialTab = args is Map<String, dynamic> &&
+                args['tab'] is OwnerTransactionType
+            ? args['tab'] as OwnerTransactionType
+            : null;
+        return _buildRoute(
+          settings,
+          OwnerTransactionsPage(initialTab: initialTab),
+        );
       default:
         return _buildRoute(settings, const _NotFoundPage());
     }

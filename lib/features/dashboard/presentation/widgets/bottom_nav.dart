@@ -1,3 +1,4 @@
+import 'package:finmind/app/router/routes.dart';
 import 'package:flutter/material.dart';
 
 
@@ -17,7 +18,12 @@ class DashboardBottomNav extends StatelessWidget {
             _NavIcon(icon: Icons.home_filled, label: 'Home', selected: true, onTap: () {}),
             _NavIcon(icon: Icons.insights_outlined, label: 'Insights', onTap: () {}),
             const SizedBox(width: 40), // space for the notch/FAB
-            _NavIcon(icon: Icons.people_outline, label: 'Money', onTap: () {}),
+            _NavIcon(
+              icon: Icons.people_outline,
+              label: 'Money',
+              onTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.moneyPeopleHub),
+            ),
             _NavIcon(icon: Icons.settings_outlined, label: 'Business', onTap: () {}),
           ],
         ),
