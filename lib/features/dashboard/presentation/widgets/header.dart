@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader();
 
@@ -24,7 +25,7 @@ class DashboardHeader extends StatelessWidget {
                 Text('Good morning',
                     style: TextStyle(fontSize: 12.5, color: Colors.grey.shade500)),
                 // TODO: bind to signed-in user's name
-                const Text('Akosua 👋',
+                 Text('Akosua',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               ],
             ),
