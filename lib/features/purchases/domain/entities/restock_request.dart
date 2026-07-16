@@ -1,3 +1,5 @@
+import 'restock_payment_method.dart';
+
 class RestockRequest {
   const RestockRequest({
     required this.productId,
@@ -8,14 +10,16 @@ class RestockRequest {
     this.supplierName,
     this.supplierPhone,
     this.dueDate,
+    this.notes,
   });
 
   final String productId;
   final double quantity;
   final double unitCost;
-  final String paymentMethod;
+  final RestockPaymentMethod paymentMethod;
   final String? creditorId;
   final String? supplierName;
   final String? supplierPhone;
   final String? dueDate;
+  final String? notes;
 }

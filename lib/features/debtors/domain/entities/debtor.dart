@@ -9,6 +9,7 @@ class Debtor {
     required this.isOverdue,
     required this.isDueSoon,
     required this.daysOverdue,
+    required this.notes,
   });
 
   final String id;
@@ -20,6 +21,7 @@ class Debtor {
   final bool isOverdue;
   final bool isDueSoon;
   final int daysOverdue;
+  final String notes;
 
   bool get hasDueDate => dueDate != null;
 
@@ -33,6 +35,7 @@ class Debtor {
     bool? isOverdue,
     bool? isDueSoon,
     int? daysOverdue,
+    String? notes,
   }) {
     return Debtor(
       id: id ?? this.id,
@@ -44,6 +47,7 @@ class Debtor {
       isOverdue: isOverdue ?? this.isOverdue,
       isDueSoon: isDueSoon ?? this.isDueSoon,
       daysOverdue: daysOverdue ?? this.daysOverdue,
+      notes: notes ?? this.notes,
     );
   }
 }

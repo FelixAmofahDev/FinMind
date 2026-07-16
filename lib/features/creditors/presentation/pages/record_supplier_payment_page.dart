@@ -268,8 +268,11 @@ class _RecordSupplierPaymentPageState
                       ),
                     ),
                     const SizedBox(height: 10),
-                    PaymentMethodSelector(
+                    PaymentMethodSelector<PaymentMethod>(
                       selected: _paymentMethod,
+                      methods: PaymentMethod.values,
+                      methodLabel: (method) => method.label,
+                      methodIcon: (method) => method.icon,
                       onChanged: (method) =>
                           setState(() => _paymentMethod = method),
                     ),

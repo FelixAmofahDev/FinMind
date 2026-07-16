@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/colors.dart';
 import '../../../../shared/widgets/app_text_field.dart';
@@ -20,11 +19,9 @@ class _CreditorEditPageState extends ConsumerState<CreditorEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _amountController = TextEditingController();
-  final _dueDateController = TextEditingController();
+  final _notesController = TextEditingController();
 
   Creditor? _creditor;
-  DateTime? _dueDate;
   bool _didInit = false;
   bool _isSubmitting = false;
 
@@ -39,12 +36,7 @@ class _CreditorEditPageState extends ConsumerState<CreditorEditPage> {
         _creditor = creditor;
         _nameController.text = creditor.name;
         _phoneController.text = creditor.phone;
-        _amountController.text = creditor.amountOutstanding.toStringAsFixed(2);
-        _dueDate = creditor.dueDate;
-        if (creditor.dueDate != null) {
-          _dueDateController.text =
-              DateFormat('yyyy-MM-dd').format(creditor.dueDate!);
-        }
+        _notesController.text = creditor.notes;
       }
     }
   }
@@ -53,24 +45,8 @@ class _CreditorEditPageState extends ConsumerState<CreditorEditPage> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _amountController.dispose();
-    _dueDateController.dispose();
+    _notesController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDueDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _dueDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 3650)),
-    );
-    if (picked != null) {
-      setState(() {
-        _dueDate = picked;
-        _dueDateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
   }
 
   Future<void> _submit() async {
@@ -88,9 +64,9 @@ class _CreditorEditPageState extends ConsumerState<CreditorEditPage> {
             update: CreditorUpdate(
               name: _nameController.text.trim(),
               phone: _phoneController.text.trim(),
-              totalOwedAmount:
-                  double.tryParse(_amountController.text.trim()) ?? 0,
-              dueDate: _dueDate,
+              notes: _notesController.text.trim().isEmpty
+                  ? null
+                  : _notesController.text.trim(),
             ),
           );
       if (!mounted) {
@@ -146,27 +122,10 @@ class _CreditorEditPageState extends ConsumerState<CreditorEditPage> {
                     ),
                     const SizedBox(height: 12),
                     AppTextField(
-                      controller: _amountController,
-                      labelText: 'Total owed amount',
-                      hintText: '0.00',
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        final parsed = double.tryParse((value ?? '').trim());
-                        if (parsed == null || parsed < 0) {
-                          return 'Enter a valid amount';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    AppTextField(
-                      controller: _dueDateController,
-                      labelText: 'Due date (optional)',
-                      hintText: 'Select a due date',
-                      readOnly: true,
-                      onTap: _pickDueDate,
-                      suffixIcon: const Icon(Icons.calendar_today_outlined),
+                      controller: _notesController,
+                      labelText: 'Notes (optional)',
+                      hintText: 'e.g. Supplies delivered every Monday',
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 24),
                     PrimaryButton(

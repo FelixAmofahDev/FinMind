@@ -5,9 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:finmind/core/theme/colors.dart';
 import 'package:finmind/shared/widgets/app_card.dart';
 import 'package:finmind/shared/widgets/app_text_field.dart';
+import 'package:finmind/shared/widgets/payment_method_selector.dart';
 import 'package:finmind/shared/widgets/primary_button.dart';
 
 import '../../../products/domain/entities/product.dart';
+import '../../domain/entities/restock_payment_method.dart';
 import '../../domain/entities/restock_request.dart';
 import '../providers/purchases_provider.dart';
 
@@ -25,6 +27,7 @@ class _RestockPageState extends ConsumerState<RestockPage> {
   late final TextEditingController _supplierNameController;
   late final TextEditingController _supplierPhoneController;
   late final TextEditingController _dueDateController;
+  late final TextEditingController _notesController;
   Product _product = const Product(
     id: '',
     name: '',
@@ -40,7 +43,7 @@ class _RestockPageState extends ConsumerState<RestockPage> {
     isLowStock: false,
   );
   DateTime? _dueDate;
-  String _paymentMethod = 'cash';
+  RestockPaymentMethod _paymentMethod = RestockPaymentMethod.cash;
   bool _didInit = false;
 
   @override
@@ -51,6 +54,7 @@ class _RestockPageState extends ConsumerState<RestockPage> {
     _supplierNameController = TextEditingController();
     _supplierPhoneController = TextEditingController();
     _dueDateController = TextEditingController();
+    _notesController = TextEditingController();
   }
 
   @override
@@ -73,10 +77,11 @@ class _RestockPageState extends ConsumerState<RestockPage> {
     _supplierNameController.dispose();
     _supplierPhoneController.dispose();
     _dueDateController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
-  bool get _isCredit => _paymentMethod == 'credit';
+  bool get _isCredit => _paymentMethod.isCredit;
 
   Future<void> _pickDueDate() async {
     final picked = await showDatePicker(
@@ -128,6 +133,7 @@ class _RestockPageState extends ConsumerState<RestockPage> {
       supplierName: supplierName,
       supplierPhone: supplierPhone,
       dueDate: dueDate,
+      notes: _isCredit ? _notesController.text.trim() : null,
     );
 
     await ref.read(restockControllerProvider.notifier).restock(request: request);
@@ -240,25 +246,19 @@ class _RestockPageState extends ConsumerState<RestockPage> {
                     ),
               ),
               const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment<String>(
-                    value: 'cash',
-                    label: Text('Cash'),
-                    icon: Icon(Icons.payments_outlined),
-                  ),
-                  ButtonSegment<String>(
-                    value: 'credit',
-                    label: Text('Credit'),
-                    icon: Icon(Icons.account_balance_wallet_outlined),
-                  ),
+              PaymentMethodSelector<RestockPaymentMethod>(
+                methods: const [
+                  RestockPaymentMethod.cash,
+                  RestockPaymentMethod.mtnMomo,
+                  RestockPaymentMethod.telecel,
+                  RestockPaymentMethod.airtel,
+                  RestockPaymentMethod.bank,
+                  RestockPaymentMethod.credit,
                 ],
-                selected: <String>{_paymentMethod},
-                onSelectionChanged: (selection) {
-                  setState(() {
-                    _paymentMethod = selection.first;
-                  });
-                },
+                selected: _paymentMethod,
+                methodLabel: (method) => method.label,
+                methodIcon: (method) => method.icon,
+                onChanged: (method) => setState(() => _paymentMethod = method),
               ),
               if (_isCredit) ...[
                 const SizedBox(height: 16),
@@ -284,6 +284,13 @@ class _RestockPageState extends ConsumerState<RestockPage> {
                   hintText: 'Select a due date',
                   controller: _dueDateController,
                   suffixIcon: const Icon(Icons.calendar_today_outlined),
+                ),
+                const SizedBox(height: 12),
+                AppTextField(
+                  controller: _notesController,
+                  labelText: 'Notes (optional)',
+                  hintText: 'e.g. Agreed to settle at month end',
+                  maxLines: 2,
                 ),
               ],
               const SizedBox(height: 24),

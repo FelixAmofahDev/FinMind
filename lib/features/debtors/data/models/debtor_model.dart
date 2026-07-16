@@ -11,11 +11,12 @@ class DebtorModel extends Debtor {
     required super.isOverdue,
     required super.isDueSoon,
     required super.daysOverdue,
+    required super.notes,
   });
 
   factory DebtorModel.fromJson(Map<String, dynamic> json) {
     return DebtorModel(
-      id: json['debtorId'] as String? ?? '',
+      id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       amountOutstanding: _toDouble(json['amountOutstanding']),
@@ -24,6 +25,7 @@ class DebtorModel extends Debtor {
       isOverdue: json['isOverdue'] as bool? ?? false,
       isDueSoon: json['isDueSoon'] as bool? ?? false,
       daysOverdue: _toInt(json['daysOverdue']),
+      notes: json['notes'] as String? ?? '',
     );
   }
 

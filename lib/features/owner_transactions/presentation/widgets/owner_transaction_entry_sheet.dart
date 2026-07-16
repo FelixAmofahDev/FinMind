@@ -181,9 +181,12 @@ class _OwnerTransactionEntrySheetState
                   ),
                 ),
                 const SizedBox(height: 10),
-                PaymentMethodSelector(
+                PaymentMethodSelector<PaymentMethod>(
                   selected: _paymentMethod,
                   accentColor: accent,
+                  methods: PaymentMethod.values,
+                  methodLabel: (method) => method.label,
+                  methodIcon: (method) => method.icon,
                   onChanged: (method) =>
                       setState(() => _paymentMethod = method),
                 ),

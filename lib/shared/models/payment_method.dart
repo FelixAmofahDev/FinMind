@@ -10,6 +10,7 @@ enum PaymentMethod {
   telecel('telecel', 'Telecel', Icons.smartphone_outlined),
   airtel('airtel', 'AirtelTigo', Icons.smartphone_outlined),
   bank('bank', 'Bank', Icons.account_balance_outlined);
+  //credit('credit', 'Credit', Icons.credit_card_outlined);
 
   const PaymentMethod(this.apiValue, this.label, this.icon);
 

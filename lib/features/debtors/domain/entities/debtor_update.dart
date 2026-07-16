@@ -1,14 +1,13 @@
-/// Payload for editing a debtor's details.
+/// Payload for editing a debtor's details. Only name, phone and notes can be
+/// updated by the owner.
 class DebtorUpdate {
   const DebtorUpdate({
     this.name,
     this.phone,
-    this.totalDebtAmount,
-    this.dueDate,
+    this.notes,
   });
 
   final String? name;
   final String? phone;
-  final double? totalDebtAmount;
-  final DateTime? dueDate;
+  final String? notes;
 }

@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/colors.dart';
-import '../models/payment_method.dart';
 
 /// A reusable grid of payment method pills matching the prototype `.pays`
-/// component. Enforces the strict payment method contract app-wide.
-class PaymentMethodSelector extends StatelessWidget {
+/// component. Generic so it can host both [PaymentMethod] (money movements)
+/// and [RestockPaymentMethod] (purchases, which also allow `credit`).
+class PaymentMethodSelector<T> extends StatelessWidget {
   const PaymentMethodSelector({
     super.key,
     required this.selected,
     required this.onChanged,
-    this.methods = PaymentMethod.values,
+    required this.methods,
+    required this.methodLabel,
+    required this.methodIcon,
     this.accentColor = AppColors.blue,
   });
 
-  final PaymentMethod selected;
-  final ValueChanged<PaymentMethod> onChanged;
-  final List<PaymentMethod> methods;
+  final T selected;
+  final ValueChanged<T> onChanged;
+  final List<T> methods;
+  final String Function(T method) methodLabel;
+  final IconData Function(T method) methodIcon;
   final Color accentColor;
 
   @override
@@ -42,13 +46,13 @@ class PaymentMethodSelector extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  method.icon,
+                  methodIcon(method),
                   size: 18,
                   color: isSelected ? accentColor : AppColors.mute,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  method.label,
+                  methodLabel(method),
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,

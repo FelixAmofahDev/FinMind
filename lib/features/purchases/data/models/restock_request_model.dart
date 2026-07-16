@@ -7,7 +7,7 @@ class RestockRequestModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'paymentMethod': request.paymentMethod,
+      'paymentMethod': request.paymentMethod.apiValue,
       'items': <Map<String, dynamic>>[
         <String, dynamic>{
           'productId': request.productId,
@@ -23,6 +23,8 @@ class RestockRequestModel {
         'supplierPhone': request.supplierPhone!.trim(),
       if (request.dueDate != null && request.dueDate!.trim().isNotEmpty)
         'dueDate': request.dueDate!.trim(),
+      if (request.notes != null && request.notes!.trim().isNotEmpty)
+        'notes': request.notes!.trim(),
     };
   }
 }
