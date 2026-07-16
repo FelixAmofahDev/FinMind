@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/constants/api_constants.dart';
@@ -31,6 +32,8 @@ class CreditorsRemoteDatasource {
     required CreditorPaymentRequestModel request,
   }) async {
     try {
+      debugPrint('creditors id: $creditorId');
+
       await _apiClient.post<dynamic>(
         '${ApiConstants.creditors}/$creditorId/payments',
         data: request.toJson(),

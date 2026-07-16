@@ -15,7 +15,7 @@ class OwnerTransactionsRemoteDatasource {
 
   Future<List<OwnerTransactionModel>> listDeposits() async {
     return _list(
-      path: ApiConstants.ownerDeposits,
+      path: ApiConstants.ownerGetDeposit,
       key: 'deposits',
       type: OwnerTransactionType.deposit,
     );
@@ -25,7 +25,7 @@ class OwnerTransactionsRemoteDatasource {
     required OwnerTransactionInputModel input,
   }) async {
     return _create(
-      path: ApiConstants.ownerDeposits,
+      path: ApiConstants.ownerDeposit,
       input: input,
       type: OwnerTransactionType.deposit,
     );
@@ -33,7 +33,7 @@ class OwnerTransactionsRemoteDatasource {
 
   Future<List<OwnerTransactionModel>> listWithdrawals() async {
     return _list(
-      path: ApiConstants.ownerWithdrawals,
+      path: ApiConstants.ownerGetWithdrawal,
       key: 'withdrawals',
       type: OwnerTransactionType.withdrawal,
     );
@@ -43,7 +43,7 @@ class OwnerTransactionsRemoteDatasource {
     required OwnerTransactionInputModel input,
   }) async {
     return _create(
-      path: ApiConstants.ownerWithdrawals,
+      path: ApiConstants.ownerWithdrawal,
       input: input,
       type: OwnerTransactionType.withdrawal,
     );

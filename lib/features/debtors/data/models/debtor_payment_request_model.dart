@@ -26,7 +26,7 @@ class DebtorPaymentRequestModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'amountPaid': amountPaid,
+      'amount': amountPaid,
       'paymentMethod': paymentMethod,
       'paymentDate': DateFormat('yyyy-MM-dd').format(paymentDate),
       if (notes != null && notes!.trim().isNotEmpty) 'notes': notes!.trim(),

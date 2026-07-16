@@ -1,3 +1,5 @@
+import 'package:finmind/features/debtors/presentation/widgets/amount_toggle.dart';
+import 'package:finmind/features/debtors/presentation/widgets/debtor_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,7 +8,6 @@ import '../../../../core/theme/colors.dart';
 import '../../../../shared/dialogs/confirm_dialog.dart';
 import '../../../../shared/extensions/num_extensions.dart';
 import '../../../../shared/models/payment_method.dart';
-import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/payment_method_selector.dart';
 import '../../../../shared/widgets/primary_button.dart';
@@ -193,7 +194,7 @@ class _RecordRepaymentPageState extends ConsumerState<RecordRepaymentPage> {
                 child: ListView(
                   padding: const EdgeInsets.all(20),
                   children: [
-                    _DebtorHeader(debtor: debtor),
+                    DebtorHeader(debtor: debtor),
                     const SizedBox(height: 18),
                     const Text(
                       'AMOUNT RECEIVED',
@@ -240,7 +241,7 @@ class _RecordRepaymentPageState extends ConsumerState<RecordRepaymentPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: _AmountToggle(
+                          child: AmountToggle(
                             label: 'Full amount',
                             selected: _isFullAmount,
                             onTap: _selectFullAmount,
@@ -248,7 +249,7 @@ class _RecordRepaymentPageState extends ConsumerState<RecordRepaymentPage> {
                         ),
                         const SizedBox(width: 9),
                         Expanded(
-                          child: _AmountToggle(
+                          child: AmountToggle(
                             label: 'Part payment',
                             selected: !_isFullAmount,
                             onTap: _selectPartPayment,
@@ -295,126 +296,3 @@ class _RecordRepaymentPageState extends ConsumerState<RecordRepaymentPage> {
   }
 }
 
-class _DebtorHeader extends StatelessWidget {
-  const _DebtorHeader({required this.debtor});
-
-  final Debtor debtor;
-
-  @override
-  Widget build(BuildContext context) {
-    final initial = debtor.name.trim().isNotEmpty
-        ? debtor.name.trim()[0].toUpperCase()
-        : '?';
-    return AppCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.amberLight,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              initial,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.amberDark,
-                fontSize: 17,
-              ),
-            ),
-          ),
-          const SizedBox(width: 13),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  debtor.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: AppColors.ink,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(
-                      'Owes ',
-                      style: TextStyle(fontSize: 12.5, color: AppColors.mute),
-                    ),
-                    Text(
-                      debtor.amountOutstanding.toCurrency(),
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.coralDark,
-                      ),
-                    ),
-                    if (debtor.isOverdue)
-                      const Text(
-                        ' · overdue',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.coralDark,
-                        ),
-                      ),
-                  ],
-                ),
-                if (debtor.phone.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    debtor.phone,
-                    style: TextStyle(fontSize: 12, color: AppColors.mute),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AmountToggle extends StatelessWidget {
-  const _AmountToggle({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? AppColors.tealLight : AppColors.surface,
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(
-            color: selected ? const Color(0xFFBFE0CD) : AppColors.line,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.5,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-            color: selected ? AppColors.tealDark : AppColors.inkSoft,
-          ),
-        ),
-      ),
-    );
-  }
-}

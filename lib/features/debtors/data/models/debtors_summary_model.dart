@@ -19,8 +19,8 @@ class DebtorsSummaryModel extends DebtorsSummary {
         : <DebtorModel>[];
 
     return DebtorsSummaryModel(
-      totalOutstanding: _toDouble(json['totalOutstanding']),
-      totalDebtorsCount: _toInt(json['totalDebtorsCount']) ?? debtors.length,
+      totalOutstanding: _toDouble(json['totalOwed']),
+      totalDebtorsCount: _toInt(json['count']) ?? debtors.length,
       overdueCount: _toInt(json['overdueCount']) ?? 0,
       debtors: debtors,
     );

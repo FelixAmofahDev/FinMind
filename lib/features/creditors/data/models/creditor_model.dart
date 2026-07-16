@@ -14,7 +14,7 @@ class CreditorModel extends Creditor {
 
   factory CreditorModel.fromJson(Map<String, dynamic> json) {
     return CreditorModel(
-      id: json['id'] as String? ?? '',
+      id: json['creditorId'] as String? ?? '',
       name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       amountOutstanding: _toDouble(json['amountOutstanding']),

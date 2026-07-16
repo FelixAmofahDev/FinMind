@@ -18,6 +18,8 @@ class ApiConstants {
   static const String debtors = '/api/v1/debtors';
   static const String creditors = '/api/v1/creditors';
   static const String expenses = '/api/v1/expenses';
-  static const String ownerDeposits = '/api/v1/owner-deposits';
-  static const String ownerWithdrawals = '/api/v1/owner-withdrawals';
+  static const String ownerDeposit = '/api/v1/owner/deposit';
+  static const String ownerWithdrawal = '/api/v1/owner/withdrawal';
+  static const String ownerGetDeposit = '/api/v1/owner/deposits';
+  static const String ownerGetWithdrawal = '/api/v1/owner/withdrawals';
 }
