@@ -15,6 +15,8 @@ class ApiConstants {
   // Money & People
   static const String debtorsSummary = '/api/v1/reports/debtors-summary';
   static const String creditorsSummary = '/api/v1/reports/creditors-summary';
+  static const String profitLoss = '/api/v1/reports/profit-loss';
+  static const String cashPosition = '/api/v1/reports/cash-position';
   static const String debtors = '/api/v1/debtors';
   static const String creditors = '/api/v1/creditors';
   static const String expenses = '/api/v1/expenses';

@@ -1,69 +1,63 @@
 import 'package:finmind/features/dashboard/presentation/widgets/bottom_nav.dart';
-import 'package:finmind/features/dashboard/presentation/widgets/header.dart';
-import 'package:finmind/features/dashboard/presentation/widgets/quick_action_grid.dart';
-import 'package:finmind/features/dashboard/presentation/widgets/recent_activity.dart';
-import 'package:finmind/features/dashboard/presentation/widgets/reports_card.dart';
-import 'package:finmind/features/dashboard/presentation/widgets/stats_card.dart';
+import 'package:finmind/features/money_people_hub/presentation/pages/money_people_hub_page.dart';
+import 'package:finmind/features/reports/presentation/pages/insights_page.dart';
+import 'package:finmind/features/dashboard/presentation/pages/business_settings_page.dart';
+import 'package:finmind/features/dashboard/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
-/// ---------------------------------------------------------------------
-///
+/// Dashboard shell. Hosts the responsive bottom navigation and swaps the
+/// active screen based on the selected destination:
+///   Home → [HomePage], Money → [MoneyPeopleHubPage],
+///   Insights → [InsightsPage], Business → [BusinessSettingsPage].
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key, this.initialIndex = 0});
 
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  final int initialIndex;
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
+
+  void _onDestinationSelected(int index) {
+    if (_selectedIndex == index) {
+      return;
+    }
+    setState(() => _selectedIndex = index);
+  }
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return const HomePage();
+      case 1:
+        return const InsightsPage();
+      case 2:
+        return const MoneyPeopleHubPage();
+      case 3:
+        return const BusinessSettingsPage();
+      default:
+        return const HomePage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: const [
-            DashboardHeader(),
-            SizedBox(height: 6),
-            ReportCard(),
-            SizedBox(height: 18),
-            QuickActionsGrid(),
-            SizedBox(height: 18),
-            StatCardsRow(),
-            SizedBox(height: 20),
-            _SectionHeader(title: 'Recent activity', actionLabel: 'See all'),
-            ActivityListCard(),
-            SizedBox(height: 12),
-          ],
-        ),
-      ),
-      bottomNavigationBar: const DashboardBottomNav(),
-    );
-  }
-}
-
-
-
-// ===========================================================================
-// SECTION HEADER — reusable title + "see all" link
-// ===========================================================================
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final String actionLabel;
-  const _SectionHeader({required this.title, required this.actionLabel});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          // TODO: onTap -> navigate to full list
-          Text(actionLabel,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF185FA5))),
-        ],
+      body: _buildBody(),
+      bottomNavigationBar: DashboardBottomNav(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onDestinationSelected,
       ),
     );
   }
 }
-

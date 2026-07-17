@@ -1,12 +1,32 @@
-import 'package:finmind/app/router/routes.dart';
 import 'package:flutter/material.dart';
 
+/// The destinations available from the dashboard's bottom navigation bar.
+enum DashboardDestination {
+  home('Home', Icons.home_filled),
+  insights('Insights', Icons.insights_outlined),
+  money('Money', Icons.people_outline),
+  business('Business', Icons.settings_outlined);
+
+  const DashboardDestination(this.label, this.icon);
+
+  final String label;
+  final IconData icon;
+}
 
 class DashboardBottomNav extends StatelessWidget {
-  const DashboardBottomNav({super.key});
+  const DashboardBottomNav({
+    super.key,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
 
   @override
   Widget build(BuildContext context) {
+    const destinations = DashboardDestination.values;
+
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 8,
@@ -15,16 +35,16 @@ class DashboardBottomNav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _NavIcon(icon: Icons.home_filled, label: 'Home', selected: true, onTap: () {}),
-            _NavIcon(icon: Icons.insights_outlined, label: 'Insights', onTap: () {}),
-            const SizedBox(width: 40), // space for the notch/FAB
-            _NavIcon(
-              icon: Icons.people_outline,
-              label: 'Money',
-              onTap: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.moneyPeopleHub),
-            ),
-            _NavIcon(icon: Icons.settings_outlined, label: 'Business', onTap: () {}),
+            for (int i = 0; i < destinations.length; i++)
+              // space for the notch/FAB
+            
+              
+                _NavIcon(
+                  icon: destinations[i].icon,
+                  label: destinations[i].label,
+                  selected: i == selectedIndex,
+                  onTap: () => onDestinationSelected(i),
+                ),
           ],
         ),
       ),

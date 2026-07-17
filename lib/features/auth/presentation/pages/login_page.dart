@@ -19,6 +19,7 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -51,71 +52,82 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppLogo(),
-              const SizedBox(height: 20),
-              Text(
-                'Welcome back',
-                style: AppTextStyles.displayLarge.copyWith(
-                  fontSize: 24,
-                  color: AppColors.textPrimary,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppLogo(),
+                const SizedBox(height: 20),
+                Text(
+                  'Welcome back',
+                  style: AppTextStyles.displayLarge.copyWith(
+                    fontSize: 24,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to Akosua Provisions.',
-                style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 8),
+                Text(
+                  'Sign in to Akosua Provisions.',
+                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
                 ),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: const Text('Forgot password?'),
+                const SizedBox(height: 15),
+                TextField(
+  controller: _passwordController,
+  obscureText: _obscurePassword,
+  decoration: InputDecoration(
+    labelText: 'Password',
+    border: const OutlineInputBorder(),
+    suffixIcon: IconButton(
+      icon: Icon(
+        _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+        color: AppColors.textSecondary,
+      ),
+      onPressed: () {
+        setState(() => _obscurePassword = !_obscurePassword);
+      },
+    ),
+  ),
+),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text('Forgot password?'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              PrimaryButton(
-                label: isLoading ? 'Signing in...' : 'Sign in',
-                onPressed: isLoading ? null : _login,
-                expanded: true,
-              ),
-              const SizedBox(height: 14),
-              Center(
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signupBusiness),
-                  child: Text(
-                    'Create an account',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
+                const SizedBox(height: 8),
+                PrimaryButton(
+                  label: isLoading ? 'Signing in...' : 'Sign in',
+                  onPressed: isLoading ? null : _login,
+                  expanded: true,
+                ),
+                const SizedBox(height: 14),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signupBusiness),
+                    child: Text(
+                      'Create an account',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

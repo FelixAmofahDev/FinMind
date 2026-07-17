@@ -60,6 +60,14 @@ class AppRouter {
         return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:
         return _buildRoute(settings, const DashboardPage());
+      case AppRoutes.home:
+        return _buildRoute(settings, const DashboardPage(initialIndex: 0));
+      case AppRoutes.insights:
+        return _buildRoute(settings, const DashboardPage(initialIndex: 1));
+      case AppRoutes.moneyPeopleHub:
+        return _buildRoute(settings, const DashboardPage(initialIndex: 2));
+      case AppRoutes.businessSettings:
+        return _buildRoute(settings, const DashboardPage(initialIndex: 3));
       case AppRoutes.moneyPeopleHub:
         return _buildRoute(settings, const MoneyPeopleHubPage());
       case AppRoutes.recordRepayment:

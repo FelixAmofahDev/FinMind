@@ -2,7 +2,7 @@ class AppRoutes {
   const AppRoutes._();
 
   static const String authGate = '/';
-  static const String home = authGate;
+  static const String home = '/dashboard';
   static const String welcome = '/welcome';
   //Authenticatio//
   static const String signupBusiness = '/auth/signup/business';
@@ -20,6 +20,9 @@ class AppRoutes {
   static const String restock = '/products/restock';
   //Dashboard//
   static const String dashboard = '/dashboard';
+  //Home (shell) destinations
+  static const String insights = '/insights';
+  static const String businessSettings = '/business-settings';
   //Money & People//
   static const String moneyPeopleHub = '/money';
   static const String recordRepayment = '/money/debtors/repayment';
