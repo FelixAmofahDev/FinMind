@@ -51,7 +51,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
       request: ProductUpdateRequestModel(
         name: name,
         sellingPrice: sellingPrice,
-        costPrice: costPrice,
         minimumStockQty: minimumStockQty,
         unitOfMeasure: unitOfMeasure,
         sku: sku,
