@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:finmind/shared/extensions/num_extensions.dart';
+import '../../../../features/reports/presentation/providers/reports_provider.dart';
 
-
-class StatCardsRow extends StatelessWidget {
+class StatCardsRow extends ConsumerWidget {
   const StatCardsRow({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profitState = ref.watch(profitLossControllerProvider);
+
+    final sales = profitState.value?.revenue ?? 0;
+    final profit = profitState.value?.netProfit ?? 0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: const [
-          Expanded(child: _StatCard(label: 'Sales', value: '8,140')),
-          SizedBox(width: 11),
-          Expanded(child: _StatCard(label: 'Profit · est', value: '~1,860')),
+        children: [
+          Expanded(child: _StatCard(label: 'Sales', value: sales.toCurrency())),
+          const SizedBox(width: 11),
+          Expanded(child: _StatCard(label: 'Profit', value: profit.toCurrency())),
         ],
       ),
     );

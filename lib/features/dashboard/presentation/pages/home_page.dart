@@ -5,10 +5,6 @@ import 'package:finmind/features/dashboard/presentation/widgets/reports_card.dar
 import 'package:finmind/features/dashboard/presentation/widgets/stats_card.dart';
 import 'package:flutter/material.dart';
 
-/// The home screen shown when the dashboard's "Home" tab is selected.
-/// Aggregates the greeting, cash-position hero, quick actions, this-month
-/// stats and recent activity. The bottom navigation is owned by the
-/// [DashboardPage] shell.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -17,18 +13,18 @@ class HomePage extends StatelessWidget {
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.only(bottom: 24),
-        children: const [
+        children: [
           DashboardHeader(),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           ReportCard(),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
           QuickActionsGrid(),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
           StatCardsRow(),
-          SizedBox(height: 20),
-          _SectionHeader(title: 'Recent activity', actionLabel: 'See all'),
-          ActivityListCard(),
-          SizedBox(height: 12),
+          const SizedBox(height: 20),
+          const _SectionHeader(title: 'Recent activity', actionLabel: 'See all'),
+          const ActivityListCard(),
+          const SizedBox(height: 12),
         ],
       ),
     );

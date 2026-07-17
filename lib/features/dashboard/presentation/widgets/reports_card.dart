@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:finmind/shared/extensions/num_extensions.dart';
+import '../../../../features/debtors/presentation/providers/debtors_provider.dart';
+import '../../../../features/creditors/presentation/providers/creditors_provider.dart';
+import '../../../../features/reports/presentation/providers/reports_provider.dart';
 
-
-
-
-
-class ReportCard extends StatelessWidget {
+class ReportCard extends ConsumerWidget {
   const ReportCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cashState = ref.watch(cashPositionControllerProvider);
+    final debtorsState = ref.watch(debtorsSummaryControllerProvider);
+    final creditorsState = ref.watch(creditorsSummaryControllerProvider);
+
+    final cashTotal = cashState.value?.total ?? 0;
+    final owedToYou = debtorsState.value?.totalOutstanding ?? 0;
+    final youOwe = creditorsState.value?.totalOutstanding ?? 0;
+
+    final cashText = cashTotal.toCurrency();
+    final owedText = owedToYou.toCurrency();
+    final oweText = youOwe.toCurrency();
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
@@ -19,36 +32,32 @@ class ReportCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TODO: label for the primary metric
           Text('Cash on hand · all accounts',
               style: TextStyle(fontSize: 12.5, color: Colors.blue.shade100)),
           const SizedBox(height: 6),
-          // TODO: bind to real amount (format with your currency helper)
-          const Text('GHS 3,420.50',
-              style: TextStyle(
+          Text(cashText,
+              style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: -0.5)),
           const SizedBox(height: 10),
-          // TODO: trend chip — up/down vs last period
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.16),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text('Up GHS 480 this week',
+            child: Text('Incoming...',
                 style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(height: 16),
           const Divider(color: Colors.white24, height: 1),
           const SizedBox(height: 14),
-          // TODO: 2-column split under the hero (e.g. owed to you / you owe)
           Row(
-            children: const [
-              Expanded(child: _HeroSplitItem(label: 'Owed to you', value: 'GHS 1,240')),
-              Expanded(child: _HeroSplitItem(label: 'You owe', value: 'GHS 600')),
+            children: [
+              Expanded(child: _HeroSplitItem(label: 'Owed to you', value: owedText)),
+              Expanded(child: _HeroSplitItem(label: 'You owe', value: oweText)),
             ],
           ),
         ],
