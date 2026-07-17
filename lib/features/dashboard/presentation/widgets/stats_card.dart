@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
 class StatCardsRow extends StatelessWidget {
-  const StatCardsRow();
+  const StatCardsRow({super.key});
 
   @override
   Widget build(BuildContext context) {

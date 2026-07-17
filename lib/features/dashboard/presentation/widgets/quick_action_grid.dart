@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 
 class QuickActionsGrid extends StatelessWidget {
-  const QuickActionsGrid();
+  const QuickActionsGrid({super.key});
 
   @override
   Widget build(BuildContext context) {

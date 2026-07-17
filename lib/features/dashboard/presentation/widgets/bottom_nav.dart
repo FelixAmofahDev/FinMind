@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 
 class DashboardBottomNav extends StatelessWidget {
-  const DashboardBottomNav();
+  const DashboardBottomNav({super.key});
 
   @override
   Widget build(BuildContext context) {

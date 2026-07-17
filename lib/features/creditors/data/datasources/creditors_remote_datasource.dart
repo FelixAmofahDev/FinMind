@@ -51,7 +51,8 @@ class CreditorsRemoteDatasource {
     required CreditorUpdateRequestModel request,
   }) async {
     try {
-      await _apiClient.put<dynamic>(
+      debugPrint('creditors id: $creditorId');
+      await _apiClient.patch<dynamic>(
         '${ApiConstants.creditors}/$creditorId',
         data: request.toJson(),
       );
