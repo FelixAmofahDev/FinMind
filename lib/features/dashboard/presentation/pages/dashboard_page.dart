@@ -53,7 +53,13 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
-      body: _buildBody(),
+      //wrap in refresh indicator to allow pull to refresh on all pages
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Implement refresh logic here
+        },
+        child: _buildBody(),
+      ),
       bottomNavigationBar: DashboardBottomNav(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onDestinationSelected,

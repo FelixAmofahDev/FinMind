@@ -10,11 +10,17 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //wrap in refresh indicator to allow pull to refresh on all pages
     return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          DashboardHeader(),
+      child: RefreshIndicator(
+        onRefresh: () async {
+          // Implement refresh logic here
+        
+        },
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            DashboardHeader(),
           const SizedBox(height: 6),
           ReportCard(),
           const SizedBox(height: 18),
@@ -27,7 +33,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 12),
         ],
       ),
-    );
+    ));
   }
 }
 

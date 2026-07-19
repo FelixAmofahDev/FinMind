@@ -741,18 +741,19 @@ class _CartBottomSheetState extends ConsumerState<_CartBottomSheet> {
                     ] else ...[
                       TextButton.icon(
                         onPressed: () async {
-                          final selected = await showModalBottomSheet<dynamic>(
+                          await showModalBottomSheet<dynamic>(
                             context: context,
                             isScrollControlled: true,
                             backgroundColor: Colors.transparent,
                             builder: (context) => CustomerPickerSheet(
-                              onSelected: widget.onCustomerSelected,
+                              onSelected: (debtor) {
+                                widget.onCustomerSelected(debtor);
+                                if (mounted) {
+                                  setState(() => _localSelectedDebtor = debtor);
+                                }
+                              },
                             ),
                           );
-                          if (selected != null && context.mounted) {
-                            widget.onCustomerSelected(selected);
-                            setState(() => _localSelectedDebtor = selected as Debtor);
-                          }
                         },
                         icon: const Icon(Icons.person_search_outlined),
                         label: Text(_localSelectedDebtor != null

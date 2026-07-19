@@ -129,10 +129,8 @@ class CustomerPickerSheet extends ConsumerWidget {
                     return _CustomerTile(
                       debtor: debtor,
                       onTap: () {
-                        //set selected customer on ui
-                        
                         onSelected(debtor);
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(debtor);
                       },
                     );
                   },
