@@ -16,7 +16,7 @@ class DebtorModel extends Debtor {
 
   factory DebtorModel.fromJson(Map<String, dynamic> json) {
     return DebtorModel(
-      id: json['debtorId'] as String? ?? '',
+      id: _toString(json['creditorId']) ?? _toString(json['id']) ?? '',
       name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       amountOutstanding: _toDouble(json['amountOutstanding']),
@@ -29,6 +29,12 @@ class DebtorModel extends Debtor {
     );
   }
 
+
+  static String? _toString(Object? value) {
+    if (value is String) return value.trim();
+    if (value is num) return value.toString();
+    return null;
+  }
   static double _toDouble(Object? value) {
     if (value is num) {
       return value.toDouble();

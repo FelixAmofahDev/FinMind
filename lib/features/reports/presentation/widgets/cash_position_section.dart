@@ -3,10 +3,7 @@ import 'package:finmind/shared/extensions/num_extensions.dart';
 import '../../domain/entities/cash_position_report.dart';
 
 class CashPositionSection extends StatelessWidget {
-  const CashPositionSection({
-    super.key,
-    required this.report,
-  });
+  const CashPositionSection({super.key, required this.report});
 
   final CashPositionReport report;
 
@@ -99,10 +96,12 @@ class _CashAccountRow extends StatelessWidget {
           ),
           Text(
             account.balance.toCurrency(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1A2230),
+              color: account.balance < 0
+                  ? const Color(0xFFE74C3C)
+                  : const Color(0xFF1A2230),
             ),
           ),
         ],
