@@ -18,6 +18,7 @@ class AppRoutes {
   static const String productCreate = '/products/create';
   static const String productEdit = '/products/edit';
   static const String restock = '/products/restock';
+  static const String sales = '/sales';
   //Dashboard//
   static const String dashboard = '/dashboard';
   //Home (shell) destinations

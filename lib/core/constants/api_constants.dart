@@ -10,7 +10,7 @@ class ApiConstants {
   static const String completeOnboarding = '/api/v1/onboarding/complete';
   static const String products = '/api/v1/products';
   static const String purchases = '/api/v1/purchases';
-  static const String sales = '/sales';
+  static const String sales = '/api/v1/sales';
 
   // Money & People
   static const String debtorsSummary = '/api/v1/reports/debtors-summary';

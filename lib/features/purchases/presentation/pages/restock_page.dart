@@ -3,15 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:finmind/core/theme/colors.dart';
+import 'package:finmind/shared/extensions/num_extensions.dart';
 import 'package:finmind/shared/widgets/app_card.dart';
 import 'package:finmind/shared/widgets/app_text_field.dart';
+import 'package:finmind/shared/widgets/app_segmented_control.dart';
 import 'package:finmind/shared/widgets/payment_method_selector.dart';
 import 'package:finmind/shared/widgets/primary_button.dart';
 
 import '../../../products/domain/entities/product.dart';
+import '../../../creditors/domain/entities/creditor.dart';
 import '../../domain/entities/restock_payment_method.dart';
 import '../../domain/entities/restock_request.dart';
 import '../providers/purchases_provider.dart';
+import '../widgets/creditor_picker_sheet.dart';
 
 class RestockPage extends ConsumerStatefulWidget {
   const RestockPage({super.key});
@@ -46,6 +50,8 @@ class _RestockPageState extends ConsumerState<RestockPage> {
   DateTime? _dueDate;
   RestockPaymentMethod _paymentMethod = RestockPaymentMethod.cash;
   bool _didInit = false;
+  int _creditTypeIndex = 1;
+  Creditor? _selectedCreditor;
 
   @override
   void initState() {
@@ -115,15 +121,24 @@ class _RestockPageState extends ConsumerState<RestockPage> {
     String? supplierName;
     String? supplierPhone;
     String? dueDate;
+    String? creditorId;
 
     if (_isCredit) {
-      supplierName = _supplierNameController.text.trim();
-      if (supplierName.isEmpty) {
-        _showError('Supplier name is required for credit purchases.');
-        return;
-      }
-      supplierPhone = _supplierPhoneController.text.trim();
       dueDate = _dueDate == null ? null : DateFormat('yyyy-MM-dd').format(_dueDate!);
+      if (_creditTypeIndex == 1) {
+        if (_selectedCreditor == null) {
+          _showError('Select a supplier or switch to new supplier.');
+          return;
+        }
+        creditorId = _selectedCreditor!.id;
+      } else {
+        supplierName = _supplierNameController.text.trim();
+        if (supplierName.isEmpty) {
+          _showError('Supplier name is required for credit purchases.');
+          return;
+        }
+        supplierPhone = _supplierPhoneController.text.trim();
+      }
     }
 
     final request = RestockRequest(
@@ -131,6 +146,7 @@ class _RestockPageState extends ConsumerState<RestockPage> {
       quantity: quantity,
       unitCost: unitCost,
       paymentMethod: _paymentMethod,
+      creditorId: creditorId,
       supplierName: supplierName,
       supplierPhone: supplierPhone,
       dueDate: dueDate,
@@ -138,6 +154,26 @@ class _RestockPageState extends ConsumerState<RestockPage> {
     );
 
     await ref.read(restockControllerProvider.notifier).restock(request: request);
+  }
+
+  Future<void> _openCreditorPicker(BuildContext context) async {
+    final selected = await showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CreditorPickerSheet(
+        onSelected: _onCreditorSelected,
+      ),
+    );
+    if (selected != null && mounted) {
+      _onCreditorSelected(selected);
+    }
+  }
+
+  void _onCreditorSelected(Creditor creditor) {
+    setState(() {
+      _selectedCreditor = creditor;
+    });
   }
 
   void _showError(String message) {
@@ -263,21 +299,113 @@ class _RestockPageState extends ConsumerState<RestockPage> {
               ),
               if (_isCredit) ...[
                 const SizedBox(height: 16),
-                AppTextField(
-                  controller: _supplierNameController,
-                  labelText: 'Supplier name',
-                  hintText: 'e.g. Kumasi Wholesale Ltd.',
-                  validator: (value) =>
-                      (value ?? '').trim().isEmpty ? 'Supplier name is required' : null,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Purchase type',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    AppSegmentedControl(
+                      segments: const ['New supplier', 'Existing supplier'],
+                      selectedIndex: _creditTypeIndex,
+                      onChanged: (index) {
+                        setState(() => _creditTypeIndex = index);
+                        if (index == 0) {
+                          _selectedCreditor = null;
+                          _supplierNameController.clear();
+                          _supplierPhoneController.clear();
+                        } else {
+                          _supplierNameController.clear();
+                          _supplierPhoneController.clear();
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                AppTextField(
-                  controller: _supplierPhoneController,
-                  labelText: 'Supplier phone (optional)',
-                  hintText: 'e.g. 0240000000',
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+                if (_creditTypeIndex == 1) ...[
+                  TextButton.icon(
+                    onPressed: () => _openCreditorPicker(context),
+                    icon: const Icon(Icons.person_search_outlined),
+                    label: Text(_selectedCreditor != null
+                        ? 'Change supplier'
+                        : 'Select existing supplier'),
+                  ),
+                    if (_selectedCreditor != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.line),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: AppColors.coralLight,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _selectedCreditor!.name.trim().isNotEmpty
+                                    ? _selectedCreditor!.name.trim()[0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.coralDark,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                _selectedCreditor!.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: AppColors.ink,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              _selectedCreditor!.amountOutstanding.toCurrency(),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.coralDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  const SizedBox(height: 12),
+                ] else ...[
+                  AppTextField(
+                    controller: _supplierNameController,
+                    labelText: 'Supplier name',
+                    hintText: 'e.g. Kumasi Wholesale Ltd.',
+                    validator: (value) =>
+                        (value ?? '').trim().isEmpty ? 'Supplier name is required' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  AppTextField(
+                    controller: _supplierPhoneController,
+                    labelText: 'Supplier phone (optional)',
+                    hintText: 'e.g. 0240000000',
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 AppTextField(
                   readOnly: true,
                   onTap: _pickDueDate,

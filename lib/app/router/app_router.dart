@@ -13,6 +13,7 @@ import '../../features/products/presentation/pages/product_detail_page.dart';
 import '../../features/products/presentation/pages/product_form_page.dart';
 import '../../features/products/presentation/pages/product_edit_page.dart';
 import '../../features/purchases/presentation/pages/restock_page.dart';
+import '../../features/sales/presentation/pages/sales_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import '../../features/money_people_hub/presentation/pages/money_people_hub_page.dart';
@@ -56,6 +57,8 @@ class AppRouter {
         return _buildRoute(settings, const ProductEditPage());
       case AppRoutes.restock:
         return _buildRoute(settings, const RestockPage());
+      case AppRoutes.sales:
+        return _buildRoute(settings, const SalesPage());
       case AppRoutes.onboardingComplete:
         return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:

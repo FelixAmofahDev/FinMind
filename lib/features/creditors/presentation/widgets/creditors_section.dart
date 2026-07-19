@@ -158,6 +158,7 @@ class _CreditorsSectionState extends ConsumerState<CreditorsSection> {
             ),
           ),
           data: (creditors) {
+            //use the creditor summary ontroller instead
             final totalOutstanding =
                 creditors.fold<double>(0, (sum, c) => sum + c.amountOutstanding);
             final totalCount = creditors.length;

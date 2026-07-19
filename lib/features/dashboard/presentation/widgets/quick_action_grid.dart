@@ -9,7 +9,9 @@ class QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final actions = [
-      QuickAction(icon: Icons.point_of_sale, label: 'Sell', onTap: () {}),
+      QuickAction(icon: Icons.point_of_sale, label: 'Sell', onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.sales);
+      }),
       QuickAction(icon: Icons.inventory_2_outlined, label: 'Products', onTap: () {
         Navigator.of(context).pushNamed('/products');
       }),
