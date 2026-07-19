@@ -71,6 +71,7 @@ class _RecordSupplierPaymentPageState
 
   Future<void> _submit() async {
     final creditor = _creditor;
+    debugPrint('Submitting payment for creditor: ${creditor?.id}');
     if (creditor == null || !_formKey.currentState!.validate()) {
       return;
     }

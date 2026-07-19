@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 enum DashboardDestination {
   home('Home', Icons.home_filled),
   insights('Insights', Icons.insights_outlined),
-  money('Money', Icons.people_outline),
+  money('Money & People', Icons.people_outline),
   business('Business', Icons.settings_outlined);
 
   const DashboardDestination(this.label, this.icon);

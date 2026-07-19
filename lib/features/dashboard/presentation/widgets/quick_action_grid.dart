@@ -8,10 +8,9 @@ class QuickActionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: replace this list with your real actions (icon, label, onTap)
     final actions = [
       QuickAction(icon: Icons.point_of_sale, label: 'Sell', onTap: () {}),
-      QuickAction(icon: Icons.inventory_2_outlined, label: 'Restock', onTap: () {
+      QuickAction(icon: Icons.inventory_2_outlined, label: 'Products', onTap: () {
         Navigator.of(context).pushNamed('/products');
       }),
       QuickAction(
@@ -21,7 +20,7 @@ class QuickActionsGrid extends StatelessWidget {
       ),
       QuickAction(
         icon: Icons.people_outline,
-        label: 'Money',
+        label: 'People',
         onTap: () => Navigator.of(context).pushNamed(AppRoutes.moneyPeopleHub),
       ),
     ];

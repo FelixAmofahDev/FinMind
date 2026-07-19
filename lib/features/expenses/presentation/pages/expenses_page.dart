@@ -36,9 +36,9 @@ class ExpensesPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEntrySheet(context, ref),
-        backgroundColor: AppColors.blue,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add expense'),
+        backgroundColor: AppColors.coralDark,
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text('Add expense', style: TextStyle(color: Colors.white)),
       ),
       body: SafeArea(
         child: RefreshIndicator(
