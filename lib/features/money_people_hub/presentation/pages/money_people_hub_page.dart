@@ -21,9 +21,9 @@ class MoneyPeopleHubPage extends ConsumerWidget {
 
   Future<void> _refresh(WidgetRef ref, MoneyPeopleTab tab) async {
     if (tab == MoneyPeopleTab.owesYou) {
-      await ref.read(debtorsSummaryControllerProvider.notifier).refresh();
+      await ref.read(listDebtorsControllerProvider.notifier).refresh();
     } else {
-      await ref.read(creditorsSummaryControllerProvider.notifier).refresh();
+      await ref.read(listCreditorsControllerProvider.notifier).refresh();
     }
   }
 

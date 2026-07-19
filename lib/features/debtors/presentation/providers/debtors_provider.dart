@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../data/datasources/debtors_remote_datasource.dart';
 import '../../data/repositories/debtors_repository_impl.dart';
+import '../../domain/entities/debtor.dart';
 import '../../domain/entities/debtor_payment.dart';
 import '../../domain/entities/debtor_update.dart';
 import '../../domain/entities/debtors_summary.dart';
 import '../../domain/repositories/debtors_repository.dart';
 import '../../domain/usecases/deactivate_debtor.dart';
 import '../../domain/usecases/get_debtors_summary.dart';
+import '../../domain/usecases/list_debtors.dart';
 import '../../domain/usecases/record_debtor_payment.dart';
 import '../../domain/usecases/update_debtor.dart';
 
@@ -24,6 +26,10 @@ final debtorsRepositoryProvider = Provider<DebtorsRepository>((ref) {
 
 final getDebtorsSummaryUseCaseProvider = Provider<GetDebtorsSummary>((ref) {
   return GetDebtorsSummary(ref.watch(debtorsRepositoryProvider));
+});
+
+final listDebtorsUseCaseProvider = Provider<ListDebtors>((ref) {
+  return ListDebtors(ref.watch(debtorsRepositoryProvider));
 });
 
 final recordDebtorPaymentUseCaseProvider = Provider<RecordDebtorPayment>((ref) {
@@ -85,3 +91,71 @@ class DebtorsSummaryController extends AsyncNotifier<DebtorsSummary> {
     await future;
   }
 }
+
+class ListDebtorsSearchNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void setSearch(String search) => state = search;
+}
+
+final listDebtorsSearchProvider =
+    NotifierProvider<ListDebtorsSearchNotifier, String>(
+  ListDebtorsSearchNotifier.new,
+);
+
+class ListDebtorsHasDebtNotifier extends Notifier<bool?> {
+  @override
+  bool? build() => true;
+
+  void setHasDebt(bool? hasDebt) => state = hasDebt;
+}
+
+final listDebtorsHasDebtProvider =
+    NotifierProvider<ListDebtorsHasDebtNotifier, bool?>(
+  ListDebtorsHasDebtNotifier.new,
+);
+
+class ListDebtorsIsActiveNotifier extends Notifier<bool?> {
+  @override
+  bool? build() => true;
+
+  void setIsActive(bool? isActive) => state = isActive;
+}
+
+final listDebtorsIsActiveProvider =
+    NotifierProvider<ListDebtorsIsActiveNotifier, bool?>(
+  ListDebtorsIsActiveNotifier.new,
+);
+
+final listDebtorsControllerProvider =
+    AsyncNotifierProvider<ListDebtorsController, List<Debtor>>(
+  ListDebtorsController.new,
+);
+
+class ListDebtorsController extends AsyncNotifier<List<Debtor>> {
+  @override
+  Future<List<Debtor>> build() async {
+    final search = ref.read(listDebtorsSearchProvider);
+    final hasDebt = ref.read(listDebtorsHasDebtProvider);
+    final isActive = ref.read(listDebtorsIsActiveProvider);
+    return ref.watch(listDebtorsUseCaseProvider)(
+      search: search.isEmpty ? null : search,
+      hasDebt: hasDebt,
+      isActive: isActive,
+    );
+  }
+
+  Future<void> refresh({
+    String? search,
+    bool? hasDebt,
+    bool? isActive,
+  }) async {
+    if (search != null) ref.read(listDebtorsSearchProvider.notifier).setSearch(search);
+    if (hasDebt != null) ref.read(listDebtorsHasDebtProvider.notifier).setHasDebt(hasDebt);
+    if (isActive != null) ref.read(listDebtorsIsActiveProvider.notifier).setIsActive(isActive);
+    ref.invalidateSelf();
+    await future;
+  }
+}
+

@@ -18,7 +18,7 @@ class CreditorModel extends Creditor {
       id: _toString(json['creditorId']) ?? _toString(json['id']) ?? '',
       name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
-      amountOutstanding: _toDouble(json['amountOutstanding']),
+      amountOutstanding: _toDouble(json['amountOutstanding'] ?? json['totalOwed']),
       dueDate: _toDate(json['dueDate']),
       isOverdue: json['isOverdue'] as bool? ?? false,
       isDueSoon: json['isDueSoon'] as bool? ?? false,

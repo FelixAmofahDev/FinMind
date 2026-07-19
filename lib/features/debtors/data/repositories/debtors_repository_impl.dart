@@ -1,3 +1,4 @@
+import '../../domain/entities/debtor.dart';
 import '../../domain/entities/debtor_payment.dart';
 import '../../domain/entities/debtor_update.dart';
 import '../../domain/entities/debtors_summary.dart';
@@ -16,6 +17,17 @@ class DebtorsRepositoryImpl implements DebtorsRepository {
   @override
   Future<DebtorsSummary> getDebtorsSummary() {
     return _remoteDatasource.getDebtorsSummary();
+  }
+
+  @override
+  Future<List<Debtor>> listDebtors({
+    String? search,
+    bool? hasDebt,
+    bool? isActive,
+  }) {
+    return _remoteDatasource
+        .listDebtors(search: search, hasDebt: hasDebt, isActive: isActive)
+        .then((models) => models.cast<Debtor>());
   }
 
   @override

@@ -16,10 +16,10 @@ class DebtorModel extends Debtor {
 
   factory DebtorModel.fromJson(Map<String, dynamic> json) {
     return DebtorModel(
-      id: _toString(json['creditorId']) ?? _toString(json['id']) ?? '',
+      id: _toString(json['debtorId']) ?? _toString(json['id']) ?? '',
       name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
-      amountOutstanding: _toDouble(json['amountOutstanding']),
+      amountOutstanding: _toDouble(json['amountOutstanding'] ?? json['totalOwed']),
       dueDate: _toDate(json['dueDate']),
       status: json['status'] as String? ?? '',
       isOverdue: json['isOverdue'] as bool? ?? false,
