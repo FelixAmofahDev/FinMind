@@ -4,6 +4,7 @@ class Product {
     required this.name,
     required this.sellingPrice,
     required this.costPrice,
+    required this.lastPurchasedCost,
     required this.openingQty,
     required this.currentStockQty,
     required this.minimumStockQty,
@@ -18,6 +19,7 @@ class Product {
   final String name;
   final double sellingPrice;
   final double costPrice;
+  final double lastPurchasedCost;
   final double openingQty;
   final double currentStockQty;
   final double minimumStockQty;
@@ -36,6 +38,7 @@ class Product {
     String? name,
     double? sellingPrice,
     double? costPrice,
+    double? lastPurchasedCost,
     double? openingQty,
     double? currentStockQty,
     double? minimumStockQty,
@@ -50,6 +53,7 @@ class Product {
       name: name ?? this.name,
       sellingPrice: sellingPrice ?? this.sellingPrice,
       costPrice: costPrice ?? this.costPrice,
+      lastPurchasedCost: lastPurchasedCost ?? this.lastPurchasedCost,
       openingQty: openingQty ?? this.openingQty,
       currentStockQty: currentStockQty ?? this.currentStockQty,
       minimumStockQty: minimumStockQty ?? this.minimumStockQty,

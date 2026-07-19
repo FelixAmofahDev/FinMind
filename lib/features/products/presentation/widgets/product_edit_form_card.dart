@@ -19,7 +19,6 @@ class ProductEditFormCard extends StatefulWidget {
   final Future<Product?> Function({
     required String name,
     required double sellingPrice,
-    required double costPrice,
     required double minimumStockQty,
     required String unitOfMeasure,
     String? sku,
@@ -40,6 +39,7 @@ class _ProductEditFormCardState extends State<ProductEditFormCard> {
   late final TextEditingController _unitController;
   late final TextEditingController _skuController;
   late final TextEditingController _categoryController;
+  late final TextEditingController _lastPurchasedCostController;
 
   bool _isSubmitting = false;
 
@@ -55,6 +55,7 @@ class _ProductEditFormCardState extends State<ProductEditFormCard> {
     _unitController = TextEditingController(text: product.unitOfMeasure);
     _skuController = TextEditingController(text: product.sku);
     _categoryController = TextEditingController(text: product.categoryId ?? '');
+    _lastPurchasedCostController = TextEditingController(text: product.lastPurchasedCost.toString());
   }
 
   @override
@@ -117,6 +118,8 @@ class _ProductEditFormCardState extends State<ProductEditFormCard> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: AppTextField(
+                    enabled: false,
+                    readOnly: true,
                     controller: _costPriceController,
                     labelText: 'Cost price',
                     hintText: '0.00',
@@ -141,12 +144,27 @@ class _ProductEditFormCardState extends State<ProductEditFormCard> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: AppTextField(
+                    enabled: false,
+                    readOnly: true,
+                    controller: _lastPurchasedCostController,
+                    labelText: 'Last purchased cost',
+                    hintText: '0.00',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    validator: _amountValidator,
+                  ),
+                ),
+               
+              ],
+            ),
+             const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
                     controller: _unitController,
                     labelText: 'Unit of measure',
-                    hintText: 'piece, pack, carton',
+                    hintText: 'e.g. pcs, kg, ltr',
                     textInputAction: TextInputAction.next,
-                    validator: (value) =>
-                        (value ?? '').trim().isEmpty ? 'Unit of measure is required' : null,
                   ),
                 ),
               ],
@@ -205,7 +223,6 @@ class _ProductEditFormCardState extends State<ProductEditFormCard> {
       final updated = await widget.onSubmit(
         name: _nameController.text.trim(),
         sellingPrice: sellingPrice,
-        costPrice: costPrice,
         minimumStockQty: minimumStockQty,
         unitOfMeasure: _unitController.text.trim(),
         sku: _skuController.text.trim().isEmpty ? null : _skuController.text.trim(),

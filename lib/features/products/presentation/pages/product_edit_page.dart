@@ -36,7 +36,6 @@ class ProductEditPage extends ConsumerWidget {
               onSubmit: ({
                 required String name,
                 required double sellingPrice,
-                required double costPrice,
                 required double minimumStockQty,
                 required String unitOfMeasure,
                 String? sku,
@@ -46,7 +45,6 @@ class ProductEditPage extends ConsumerWidget {
                       productId: product.id,
                       name: name,
                       sellingPrice: sellingPrice,
-                      costPrice: costPrice,
                       minimumStockQty: minimumStockQty,
                       unitOfMeasure: unitOfMeasure,
                       sku: sku,

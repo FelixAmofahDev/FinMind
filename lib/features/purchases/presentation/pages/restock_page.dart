@@ -33,6 +33,7 @@ class _RestockPageState extends ConsumerState<RestockPage> {
     name: '',
     sellingPrice: 0,
     costPrice: 0,
+    lastPurchasedCost: 0,
     openingQty: 0,
     currentStockQty: 0,
     minimumStockQty: 0,

@@ -2,7 +2,6 @@ class ProductUpdateRequestModel {
   const ProductUpdateRequestModel({
     this.name,
     this.sellingPrice,
-    this.costPrice,
     this.minimumStockQty,
     this.unitOfMeasure,
     this.sku,
@@ -11,7 +10,6 @@ class ProductUpdateRequestModel {
 
   final String? name;
   final double? sellingPrice;
-  final double? costPrice;
   final double? minimumStockQty;
   final String? unitOfMeasure;
   final String? sku;
@@ -21,7 +19,6 @@ class ProductUpdateRequestModel {
     return <String, dynamic>{
       if (name != null) 'name': name,
       if (sellingPrice != null) 'sellingPrice': sellingPrice,
-      if (costPrice != null) 'costPrice': costPrice,
       if (minimumStockQty != null) 'minimumStockQty': minimumStockQty,
       if (unitOfMeasure != null) 'unitOfMeasure': unitOfMeasure,
       if (sku != null) 'sku': sku,

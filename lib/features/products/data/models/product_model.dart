@@ -6,6 +6,7 @@ class ProductModel extends Product {
     required super.name,
     required super.sellingPrice,
     required super.costPrice,
+    required super.lastPurchasedCost,
     required super.openingQty,
     required super.currentStockQty,
     required super.minimumStockQty,
@@ -20,12 +21,14 @@ class ProductModel extends Product {
     final openingQty = _toDouble(json['openingQty']);
     final currentStockQty = _toDouble(json['currentStockQty'] ?? json['openingQty']);
     final minQty = _toDouble(json['minimumStockQty']);
+    final lastPurchasedCost = _toDouble(json['lastPurchaseCost']);
 
     return ProductModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       sellingPrice: _toDouble(json['sellingPrice']),
       costPrice: _toDouble(json['costPrice']),
+      lastPurchasedCost: lastPurchasedCost,
       openingQty: openingQty,
       currentStockQty: currentStockQty,
       minimumStockQty: minQty,
