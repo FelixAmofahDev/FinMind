@@ -8,7 +8,6 @@ import '../../../../shared/widgets/app_segmented_control.dart';
 import '../../domain/entities/creditor.dart';
 import '../providers/creditors_provider.dart';
 import 'creditor_list_tile.dart';
-import 'creditors_summary_card.dart';
 
 class CreditorsHistorySection extends ConsumerStatefulWidget {
   const CreditorsHistorySection({super.key, required this.onCreditorTap});

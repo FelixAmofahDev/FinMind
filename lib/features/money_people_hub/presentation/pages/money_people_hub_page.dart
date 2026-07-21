@@ -49,10 +49,16 @@ class MoneyPeopleHubPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Money & People'),
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
-      ),
+  title: const Text('Money & People'),
+  backgroundColor: AppColors.background,
+  surfaceTintColor: Colors.transparent,
+ /*  actions: [
+    Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: AppLogo(),
+    ),
+  ], */
+),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => _refresh(ref, tab),

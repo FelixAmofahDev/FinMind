@@ -8,7 +8,6 @@ import '../../../../shared/widgets/app_segmented_control.dart';
 import '../../domain/entities/debtor.dart';
 import '../providers/debtors_provider.dart';
 import 'debtor_list_tile.dart';
-import 'debtors_summary_card.dart';
 
 class DebtorsHistorySection extends ConsumerStatefulWidget {
   const DebtorsHistorySection({super.key, required this.onDebtorTap});

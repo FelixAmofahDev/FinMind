@@ -1,0 +1,50 @@
+{
+  "info": {
+    "_postman_id": "659fcb30-be19-4599-9ad8-0c40c35371f2",
+    "name": "Business",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56150297",
+    "_collection_link": "https://go.postman.co/collection/35033617-659fcb30-be19-4599-9ad8-0c40c35371f2?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Get business Profile",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/business",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "business"
+          ]
+        },
+        "description": "### Access\n\nAny authenticated, **verified** user — owner, manager, stock manager, or cashier.  \nThis is a read-only endpoint; all staff need to see the shop's name and type.\n\n### Headers\n\n| Key | Value |\n| --- | --- |\n| Authorization | `Bearer {{accessToken}}` |\n\n### Success Response — `200 OK`\n\n``` json\n{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"id\": \"ddf74f73-6ed9-4277-aa56-9ba724dfe363\",\n    \"name\": \"Akosua Provisions\",\n    \"type\": \"provision_store\",\n    \"ownerName\": \"Akosua Mensah\",\n    \"phoneNumber\": \"0244123456\",\n    \"locationRegion\": \"Greater Accra\",\n    \"locationDistrict\": \"Ablekuma North\",\n    \"tier\": \"tier2\",\n    \"recordingMode\": \"transaction\",\n    \"onboardingComplete\": true,\n    \"createdAt\": \"2026-03-14T09:12:00.000Z\"\n  }\n}\n\n ```\n\n### Error Responses\n\n| Status | Cause |\n| --- | --- |\n| `401 Unauthorized` | Missing, invalid, or expired access token |\n| `403 Forbidden` | Token belongs to a user whose email is not yet verified |\n| `404 Not Found` | Business record does not exist (should not occur under normal use) |\n\n### Notes\n\n- Business identity only — email and password live under Account Management, not here."
+      },
+      "response": []
+    },
+    {
+      "name": "Update business Profile",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "description": "### Access\n\n**Owner only.** Managers, stock managers, and cashiers receive `403 Forbidden`.\n\n### Headers\n\n| Key | Value |\n| --- | --- |\n| Authorization | `Bearer {{accessToken}}` |\n| Content-Type | `application/json` |\n\n### Body\n\nAll fields optional — send only what changed. At least one field is required.\n\n``` json\n{\n  \"name\": \"Akosua Provisions & More\",\n  \"type\": \"provision_store\",\n  \"ownerName\": \"Akosua Mensah\",\n  \"phoneNumber\": \"0244123456\",\n  \"locationRegion\": \"Greater Accra\",\n  \"locationDistrict\": \"Okaikwei North\"\n}\n\n ```\n\n| Field | Type | Notes |\n| --- | --- | --- |\n| `name` | string | 2–120 characters |\n| `type` | enum | One of `BusinessType` (e.g. `provision_store`, `supermarket`, `pharmacy`, …) |\n| `ownerName` | string | 2–120 characters |\n| `phoneNumber` | string | 9–20 characters |\n| `locationRegion` | string | 2–80 characters |\n| `locationDistrict` | string | 2–80 characters |\n\n### Success Response — `200 OK`\n\n``` json\n{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"id\": \"ddf74f73-6ed9-4277-aa56-9ba724dfe363\",\n    \"name\": \"Akosua Provisions & More\",\n    \"type\": \"provision_store\",\n    \"ownerName\": \"Akosua Mensah\",\n    \"phoneNumber\": \"0244123456\",\n    \"locationRegion\": \"Greater Accra\",\n    \"locationDistrict\": \"Okaikwei North\",\n    \"tier\": \"tier2\",\n    \"recordingMode\": \"transaction\",\n    \"onboardingComplete\": true,\n    \"createdAt\": \"2026-03-14T09:12:00.000Z\"\n  }\n}\n\n ```\n\n### Error Responses\n\n| Status | Cause |\n| --- | --- |\n| `400 Bad Request` | Empty body, or a field fails validation (e.g. invalid `type` enum value) |\n| `401 Unauthorized` | Missing, invalid, or expired access token |\n| `403 Forbidden` | User is verified but not the owner, or email not yet verified |\n\n### Notes\n\n- Does not accept `email` or `password` — those are account-level, not business-level, and are managed separately.\n    \n- Unknown fields sent in the body are silently ignored, not rejected."
+      },
+      "response": []
+    }
+  ]
+}
