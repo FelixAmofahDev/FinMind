@@ -1,3 +1,5 @@
+import 'package:finmind/features/creditors/presentation/widgets/creditors_hostory_section.dart';
+import 'package:finmind/features/debtors/presentation/widgets/debtors_history_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,18 +8,14 @@ import '../../../../core/theme/colors.dart';
 import '../../../../shared/widgets/app_segmented_control.dart';
 import '../../../creditors/domain/entities/creditor.dart';
 import '../../../creditors/presentation/providers/creditors_provider.dart';
-import '../../../creditors/presentation/widgets/creditors_section.dart';
 import '../../../debtors/domain/entities/debtor.dart';
 import '../../../debtors/presentation/providers/debtors_provider.dart';
-import '../../../debtors/presentation/widgets/debtors_section.dart';
-import '../../../owner_transactions/domain/entities/owner_transaction_type.dart';
 import '../../domain/entities/money_people_tab.dart';
 import '../providers/money_people_hub_provider.dart';
-import '../widgets/hub_quick_actions.dart';
 
 /// Central Money & People hub — a read-only aggregator and navigation gateway.
-class MoneyPeopleHubPage extends ConsumerWidget {
-  const MoneyPeopleHubPage({super.key});
+class MoneyPeopleHubHistoryPage extends ConsumerWidget {
+  const MoneyPeopleHubHistoryPage({super.key});
 
   Future<void> _refresh(WidgetRef ref, MoneyPeopleTab tab) async {
     if (tab == MoneyPeopleTab.owesYou) {
@@ -49,7 +47,7 @@ class MoneyPeopleHubPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Money & People'),
+        title: const Text('Debtors & Creditors History'),
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
       ),
@@ -60,23 +58,8 @@ class MoneyPeopleHubPage extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              HubQuickActions(
-                onExpense: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.expenses),
-                onDeposit: () => Navigator.of(context).pushNamed(
-                  AppRoutes.ownerTransactions,
-                  arguments: <String, dynamic>{
-                    'tab': OwnerTransactionType.deposit,
-                  },
-                ),
-                onWithdrawal: () => Navigator.of(context).pushNamed(
-                  AppRoutes.ownerTransactions,
-                  arguments: <String, dynamic>{
-                    'tab': OwnerTransactionType.withdrawal,
-                  },
-                ),
-              ),
-              const SizedBox(height: 18),
+              
+              
               AppSegmentedControl(
                 segments: const ['Owes you', 'You owe'],
                 selectedIndex: isOwesYou ? 0 : 1,
@@ -91,11 +74,11 @@ class MoneyPeopleHubPage extends ConsumerWidget {
               const SizedBox(height: 18),
               // bring view all text button to the right of the section title
               if (isOwesYou)
-                DebtorsSection(
+                DebtorsHistorySection(
                   onDebtorTap: (debtor) => _openDebtor(context, debtor),
                 )
               else
-                CreditorsSection(
+                CreditorsHistorySection(
                   onCreditorTap: (creditor) =>
                       _openCreditor(context, creditor),
                 ),

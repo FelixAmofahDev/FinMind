@@ -26,6 +26,9 @@ class AppRoutes {
   static const String businessSettings = '/business-settings';
   //Money & People//
   static const String moneyPeopleHub = '/money';
+  static const String moneyPeopleHubHistory = '/money/history';
+  static const String listDebtors = '/money/debtors';
+  static const String listCreditors = '/money/creditors';
   static const String recordRepayment = '/money/debtors/repayment';
   static const String debtorEdit = '/money/debtors/edit';
   static const String recordSupplierPayment = '/money/creditors/payment';

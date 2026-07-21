@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:finmind/core/theme/colors.dart';
-
 import 'package:finmind/shared/widgets/empty_state_widget.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
 import 'package:finmind/shared/dialogs/success_dialog.dart';

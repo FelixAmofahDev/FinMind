@@ -1,3 +1,4 @@
+import 'package:finmind/features/money_people_hub/presentation/pages/debtors_creditors_history_page.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/auth/presentation/pages/auth_gate_page.dart';
@@ -73,6 +74,8 @@ class AppRouter {
         return _buildRoute(settings, const DashboardPage(initialIndex: 3));
       case AppRoutes.moneyPeopleHub:
         return _buildRoute(settings, const MoneyPeopleHubPage());
+      case AppRoutes.moneyPeopleHubHistory:
+        return _buildRoute(settings, const MoneyPeopleHubHistoryPage());
       case AppRoutes.recordRepayment:
         return _buildRoute(settings, const RecordRepaymentPage());
       case AppRoutes.debtorEdit:
