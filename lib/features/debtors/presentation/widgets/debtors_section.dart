@@ -74,7 +74,7 @@ class DebtorsSection extends ConsumerWidget {
       onPressed: () {
         Navigator.pushNamed(
           context,
-          AppRoutes.moneyPeopleHubHistory,
+          AppRoutes.debtorsCreditorsHistory,
         );
       },
       style: TextButton.styleFrom(

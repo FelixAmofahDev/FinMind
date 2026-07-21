@@ -14,8 +14,8 @@ import '../../domain/entities/money_people_tab.dart';
 import '../providers/money_people_hub_provider.dart';
 
 /// Central Money & People hub — a read-only aggregator and navigation gateway.
-class MoneyPeopleHubHistoryPage extends ConsumerWidget {
-  const MoneyPeopleHubHistoryPage({super.key});
+class DebtorsCreditorsHistoryPage extends ConsumerWidget {
+  const DebtorsCreditorsHistoryPage({super.key});
 
   Future<void> _refresh(WidgetRef ref, MoneyPeopleTab tab) async {
     if (tab == MoneyPeopleTab.owesYou) {

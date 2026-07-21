@@ -74,8 +74,8 @@ class AppRouter {
         return _buildRoute(settings, const DashboardPage(initialIndex: 3));
       case AppRoutes.moneyPeopleHub:
         return _buildRoute(settings, const MoneyPeopleHubPage());
-      case AppRoutes.moneyPeopleHubHistory:
-        return _buildRoute(settings, const MoneyPeopleHubHistoryPage());
+      case AppRoutes.debtorsCreditorsHistory:
+        return _buildRoute(settings, const DebtorsCreditorsHistoryPage());
       case AppRoutes.recordRepayment:
         return _buildRoute(settings, const RecordRepaymentPage());
       case AppRoutes.debtorEdit:
