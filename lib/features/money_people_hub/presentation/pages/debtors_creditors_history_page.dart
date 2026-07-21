@@ -1,4 +1,4 @@
-import 'package:finmind/features/creditors/presentation/widgets/creditors_hostory_section.dart';
+import 'package:finmind/features/creditors/presentation/widgets/creditors_history_section.dart';
 import 'package:finmind/features/debtors/presentation/widgets/debtors_history_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

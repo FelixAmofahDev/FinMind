@@ -159,17 +159,11 @@ class _CreditorsHistorySectionState extends ConsumerState<CreditorsHistorySectio
           ),
           data: (creditors) {
             //use the creditor summary ontroller instead
-            final totalOutstanding =
-                creditors.fold<double>(0, (sum, c) => sum + c.amountOutstanding);
-            final totalCount = creditors.length;
+           
 
             return Column(
               children: [
-                CreditorsSummaryCard(
-                  totalOutstanding: totalOutstanding,
-                  totalCreditorsCount: totalCount,
-                  overdueCount: 0,
-                ),
+               
                 const SizedBox(height: 16),
                 if (creditors.isEmpty)
                   const EmptyStateWidget(

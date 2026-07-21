@@ -58,43 +58,36 @@ class CreditorsSection extends ConsumerWidget {
             else ...[
               Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 2),
-                child:Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    const Text(
-      'MOST URGENT FIRST',
-      style: TextStyle(
-        fontSize: 11.5,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.5,
-        color: AppColors.mute,
-      ),
-    ),
-    TextButton(
-      onPressed: () {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.moneyPeopleHubHistory,
-        );
-      },
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-        minimumSize: const Size(0, 0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
-      child: const Text('View History'),
-    ),
-  ],
-)
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'MOST URGENT FIRST',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: AppColors.mute,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.moneyPeopleHubHistory,
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('View History'),
+                    ),
+                  ],
+                ),
               ),
-               TextButton(
-                onPressed: () {
-                  // Navigate to the creditors history page with the "Owes You" tab active
-                  Navigator.pushNamed(context, AppRoutes.moneyPeopleHubHistory);
-                     
-                },
-                child: const Text('View All'),
-              ),
+
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,

@@ -158,17 +158,11 @@ class _DebtorsHistorySectionState extends ConsumerState<DebtorsHistorySection> {
             ),
           ),
           data: (debtors) {
-            final totalOutstanding =
-                debtors.fold<double>(0, (sum, d) => sum + d.amountOutstanding);
-            final totalCount = debtors.length;
+           
 
             return Column(
               children: [
-                DebtorsSummaryCard(
-                  totalOutstanding: totalOutstanding,
-                  totalDebtorsCount: totalCount,
-                  overdueCount: 0,
-                ),
+              
                 const SizedBox(height: 16),
                 if (debtors.isEmpty)
                   const EmptyStateWidget(
