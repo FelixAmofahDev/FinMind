@@ -20,6 +20,7 @@ import '../../domain/usecases/resend_verification.dart';
 import '../../domain/usecases/save_auth_session.dart';
 import '../../domain/usecases/signup.dart';
 import '../../domain/usecases/verify_email.dart';
+import '../../domain/usecases/logout.dart';
 import '../../../products/presentation/providers/products_provider.dart';
 
 enum AuthNavigationState {
@@ -173,6 +174,10 @@ final completeOnboardingUseCaseProvider = FutureProvider<CompleteOnboarding>((re
 
 final clearAuthSessionUseCaseProvider = FutureProvider<ClearAuthSession>((ref) async {
   return ClearAuthSession(await ref.watch(authRepositoryProvider.future));
+});
+
+final logoutUseCaseProvider = FutureProvider<Logout>((ref) async {
+  return Logout(await ref.watch(authRepositoryProvider.future));
 });
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, AuthSession?>(AuthNotifier.new);
@@ -329,9 +334,18 @@ class AuthNotifier extends AsyncNotifier<AuthSession?> {
   }
 
   Future<void> signOut() async {
+    try {
+      final logoutUseCase = await ref.read(logoutUseCaseProvider.future);
+      await logoutUseCase();
+    } on ServerException {
+      // ignore logout API failure and still clear local session
+    } catch (_) {
+      // ignore
+    }
     final clearSessionUseCase = await ref.read(clearAuthSessionUseCaseProvider.future);
     await clearSessionUseCase();
     state = const AsyncData(null);
+    ref.invalidate(authNavigationStateProvider);
   }
 
   String toUserMessage(Object? error, {required String fallback}) {

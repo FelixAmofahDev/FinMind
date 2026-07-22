@@ -8,7 +8,9 @@ import 'package:finmind/shared/widgets/app_card.dart';
 import 'package:finmind/shared/widgets/primary_button.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
 import 'package:finmind/shared/widgets/empty_state_widget.dart';
+import 'package:finmind/shared/dialogs/confirm_dialog.dart';
 
+import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../providers/business_providers.dart';
 
 class BusinessProfilePage extends ConsumerWidget {
@@ -235,13 +237,37 @@ class BusinessProfilePage extends ConsumerWidget {
 
                   const SizedBox(height: 28),
                   PrimaryButton(
-  label: 'Update profile',
-  icon: const Icon(Icons.edit_outlined),
-  onPressed: () {
-    Navigator.of(context).pushNamed(AppRoutes.businessSettings);
-  },
-  expanded: true,
-),
+                    label: 'Update profile',
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(AppRoutes.businessSettings);
+                    },
+                    expanded: true,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () async {
+                      final confirm = await ConfirmDialog.show(
+                        context,
+                        title: 'Log out?',
+                        message:
+                            'You will be signed out of this device. You can sign back in anytime.',
+                        confirmText: 'Log out',
+                        destructive: true,
+                      );
+                      if (confirm != true || !context.mounted) {
+                        return;
+                      }
+                      await ref.read(authProvider.notifier).signOut();
+                      if (context.mounted) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.login,
+                          (route) => false,
+                        );
+                      }
+                    },
+                    child: const Text('Log out'),
+                  ),
                 ],
               ),
             ),

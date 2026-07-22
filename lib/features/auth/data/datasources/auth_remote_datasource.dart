@@ -103,6 +103,20 @@ class AuthRemoteDatasource {
     }
   }
 
+  Future<void> logout({required String refreshToken}) async {
+    try {
+      await _apiClient.post<Map<String, dynamic>>(
+        ApiConstants.logout,
+        data: <String, dynamic>{'refreshToken': refreshToken},
+      );
+    } on DioException catch (error) {
+      throw ServerException(
+        ErrorMapper.fromDioError(error).message,
+        code: error.response?.statusCode,
+      );
+    }
+  }
+
   AuthSessionModel _parseAuthSession(Map<String, dynamic>? responseData) {
     final responseJson = responseData ?? <String, dynamic>{};
     final authResponse = AuthResponseModel.fromJson(responseJson);

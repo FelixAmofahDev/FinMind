@@ -25,4 +25,5 @@ class ApiConstants {
   static const String ownerGetDeposit = '/api/v1/owner/deposits';
   static const String ownerGetWithdrawal = '/api/v1/owner/withdrawals';
   static const String business = '/api/v1/business';
+  static const String logout = '/api/v1/auth/logout';
 }

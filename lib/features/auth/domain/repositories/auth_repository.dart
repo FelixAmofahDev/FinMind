@@ -20,4 +20,6 @@ abstract class AuthRepository {
   Future<bool> checkOnboardingStatus();
 
   Future<void> clearSession();
+
+  Future<void> logout();
 }

@@ -69,8 +69,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to Akosua Provisions.',
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                  'Sign in to your account.',
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 TextField(
@@ -83,22 +85,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 const SizedBox(height: 15),
                 TextField(
-  controller: _passwordController,
-  obscureText: _obscurePassword,
-  decoration: InputDecoration(
-    labelText: 'Password',
-    border: const OutlineInputBorder(),
-    suffixIcon: IconButton(
-      icon: Icon(
-        _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-        color: AppColors.textSecondary,
-      ),
-      onPressed: () {
-        setState(() => _obscurePassword = !_obscurePassword);
-      },
-    ),
-  ),
-),
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: AppColors.textSecondary,
+                      ),
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerRight,
@@ -116,7 +120,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(height: 14),
                 Center(
                   child: TextButton(
-                    onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signupBusiness),
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.signupBusiness),
                     child: Text(
                       'Create an account',
                       style: AppTextStyles.bodyMedium.copyWith(
@@ -147,11 +153,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
 
     if (session != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
       return;
     }
 
-    final message = authState.error?.toString() ?? 'Login failed. Please try again.';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    final message =
+        authState.error?.toString() ?? 'Login failed. Please try again.';
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

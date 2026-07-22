@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:finmind/core/constants/api_constants.dart';
 import 'package:finmind/core/constants/network_constants.dart';
+import 'package:flutter/foundation.dart';
 
 import '../errors/error_mapper.dart';
 import '../errors/exceptions.dart';
@@ -64,7 +65,8 @@ class ApiClient {
           handler.next(error);
         },
       ),
-      LogInterceptor(requestBody: true, responseBody: true),
+      if (kDebugMode)
+        LogInterceptor(requestBody: true, responseBody: true),
     ]);
   }
 

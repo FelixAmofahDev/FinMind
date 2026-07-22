@@ -124,4 +124,21 @@ class AuthRepositoryImpl implements AuthRepository {
     await _localStorageService.remove(StorageKeys.user);
     await _localStorageService.remove(StorageKeys.business);
   }
+
+  @override
+  Future<void> logout() async {
+    final refreshToken = await _secureStorageService.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      await clearSession();
+      return;
+    }
+    try {
+      await _remoteDatasource.logout(refreshToken: refreshToken);
+    } on ServerException {
+      // ignore API logout failure and still clear local session
+    } catch (_) {
+      // ignore
+    }
+    await clearSession();
+  }
 }
