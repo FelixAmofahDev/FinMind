@@ -1,4 +1,6 @@
-import 'package:finmind/features/money_people_hub/presentation/pages/debtors_creditors_history_page.dart';
+import '../../features/business/presentation/pages/business_profile_page.dart';
+import '../../features/business/presentation/pages/business_settings_page.dart';
+import '../../features/money_people_hub/presentation/pages/debtors_creditors_history_page.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/auth/presentation/pages/auth_gate_page.dart';
@@ -17,7 +19,6 @@ import '../../features/purchases/presentation/pages/restock_page.dart';
 import '../../features/sales/presentation/pages/sales_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
-import '../../features/money_people_hub/presentation/pages/money_people_hub_page.dart';
 import '../../features/debtors/presentation/pages/record_repayment_page.dart';
 import '../../features/debtors/presentation/pages/debtor_edit_page.dart';
 import '../../features/creditors/presentation/pages/record_supplier_payment_page.dart';
@@ -64,16 +65,14 @@ class AppRouter {
         return _buildRoute(settings, const OnboardingCompletionPage());
       case AppRoutes.dashboard:
         return _buildRoute(settings, const DashboardPage());
-      case AppRoutes.home:
-        return _buildRoute(settings, const DashboardPage(initialIndex: 0));
       case AppRoutes.insights:
         return _buildRoute(settings, const DashboardPage(initialIndex: 1));
       case AppRoutes.moneyPeopleHub:
         return _buildRoute(settings, const DashboardPage(initialIndex: 2));
       case AppRoutes.businessSettings:
-        return _buildRoute(settings, const DashboardPage(initialIndex: 3));
-      case AppRoutes.moneyPeopleHub:
-        return _buildRoute(settings, const MoneyPeopleHubPage());
+        return _buildRoute(settings, const BusinessSettingsPage());
+      case AppRoutes.businessProfile:
+        return _buildRoute(settings, const BusinessProfilePage());
       case AppRoutes.debtorsCreditorsHistory:
         return _buildRoute(settings, const DebtorsCreditorsHistoryPage());
       case AppRoutes.recordRepayment:

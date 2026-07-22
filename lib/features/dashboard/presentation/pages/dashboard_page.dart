@@ -1,14 +1,14 @@
+import 'package:finmind/features/business/presentation/pages/business_profile_page.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/bottom_nav.dart';
 import 'package:finmind/features/money_people_hub/presentation/pages/money_people_hub_page.dart';
 import 'package:finmind/features/reports/presentation/pages/insights_page.dart';
-import 'package:finmind/features/dashboard/presentation/pages/business_settings_page.dart';
 import 'package:finmind/features/dashboard/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 /// Dashboard shell. Hosts the responsive bottom navigation and swaps the
 /// active screen based on the selected destination:
 ///   Home → [HomePage], Money → [MoneyPeopleHubPage],
-///   Insights → [InsightsPage], Business → [BusinessSettingsPage].
+///   Insights → [InsightsPage], Business → [BusinessProfilePage].
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, this.initialIndex = 0});
 
@@ -43,7 +43,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 2:
         return const MoneyPeopleHubPage();
       case 3:
-        return const BusinessSettingsPage();
+        return const BusinessProfilePage();
       default:
         return const HomePage();
     }

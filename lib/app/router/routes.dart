@@ -23,7 +23,6 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   //Home (shell) destinations
   static const String insights = '/insights';
-  static const String businessSettings = '/business-settings';
   //Money & People//
   static const String moneyPeopleHub = '/money';
   static const String debtorsCreditorsHistory = '/money/history';
@@ -35,4 +34,6 @@ class AppRoutes {
   static const String creditorEdit = '/money/creditors/edit';
   static const String expenses = '/money/expenses';
   static const String ownerTransactions = '/money/owner-transactions';
+  static const String businessProfile = '/business/profile';
+  static const String businessSettings = '/business/settings';
 }
