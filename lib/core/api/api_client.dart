@@ -33,6 +33,9 @@ class ApiClient {
     this.dio.interceptors.addAll([
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          if (_isPublicEndpoint(options.path)) {
+            return handler.next(options);
+          }
           final token = await _authService?.getToken();
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -167,11 +170,21 @@ class ApiClient {
     final request = error.requestOptions;
     final alreadyRetried = request.extra[_refreshRetryKey] == true;
     final isRefreshRequest = request.path.contains(ApiConstants.refreshToken);
+    final isPublicEndpoint = _isPublicEndpoint(request.path);
 
     return statusCode == 401 &&
         _authService != null &&
         !alreadyRetried &&
-        !isRefreshRequest;
+        !isRefreshRequest &&
+        !isPublicEndpoint;
+  }
+
+  bool _isPublicEndpoint(String path) {
+    return path.contains(ApiConstants.login) ||
+        path.contains(ApiConstants.signup) ||
+        path.contains(ApiConstants.verifyEmail) ||
+        path.contains(ApiConstants.resendVerification) ||
+        path.contains(ApiConstants.refreshToken);
   }
 
   Future<bool> _tryRefreshToken() async {
