@@ -47,22 +47,28 @@ class ApiClient {
         },
         onError: (error, handler) async {
           if (_shouldAttemptTokenRefresh(error)) {
-            final refreshResult = await _tryRefreshToken();
-            if (refreshResult) {
-              final request = error.requestOptions;
-              request.extra[_refreshRetryKey] = true;
+            try {
+              final status = await _tryRefreshToken();
+              if (status == _RefreshTokenStatus.success) {
+                final request = error.requestOptions;
+                request.extra[_refreshRetryKey] = true;
 
-              final newToken = await _authService?.getToken();
-              if (newToken != null && newToken.isNotEmpty) {
-                request.headers['Authorization'] = 'Bearer $newToken';
+                final newToken = await _authService?.getToken();
+                if (newToken != null && newToken.isNotEmpty) {
+                  request.headers['Authorization'] = 'Bearer $newToken';
+                }
+
+                final response = await this.dio.fetch(request);
+                handler.resolve(response);
+                return;
+              } else if (status == _RefreshTokenStatus.invalidToken) {
+                await _authService?.clearAuthData();
+                _authService?.notifyAuthFailure();
+              } else {
+                // transient refresh failure: pass original error through
               }
-
-              final response = await this.dio.fetch(request);
-              handler.resolve(response);
-              return;
-            } else {
-              await _authService?.clearAuthData();
-              _authService?.notifyAuthFailure();
+            } catch (_) {
+              // pass original error through
             }
           }
           handler.next(error);
@@ -75,7 +81,7 @@ class ApiClient {
 
   final Dio dio;
   final AuthService? _authService;
-  Completer<bool>? _refreshCompleter;
+  Completer<_RefreshTokenStatus>? _refreshCompleter;
 
   Future<Response<T>> get<T>(
     String path, {
@@ -187,28 +193,34 @@ class ApiClient {
         path.contains(ApiConstants.refreshToken);
   }
 
-  Future<bool> _tryRefreshToken() async {
+  Future<_RefreshTokenStatus> _tryRefreshToken() async {
     final authService = _authService;
     if (authService == null) {
-      return false;
+      return _RefreshTokenStatus.transientFailure;
     }
 
     if (_refreshCompleter != null) {
       return _refreshCompleter!.future;
     }
 
-    final completer = Completer<bool>();
+    final completer = Completer<_RefreshTokenStatus>();
     _refreshCompleter = completer;
 
     try {
       final result = await authService.refreshToken();
-      completer.complete(result);
-      return result;
+      completer.complete(result ? _RefreshTokenStatus.success : _RefreshTokenStatus.invalidToken);
+      return completer.future;
+    } on ServerException catch (e) {
+      final status = e.code == 401 ? _RefreshTokenStatus.invalidToken : _RefreshTokenStatus.transientFailure;
+      completer.complete(status);
+      return status;
     } catch (e) {
-      completer.complete(false);
-      return false;
+      completer.complete(_RefreshTokenStatus.transientFailure);
+      return _RefreshTokenStatus.transientFailure;
     } finally {
       _refreshCompleter = null;
     }
   }
 }
+
+enum _RefreshTokenStatus { success, invalidToken, transientFailure }

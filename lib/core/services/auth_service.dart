@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../errors/exceptions.dart';
 import '../storage/secure_storage_service.dart';
 import '../constants/api_constants.dart';
 import 'package:dio/dio.dart';
@@ -61,8 +62,11 @@ class AuthService {
       await _secureStorageService.saveToken(newAccessToken);
       await _secureStorageService.saveRefreshToken(newRefreshToken);
       return true;
-    } on DioException {
-      return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw const ServerException('Invalid or expired refresh token', code: 401);
+      }
+      rethrow;
     }
   }
 
