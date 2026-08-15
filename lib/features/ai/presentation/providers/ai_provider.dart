@@ -7,6 +7,7 @@ import '../../domain/usecases/ask_ai.dart';
 import '../../domain/usecases/delete_conversation.dart';
 import '../../domain/usecases/get_conversation.dart';
 import '../../domain/usecases/list_conversations.dart';
+import '../../domain/usecases/update_conversation.dart';
 import '../../data/repositories/ai_repository_impl.dart';
 import '../../data/datasources/ai_remote_datasource.dart';
 
@@ -89,5 +90,35 @@ class DeleteConversationController extends AsyncNotifier<void> {
     if (result.error != null) {
       throw result.error!;
     }
+  }
+}
+
+final updateConversationControllerProvider =
+    AsyncNotifierProvider<UpdateConversationController, Conversation>(
+        UpdateConversationController.new);
+
+class UpdateConversationController extends AsyncNotifier<Conversation> {
+  @override
+  Future<Conversation> build() async {
+    throw UnimplementedError('Use updateTitle() instead of build.');
+  }
+
+  Future<Conversation> updateTitle({
+    required String conversationId,
+    required String title,
+  }) async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(() async {
+      final useCase = UpdateConversation(ref.read(aiRepositoryProvider));
+      return useCase(conversationId: conversationId, title: title);
+    });
+
+    state = result;
+    if (result.value != null) {
+      ref.invalidate(conversationDetailProvider(conversationId));
+      ref.invalidate(listConversationsProvider);
+      return result.value!;
+    }
+    throw result.error ?? Exception('Unknown error');
   }
 }

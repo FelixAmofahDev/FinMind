@@ -148,6 +148,68 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
     });
   }
 
+  Future<void> _editTitle() async {
+    if (_currentConversationId == null) return;
+
+    final controller = TextEditingController(text: _conversationTitle ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Rename Conversation'),
+          content: AppTextField(
+            controller: controller,
+            hintText: 'Enter conversation title',
+            autofocus: true,
+            maxLength: 100,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final newTitle = controller.text.trim();
+                if (newTitle.isNotEmpty) {
+                  Navigator.of(dialogContext).pop(newTitle);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == null || !mounted) return;
+
+    final conversationId = _currentConversationId!;
+    try {
+      final updated = await ref
+          .read(updateConversationControllerProvider.notifier)
+          .updateTitle(
+            conversationId: conversationId,
+            title: result,
+          );
+
+      if (mounted) {
+        setState(() {
+          _conversationTitle = updated.title;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Conversation renamed')),
+        );
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to rename: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -163,10 +225,32 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                child: Text(
-                  displayTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
-                  overflow: TextOverflow.ellipsis,
+                child: InkWell(
+                  onTap: _currentConversationId == null ? null : _editTitle,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            displayTitle,
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (_currentConversationId != null) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.edit_rounded,
+                            size: 16,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
               if (isActive) ...[

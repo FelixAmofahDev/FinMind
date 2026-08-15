@@ -78,7 +78,7 @@ class _ConversationsListPageState extends ConsumerState<ConversationsListPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('AI Assistant', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text('FinMind AI Assistant', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
