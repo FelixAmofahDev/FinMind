@@ -31,14 +31,15 @@ class _ConversationsListPageState extends ConsumerState<ConversationsListPage> {
     }
   }
 
-  Future<void> _onDeleteConversation(String conversationId, String title) async {
-    final confirmed = await ConfirmDialog.show(
+  Future<bool?> _confirmDelete(String title) {
+    return ConfirmDialog.show(
       context,
       title: 'Delete Conversation',
       message: 'Are you sure you want to delete "$title"? This action cannot be undone.',
     );
-    if (!confirmed || !mounted) return;
+  }
 
+  Future<void> _performDelete(String conversationId) async {
     try {
       await ref
           .read(deleteConversationControllerProvider.notifier)
@@ -56,6 +57,18 @@ class _ConversationsListPageState extends ConsumerState<ConversationsListPage> {
         );
       }
     }
+  }
+
+  Future<bool> _onConfirmDismiss(
+    BuildContext dialogContext,
+    String conversationId,
+    String title,
+  ) async {
+    final confirmed = await _confirmDelete(title);
+    if (confirmed == true && mounted) {
+      await _performDelete(conversationId);
+    }
+    return confirmed == true;
   }
 
   @override
@@ -119,8 +132,7 @@ class _ConversationsListPageState extends ConsumerState<ConversationsListPage> {
                 return Dismissible(
                   key: Key(conversation.id),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (_) =>
-                      _onDeleteConversation(conversation.id, conversation.title),
+                  confirmDismiss: (_) => _onConfirmDismiss(context, conversation.id, conversation.title),
                   background: Container(
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.only(right: 20),
