@@ -168,7 +168,7 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
 
     if (session != null) {
       ref.read(signupDraftProvider.notifier).reset();
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.authGate, (_) => false);
       return;
     }
 

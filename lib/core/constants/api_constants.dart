@@ -1,7 +1,7 @@
 class ApiConstants {
   const ApiConstants._();
 
-  static const String baseUrl = 'https://ai-financial-accountant-production.up.railway.app/';
+  static const String baseUrl = 'https://ai-financial-accountant-production.up.railway.app';
   static const String signup = '/api/v1/auth/signup';
   static const String login = '/api/v1/auth/login';
   static const String verifyEmail = '/api/v1/auth/verify-email';

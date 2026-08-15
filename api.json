@@ -1,0 +1,247 @@
+{
+  "name": "AI Assistant API",
+  "description": "API endpoints for interacting with the AI assistant and managing AI assistant conversations.",
+  "baseUrl": "{{baseUrl}}",
+  "authentication": {
+    "type": "Bearer Token",
+    "header": "Authorization",
+    "format": "Bearer {{accessToken}}",
+    "accessRequirement": "Authenticated and verified user"
+  },
+  "endpoints": [
+    {
+      "name": "Ask AI Assistant",
+      "method": "POST",
+      "path": "/api/v1/ai/ask",
+      "description": "Sends a natural-language question to the AI assistant and returns its answer.",
+      "access": "Any authenticated, verified user",
+      "headers": {
+        "Authorization": "Bearer {{accessToken}}",
+        "Content-Type": "application/json"
+      },
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "string",
+              "required": true,
+              "description": "The user's question, in plain language.",
+              "example": "How much profit did I make this month?"
+            },
+            "conversationId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "required": false,
+              "description": "The ID of an existing conversation. Use null when starting a new conversation.",
+              "example": null
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "AI assistant successfully answered the question.",
+          "body": {
+            "success": true,
+            "message": "Success",
+            "data": {
+              "conversationId": "conv_9f8e7d6c",
+              "answer": "You made an estimated GHS 1,860 profit this month. This is a medium-confidence estimate — do a stock count for an exact figure."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "List Conversations",
+      "method": "GET",
+      "path": "/api/v1/ai/conversations",
+      "description": "Returns the current user's AI chat history, most recently active first, with a one-message preview of each conversation.",
+      "access": "Any authenticated, verified user",
+      "headers": {
+        "Authorization": "Bearer {{accessToken}}"
+      },
+      "responses": {
+        "200": {
+          "description": "Conversations successfully retrieved.",
+          "body": {
+            "success": true,
+            "message": "Success",
+            "data": [
+              {
+                "id": "conv_9f8e7d6c",
+                "title": "Profit questions",
+                "status": "active",
+                "createdAt": "2026-08-10T09:00:00.000Z",
+                "updatedAt": "2026-08-10T09:04:00.000Z",
+                "messages": [
+                  {
+                    "role": "assistant",
+                    "content": "You made an estimated GHS 1,860..."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "notes": [
+        "The messages array contains at most one message.",
+        "The message is the most recent message and is used as a conversation preview.",
+        "The full transcript can be retrieved using Get Conversation."
+      ]
+    },
+    {
+      "name": "Get Conversation",
+      "method": "GET",
+      "path": "/api/v1/ai/conversations/{conversationId}",
+      "description": "Returns one conversation with its full message history, oldest first.",
+      "access": "Any authenticated, verified user. Only the user's own conversations can be accessed.",
+      "headers": {
+        "Authorization": "Bearer {{accessToken}}"
+      },
+      "parameters": {
+        "path": {
+          "conversationId": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the conversation to retrieve.",
+            "example": "conv_9f8e7d6c"
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Conversation successfully retrieved.",
+          "body": {
+            "success": true,
+            "message": "Success",
+            "data": {
+              "id": "conv_9f8e7d6c",
+              "title": "Profit questions",
+              "status": "active",
+              "messages": [
+                {
+                  "id": "msg_001",
+                  "role": "user",
+                  "content": "How much profit did I make this month?",
+                  "createdAt": "..."
+                },
+                {
+                  "id": "msg_002",
+                  "role": "assistant",
+                  "content": "You made an estimated GHS 1,860...",
+                  "createdAt": "..."
+                }
+              ]
+            }
+          }
+        },
+        "404": {
+          "description": "Conversation does not exist or belongs to a different user."
+        }
+      }
+    },
+    {
+      "name": "Update Conversation",
+      "method": "PATCH",
+      "path": "/api/v1/ai/conversations/{conversationId}",
+      "description": "Renames a conversation and/or changes its status, such as archiving it.",
+      "access": "Any authenticated, verified user. Only the user's own conversations can be updated.",
+      "headers": {
+        "Authorization": "Bearer {{accessToken}}",
+        "Content-Type": "application/json"
+      },
+      "parameters": {
+        "path": {
+          "conversationId": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the conversation to update.",
+            "example": "conv_9f8e7d6c"
+          }
+        }
+      },
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "title": {
+              "type": "string",
+              "required": false,
+              "description": "The new conversation title.",
+              "example": "Restock planning"
+            },
+            "status": {
+              "type": "string",
+              "required": false,
+              "description": "The new conversation status.",
+              "example": "archived"
+            }
+          },
+          "notes": [
+            "Both fields are optional.",
+            "Only the fields that need to be changed should be sent."
+          ]
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Conversation successfully updated.",
+          "body": {
+            "description": "Returns the updated conversation record."
+          }
+        },
+        "404": {
+          "description": "Conversation does not exist or belongs to a different user."
+        }
+      }
+    },
+    {
+      "name": "Delete Conversation",
+      "method": "DELETE",
+      "path": "/api/v1/ai/conversations/{conversationId}",
+      "description": "Permanently deletes a conversation and all of its messages.",
+      "access": "Any authenticated, verified user. Only the user's own conversations can be deleted.",
+      "headers": {
+        "Authorization": "Bearer {{accessToken}}"
+      },
+      "parameters": {
+        "path": {
+          "conversationId": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the conversation to delete.",
+            "example": "conv_9f8e7d6c"
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Conversation successfully deleted.",
+          "body": {
+            "success": true,
+            "message": "Conversation deleted",
+            "data": null
+          }
+        },
+        "404": {
+          "description": "Conversation does not exist or has already been deleted."
+        }
+      },
+      "notes": [
+        "Deletion is a hard delete.",
+        "The conversation and all of its messages are permanently removed.",
+        "The operation cannot be undone.",
+        "There is no recovery endpoint."
+      ]
+    }
+  ]
+}

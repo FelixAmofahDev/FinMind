@@ -155,7 +155,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (session != null) {
       Navigator.of(
         context,
-      ).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
+      ).pushNamedAndRemoveUntil(AppRoutes.authGate, (_) => false);
       return;
     }
 

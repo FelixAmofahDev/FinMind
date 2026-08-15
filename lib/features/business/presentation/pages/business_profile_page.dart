@@ -223,20 +223,26 @@ class BusinessProfilePage extends ConsumerWidget {
                         label: 'Recording mode',
                         value: profile.recordingMode.isEmpty ? '—' : profile.recordingMode,
                       ),
-                      _DetailRow(
-                        icon: profile.onboardingComplete
-                            ? Icons.check_circle_outline_rounded
-                            : Icons.error_outline_rounded,
-                        label: 'Onboarding',
-                        value: profile.onboardingComplete ? 'Complete' : 'Incomplete',
-                        valueColor: profile.onboardingComplete ? Colors.green : null,
-                        isLast: true,
-                      ),
-                    ],
-                  ),
+                       _DetailRow(
+                         icon: profile.onboardingComplete
+                             ? Icons.check_circle_outline_rounded
+                             : Icons.error_outline_rounded,
+                         label: 'Onboarding',
+                         value: profile.onboardingComplete ? 'Complete' : 'Incomplete',
+                         valueColor: profile.onboardingComplete ? Colors.green : null,
+                         isLast: true,
+                       ),
+                     ],
+                   ),
 
-                  const SizedBox(height: 28),
-                  PrimaryButton(
+                  if (!profile.onboardingComplete)
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.onboardingComplete),
+                      child: const Text('Complete onboarding'),
+                    ),
+
+                   const SizedBox(height: 28),
+                   PrimaryButton(
                     label: 'Update profile',
                     icon: const Icon(Icons.edit_outlined),
                     onPressed: () {
