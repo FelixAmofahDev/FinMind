@@ -17,17 +17,29 @@ class ChatPage extends ConsumerStatefulWidget {
   ConsumerState<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends ConsumerState<ChatPage> {
+class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderStateMixin {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final List<Message> _messages = [];
   bool _isTyping = false;
   String? _currentConversationId;
+  String? _conversationTitle;
+  late AnimationController _dotAnimationController;
+  late Animation<double> _dotAnimation;
 
   @override
   void initState() {
     super.initState();
     _currentConversationId = widget.conversationId;
+    _dotAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat(reverse: true);
+    _dotAnimation = CurvedAnimation(
+      parent: _dotAnimationController,
+      curve: Curves.easeInOut,
+    );
+
     if (widget.conversationId != null) {
       _loadConversation(widget.conversationId!);
     }
@@ -37,6 +49,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _dotAnimationController.dispose();
     super.dispose();
   }
 
@@ -50,6 +63,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           _messages.clear();
           _messages.addAll(conversation.messages);
           _currentConversationId = conversation.id;
+          _conversationTitle = conversation.title;
         });
         _scrollToBottom();
       }
@@ -129,6 +143,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     setState(() {
       _messages.clear();
       _currentConversationId = null;
+      _conversationTitle = null;
       _messageController.clear();
     });
   }
@@ -136,22 +151,38 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isActive = _currentConversationId != null;
+    final displayTitle = _conversationTitle ?? 'AI Assistant';
 
     return PopScope(
-      canPop: widget.conversationId == null,
+      canPop: true,
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('AI Assistant',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
-              if (_currentConversationId != null)
-                Text('Conversation active',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    )),
+              Flexible(
+                child: Text(
+                  displayTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (isActive) ...[
+                const SizedBox(width: 8),
+                FadeTransition(
+                  opacity: _dotAnimation,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           backgroundColor: AppColors.background,
@@ -169,12 +200,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           children: [
             Expanded(
               child: _isTyping && _messages.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: LoadingIndicator(message: 'Loading conversation...'),
                     )
                   : ListView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + MediaQuery.of(context).viewInsets.bottom),
                       itemCount: _messages.length + (_isTyping ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index == _messages.length) {
