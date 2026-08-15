@@ -21,7 +21,7 @@ class DebtorsSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(19, 17, 19, 17),
       decoration: BoxDecoration(
-        color: AppColors.blue,
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

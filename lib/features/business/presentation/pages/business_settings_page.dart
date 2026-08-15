@@ -166,8 +166,8 @@ class _BusinessSettingsPageState extends ConsumerState<BusinessSettingsPage> {
                         borderRadius: BorderRadius.circular(22),
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.blue,
-                            AppColors.blue.withValues(alpha: 0.86),
+                            AppColors.primary,
+                            AppColors.primary.withValues(alpha: 0.86),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,

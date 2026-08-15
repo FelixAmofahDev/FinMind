@@ -64,8 +64,8 @@ class BusinessProfilePage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(24),
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.blue,
-                          AppColors.blue.withValues(alpha: 0.82),
+                          AppColors.primary,
+                          AppColors.primary.withValues(alpha: 0.82),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -385,10 +385,10 @@ class _DetailRow extends StatelessWidget {
                 height: 34,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.08),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 17, color: AppColors.blue),
+                child: Icon(icon, size: 17, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
               Expanded(

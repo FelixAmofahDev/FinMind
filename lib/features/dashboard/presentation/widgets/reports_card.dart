@@ -1,3 +1,4 @@
+import 'package:finmind/core/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finmind/shared/extensions/num_extensions.dart';
@@ -26,7 +27,7 @@ class ReportCard extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF185FA5),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
