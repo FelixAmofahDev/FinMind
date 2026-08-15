@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 enum DashboardDestination {
   home('Home', Icons.home_filled),
   insights('Insights', Icons.insights_outlined),
+  ai('AI Assistant', Icons.smart_toy_outlined),
   money('Money & People', Icons.people_outline),
   business('Business', Icons.settings_outlined);
 

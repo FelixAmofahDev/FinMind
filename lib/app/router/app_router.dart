@@ -1,8 +1,9 @@
-import '../../features/business/presentation/pages/business_profile_page.dart';
 import '../../features/business/presentation/pages/business_settings_page.dart';
 import '../../features/money_people_hub/presentation/pages/debtors_creditors_history_page.dart';
 import 'package:flutter/material.dart';
 
+import '../../features/ai/presentation/pages/chat_page.dart';
+import '../../features/ai/presentation/pages/conversations_list_page.dart';
 import '../../features/auth/presentation/pages/auth_gate_page.dart';
 import '../../features/auth/presentation/pages/email_verification_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -68,11 +69,11 @@ class AppRouter {
       case AppRoutes.insights:
         return _buildRoute(settings, const DashboardPage(initialIndex: 1));
       case AppRoutes.moneyPeopleHub:
-        return _buildRoute(settings, const DashboardPage(initialIndex: 2));
+        return _buildRoute(settings, const DashboardPage(initialIndex: 3));
       case AppRoutes.businessSettings:
         return _buildRoute(settings, const BusinessSettingsPage());
       case AppRoutes.businessProfile:
-        return _buildRoute(settings, const BusinessProfilePage());
+        return _buildRoute(settings, const DashboardPage(initialIndex: 4));
       case AppRoutes.debtorsCreditorsHistory:
         return _buildRoute(settings, const DebtorsCreditorsHistoryPage());
       case AppRoutes.recordRepayment:
@@ -94,6 +95,15 @@ class AppRouter {
         return _buildRoute(
           settings,
           OwnerTransactionsPage(initialTab: initialTab),
+        );
+      case AppRoutes.aiConversations:
+        return _buildRoute(settings, const ConversationsListPage());
+      case AppRoutes.aiChat:
+        final args = settings.arguments;
+        final conversationId = args is String ? args : null;
+        return _buildRoute(
+          settings,
+          ChatPage(conversationId: conversationId),
         );
       default:
         return _buildRoute(settings, const _NotFoundPage());

@@ -26,4 +26,9 @@ class ApiConstants {
   static const String ownerGetWithdrawal = '/api/v1/owner/withdrawals';
   static const String business = '/api/v1/business';
   static const String logout = '/api/v1/auth/logout';
+
+  // AI Assistant
+  static const String aiAsk = '/api/v1/ai/ask';
+  static const String aiConversations = '/api/v1/ai/conversations';
+  static const String aiConversationDetail = '/api/v1/ai/conversations';
 }

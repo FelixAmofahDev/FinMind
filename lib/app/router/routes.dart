@@ -36,4 +36,6 @@ class AppRoutes {
   static const String ownerTransactions = '/money/owner-transactions';
   static const String businessProfile = '/business/profile';
   static const String businessSettings = '/business/settings';
+  static const String aiConversations = '/ai';
+  static const String aiChat = '/ai/chat';
 }
