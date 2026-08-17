@@ -24,6 +24,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
   bool _isTyping = false;
   String? _currentConversationId;
   String? _conversationTitle;
+  String? _animatingMessageId;
   late AnimationController _dotAnimationController;
   late Animation<double> _dotAnimation;
 
@@ -64,6 +65,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
           _messages.addAll(conversation.messages);
           _currentConversationId = conversation.id;
           _conversationTitle = conversation.title;
+          _animatingMessageId = null;
         });
         _scrollToBottom();
       }
@@ -104,6 +106,8 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
           .ask(message: message, conversationId: conversationId);
 
       if (mounted) {
+        final aiMessageId = 'msg_ai_${DateTime.now().millisecondsSinceEpoch}';
+
         setState(() {
           _currentConversationId = result.conversationId;
           _messages.add(Message(
@@ -112,6 +116,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
             content: result.answer,
             createdAt: DateTime.now(),
           ));
+          _animatingMessageId = aiMessageId;
           _isTyping = false;
         });
         _scrollToBottom();
@@ -145,6 +150,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
       _currentConversationId = null;
       _conversationTitle = null;
       _messageController.clear();
+      _animatingMessageId = null;
     });
   }
 
@@ -236,8 +242,9 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
                         Flexible(
                           child: Text(
                             displayTitle,
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18,  color: AppColors.primary),
                             overflow: TextOverflow.ellipsis,
+                            
                           ),
                         ),
                         if (_currentConversationId != null) ...[
@@ -312,6 +319,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
                             role: message.role,
                             content: message.content,
                             timestamp: message.createdAt,
+                            animate: message.id == _animatingMessageId,
                           ),
                         );
                       },

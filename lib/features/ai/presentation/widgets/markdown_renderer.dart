@@ -1,3 +1,4 @@
+import 'package:finmind/core/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -27,21 +28,23 @@ class MarkdownRenderer extends StatelessWidget {
         codeBackgroundColor ?? theme.colorScheme.surfaceContainerHighest;
     final effectiveCodeTextColor =
         codeTextColor ?? theme.colorScheme.onSurface;
-    final effectiveHeadingColor = headingColor ?? theme.colorScheme.primary;
-    final effectiveLinkColor =
-        linkColor ?? theme.colorScheme.primary;
+    final effectiveLinkColor = linkColor ?? theme.colorScheme.primary;
 
     return MarkdownBody(
       data: content,
       styleSheet: MarkdownStyleSheet(
-        p: TextStyle(color: effectiveTextColor, fontSize: 15, height: 1.5),
+        p: TextStyle(color: effectiveTextColor, fontSize: 16, height: 1.5),
         strong: TextStyle(
-            color: effectiveTextColor, fontSize: 15, fontWeight: FontWeight.w800),
+          color: AppColors.primary,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+        ),
         em: TextStyle(
-            color: effectiveTextColor,
-            fontSize: 15,
-            fontStyle: FontStyle.italic),
-        blockquote: TextStyle(color: effectiveTextColor, fontSize: 15),
+          color: effectiveTextColor,
+          fontSize: 16,
+          fontStyle: FontStyle.italic,
+        ),
+        blockquote: TextStyle(color: effectiveTextColor, fontSize: 16),
         code: TextStyle(
           color: effectiveCodeTextColor,
           fontSize: 13,
@@ -53,25 +56,25 @@ class MarkdownRenderer extends StatelessWidget {
         ),
         codeblockPadding: const EdgeInsets.all(12),
         h1: TextStyle(
-          color: effectiveHeadingColor,
+          color: effectiveTextColor,
           fontSize: 22,
           fontWeight: FontWeight.w800,
           height: 1.3,
         ),
         h2: TextStyle(
-          color: effectiveHeadingColor,
+          color: effectiveTextColor,
           fontSize: 20,
           fontWeight: FontWeight.w700,
           height: 1.3,
         ),
         h3: TextStyle(
-          color: effectiveHeadingColor,
+          color: effectiveTextColor,
           fontSize: 18,
           fontWeight: FontWeight.w700,
           height: 1.3,
         ),
         h4: TextStyle(
-          color: effectiveHeadingColor,
+          color: effectiveTextColor,
           fontSize: 16,
           fontWeight: FontWeight.w700,
           height: 1.3,
@@ -98,7 +101,8 @@ class MarkdownRenderer extends StatelessWidget {
             left: BorderSide(color: effectiveLinkColor, width: 3),
           ),
         ),
-        blockquotePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        blockquotePadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         a: TextStyle(color: effectiveLinkColor),
         del: TextStyle(
           color: effectiveTextColor,

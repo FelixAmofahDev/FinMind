@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/colors.dart';
 import 'markdown_renderer.dart';
+import 'streaming_text.dart';
 
 class ChatBubble extends StatelessWidget {
   const ChatBubble({
@@ -10,6 +10,7 @@ class ChatBubble extends StatelessWidget {
     required this.content,
     this.timestamp,
     this.onRetry,
+    this.animate = false,
   });
 
   final String role;
@@ -17,118 +18,119 @@ class ChatBubble extends StatelessWidget {
   final DateTime? timestamp;
   final VoidCallback? onRetry;
 
+  /// Only true for a message that was just received from the assistant
+  /// in this session — historical/loaded messages should render instantly.
+  final bool animate;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isUser = role == 'user';
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-      children: [
-        if (!isUser) ...[
+    return isUser ? _buildUserBubble(context, theme) : _buildAssistantText(context, theme);
+  }
+
+  Widget _buildUserBubble(BuildContext context, ThemeData theme) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
           Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.blue,
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.78,
             ),
-            child: const Icon(Icons.smart_toy_rounded, size: 18, color: Colors.white),
-          ),
-          const SizedBox(width: 8),
-        ],
-        Flexible(
-          child: Column(
-            crossAxisAlignment:
-                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: [
-              Container(
-                constraints: const BoxConstraints(maxWidth: 320),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: isUser
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.surface,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(16),
-                    topRight: const Radius.circular(16),
-                    bottomLeft: Radius.circular(isUser ? 16 : 4),
-                    bottomRight: Radius.circular(isUser ? 4 : 16),
-                  ),
-                  border: isUser
-                      ? null
-                      : Border.all(color: theme.colorScheme.outlineVariant),
-                ),
-                child: isUser
-                    ? Text(
-                        content,
-                        style: TextStyle(
-                          color: theme.colorScheme.onPrimary,
-                          fontSize: 15,
-                          height: 1.5,
-                        ),
-                      )
-                    : MarkdownRenderer(
-                        content: content,
-                        textColor: theme.colorScheme.onSurface,
-                        headingColor: theme.colorScheme.primary,
-                        linkColor: theme.colorScheme.primary,
-                      ),
-              ),
-              if (timestamp != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  _formatTime(timestamp!),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-              if (onRetry != null && !isUser && content.isEmpty) ...[
-                const SizedBox(height: 4),
-                TextButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh_rounded, size: 14),
-                  label: const Text('Retry'),
-                  style: TextButton.styleFrom(
-                    textStyle: theme.textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        if (isUser) ...[
-          const SizedBox(width: 8),
-          Container(
-            width: 32,
-            height: 32,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.colorScheme.primaryContainer,
+              color: theme.colorScheme.primary,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(18),
+                topRight: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
+                bottomRight: Radius.circular(4),
+              ),
             ),
-            child: Icon(Icons.person_rounded, size: 18,
-                color: theme.colorScheme.onPrimaryContainer),
+            child: Text(
+              content,
+              style: TextStyle(
+                color: theme.colorScheme.onPrimary,
+                fontSize: 18,
+                height: 1.5,
+              ),
+            ),
           ),
+          if (timestamp != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _formatTime(timestamp!),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 11,
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
+    );
+  }
+
+  Widget _buildAssistantText(BuildContext context, ThemeData theme) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DefaultTextStyle.merge(
+            style: TextStyle(
+              fontSize: 18,
+              height: 1.6,
+              color: theme.colorScheme.onSurface,
+            ),
+            child: StreamingText(
+              content: content,
+              textColor: theme.colorScheme.onSurface,
+              headingColor: theme.colorScheme.primary,
+              linkColor: theme.colorScheme.primary,
+              animate: animate && content.isNotEmpty,
+            ),
+          ),
+          if (timestamp != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _formatTime(timestamp!),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 11,
+              ),
+            ),
+          ],
+          if (onRetry != null && content.isEmpty) ...[
+            const SizedBox(height: 4),
+            TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded, size: 14),
+              label: const Text('Retry'),
+              style: TextButton.styleFrom(
+                textStyle: theme.textTheme.bodySmall,
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
   String _formatTime(DateTime time) {
     final now = DateTime.now();
-    final isToday = now.year == time.year &&
-        now.month == time.month &&
-        now.day == time.day;
+    final isToday = now.year == time.year && now.month == time.month && now.day == time.day;
     if (isToday) {
       return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
     }
     final yesterday = now.subtract(const Duration(days: 1));
-    final isYesterday = yesterday.year == time.year &&
-        yesterday.month == time.month &&
-        yesterday.day == time.day;
+    final isYesterday = yesterday.year == time.year && yesterday.month == time.month && yesterday.day == time.day;
     if (isYesterday) {
       return 'Yesterday ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
     }
