@@ -94,7 +94,7 @@ class _OwnerTransactionsPageState extends ConsumerState<OwnerTransactionsPage>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openEntrySheet,
-        backgroundColor: isDeposit ? AppColors.teal : AppColors.purple,
+        backgroundColor: isDeposit ? AppColors.tealDark : AppColors.purple,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: Text(isDeposit ? 'Add deposit' : 'Add withdrawal', style:TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
       ),
