@@ -257,7 +257,7 @@ class BusinessProfilePage extends ConsumerWidget {
                         );
                       }
                     },
-                    child: const Text('Log out'),
+                    child: const Text('Log out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600, fontSize: 18)),
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -418,7 +418,7 @@ class _BusinessHeroHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Business Account ID',
+                          'Business Account',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.85),
                             fontSize: 12,

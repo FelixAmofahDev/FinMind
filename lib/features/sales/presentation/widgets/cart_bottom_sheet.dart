@@ -1,3 +1,4 @@
+import 'package:finmind/features/sales/presentation/widgets/sale_product_tile.dart';
 import 'package:finmind/shared/extensions/num_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +14,6 @@ import '../../../../features/debtors/domain/entities/debtor.dart';
 import '../../../../features/sales/domain/entities/sale_payment_method.dart';
 import '../../../../features/sales/presentation/providers/sales_provider.dart';
 import '../../../../features/sales/presentation/widgets/customer_picker_sheet.dart';
-import '../pages/sales_page.dart';
 
 class CartBottomSheet extends ConsumerStatefulWidget {
   const CartBottomSheet({

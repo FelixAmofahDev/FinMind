@@ -61,7 +61,7 @@ class ProductsHeaderCard extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     _HeaderBadge(label: '$productCount products'),
-                    _HeaderBadge(label: onboardingFlow ? 'Onboarding step' : 'Standalone feature'),
+                    _HeaderBadge(label: onboardingFlow ? 'Onboarding step' : ''),
                   ],
                 ),
               ],

@@ -7,7 +7,7 @@ enum DashboardDestination {
   home('Home', Icons.home_filled),
   insights('Insights', Icons.insights_outlined),
   ai('AI', Icons.smart_toy_outlined),
-  money('Money & People', Icons.people_outline),
+  money('Finances', Icons.people_outline),
   business('Business', Icons.settings_outlined);
 
   const DashboardDestination(this.label, this.icon);
@@ -59,7 +59,7 @@ class DashboardBottomNav extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: -28,
+          top: -10,
           child: _AiNavButton(
             selected: selectedIndex == 2,
             onTap: () => onDestinationSelected(2),

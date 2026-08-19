@@ -296,7 +296,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
                     )
                   : ListView.builder(
                       controller: _scrollController,
-                      padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + MediaQuery.of(context).viewInsets.bottom),
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
                       itemCount: _messages.length + (_isTyping ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index == _messages.length) {
@@ -336,7 +336,7 @@ class _ChatPageState extends ConsumerState<ChatPage> with SingleTickerProviderSt
                 left: 12,
                 right: 12,
                 top: 10,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+                bottom: 10 + MediaQuery.of(context).padding.bottom,
               ),
               child: Row(
                 children: [

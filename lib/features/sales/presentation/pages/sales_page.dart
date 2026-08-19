@@ -245,11 +245,14 @@ class _SalesPageState extends ConsumerState<SalesPage> {
       if (next is AsyncData<Sale?>) {
         final sale = next.value;
         if (sale != null && mounted) {
+      if (_isCartOpen) {
+        Navigator.of(context).pop(); // close the cart bottom sheet
+      }
+      _clearCart();
           SuccessDialog.show(
             context,
             message: 'Sale recorded successfully.\nReference: ${sale.referenceNumber}',
           );
-          _clearCart();
         }
       } else if (next is AsyncError) {
         _showError(next.error.toString());
@@ -350,12 +353,6 @@ class _SalesPageState extends ConsumerState<SalesPage> {
   }
 }
 
-class CartItem {
-  CartItem({required this.product, this.quantity = 1});
-
-  final Product product;
-  int quantity;
-}
 
 extension _ListExtension<T> on List<T> {
   T? firstWhereOrNull(bool Function(T) test) {
