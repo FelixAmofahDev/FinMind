@@ -4,7 +4,7 @@ import '../../../../core/theme/colors.dart';
 
 /// The destinations available from the dashboard's bottom navigation bar.
 enum DashboardDestination {
-  home('Home', Icons.home_filled),
+  home(' Home ', Icons.home_filled),
   insights('Insights', Icons.insights_outlined),
   ai('AI', Icons.smart_toy_outlined),
   money('Finances', Icons.people_outline),

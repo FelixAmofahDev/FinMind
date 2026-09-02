@@ -124,39 +124,104 @@ class _ActivityRow extends StatelessWidget {
     final entityColor = _entityColor(entity);
     final actionColor = _actionColor(action);
 
-    return ListTile(
-      leading: Container(
-        width: 38,
-        height: 38,
+    return Container(
+  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  decoration: BoxDecoration(
+    color: Theme.of(context).colorScheme.surface,
+    borderRadius: BorderRadius.circular(14),
+    border: Border.all(
+      color: Colors.grey.withOpacity(0.10),
+    ),
+  ),
+  child: Row(
+    children: [
+      // Entity icon
+      Container(
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
-          color: entityColor.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(11),
+          color: entityColor.withOpacity(0.10),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           _entityIcon(entity),
-          size: 18,
+          size: 19,
           color: entityColor,
         ),
       ),
-      title: Text(title, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: actionColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(6),
+
+      const SizedBox(width: 12),
+
+      // Title + subtitle
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.1,
+              ),
             ),
-            child: Text(
-              action,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: actionColor),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey.shade500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
+
+      const SizedBox(width: 10),
+
+      // Action
+      Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 9,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          color: actionColor.withOpacity(0.09),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 5,
+              height: 5,
+              decoration: BoxDecoration(
+                color: actionColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              action,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: actionColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
+);
   }
 
   Color _entityColor(String entity) {

@@ -1,22 +1,26 @@
 import 'package:finmind/app/router/routes.dart';
+import 'package:finmind/features/audit_trail/presentation/providers/audit_trail_provider.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/header.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/quick_action_grid.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/recent_activity.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/reports_card.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/stats_card.dart';
+import 'package:finmind/features/reports/presentation/providers/reports_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     //wrap in refresh indicator to allow pull to refresh on all pages
     return SafeArea(
       child: RefreshIndicator(
         onRefresh: () async {
-          // Implement refresh logic here
-        
+         await ref.read(cashPositionControllerProvider.notifier).refresh();
+         await ref.read(profitLossControllerProvider.notifier).refresh();
+         await ref.read(auditLogsControllerProvider.notifier).refresh();
         },
         child: ListView(
           padding: const EdgeInsets.only(bottom: 24),
