@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,62 +9,131 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_styles.dart';
-import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/primary_button.dart';
+import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../shared/dialogs/error_dialog.dart';
 import '../../../../shared/dialogs/loading_dialog.dart';
+import '../../../../shared/utils/csv_import_utils.dart';
+import '../../domain/entities/product_import_row.dart';
 import '../../domain/entities/product_import_result.dart';
+import '../../presentation/widgets/product_import_row.dart';
 import '../providers/products_provider.dart';
 
-class ProductBulkImportPage extends ConsumerWidget {
+class ProductBulkImportPage extends ConsumerStatefulWidget {
   const ProductBulkImportPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProductBulkImportPage> createState() => _ProductBulkImportPageState();
+}
+
+class _ProductBulkImportPageState extends ConsumerState<ProductBulkImportPage> {
+  final List<ProductImportRow> _rows = <ProductImportRow>[];
+  bool _isSubmitting = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bulk import products'),
         backgroundColor: Theme.of(context).colorScheme.surface,
         surfaceTintColor: Colors.transparent,
+        actions: [
+          if (_rows.isNotEmpty && !_isSubmitting)
+            TextButton.icon(
+              onPressed: _submit,
+              icon: const Icon(Icons.upload_rounded, size: 18),
+              label: const Text('Submit'),
+            ),
+        ],
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppCard(
-              padding: const EdgeInsets.all(18),
+            Padding(
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Import products from a spreadsheet',
-                    style: AppTextStyles.titleLarge.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Download the template, fill in your products in Excel or Google Sheets, then upload the file back here. Up to 500 products per upload.',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 20),
-                  PrimaryButton(
-                    label: 'Download template',
-                    icon: const Icon(Icons.download_rounded, size: 20),
-                    onPressed: () => _downloadTemplate(context, ref),
-                    expanded: true,
+                  Row(
+                    children: [
+                      
+                      Expanded(
+                        child: PrimaryButton(
+                          label: 'Upload CSV',
+                          icon: const Icon(Icons.upload_file_rounded, size: 18),
+                          onPressed: _isSubmitting ? null : _uploadCsv,
+                          //expanded: true,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          label: 'Template',
+                          icon: const Icon(Icons.download_rounded, size: 18),
+                          onPressed: _downloadTemplate,
+                          //expanded: true,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  PrimaryButton(
-                    label: 'Upload filled CSV',
-                    icon: const Icon(Icons.upload_file_rounded, size: 20),
-                    onPressed: () => _uploadCsv(context, ref),
-                    expanded: true,
+                  Text(
+                    'Add products manually, or upload a filled CSV template. Up to 500 products per submission.',
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
+            ),
+            Expanded(
+              child: _rows.isEmpty
+                  ? Center(
+                      child: EmptyStateWidget(
+                        icon: Icons.post_add_outlined,
+                        title: 'No rows yet',
+                        message: 'Add rows manually or upload a CSV template to get started.',
+                        action: PrimaryButton(
+                          label: 'Add first row',
+                          onPressed: _addRow,
+                          expanded: false,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                      itemCount: _rows.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == _rows.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 16, bottom: 8),
+                            child: PrimaryButton(
+                              label: 'Add another row',
+                              icon: const Icon(Icons.add_rounded, size: 18),
+                              onPressed: _addRow,
+                              expanded: true,
+                            ),
+                          );
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ProductImportRowWidget(
+                            row: _rows[index],
+                            index: index,
+                            onChanged: (row) {
+                              setState(() {
+                                _rows[index] = row;
+                              });
+                            },
+                            onRemove: () {
+                              setState(() {
+                                _rows.removeAt(index);
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -71,23 +141,29 @@ class ProductBulkImportPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _downloadTemplate(BuildContext context, WidgetRef ref) async {
+  void _addRow() {
+    setState(() {
+      _rows.add(ProductImportRow());
+    });
+  }
+
+  Future<void> _downloadTemplate() async {
     try {
       final bytes = await ref.read(productsControllerProvider.notifier).downloadImportTemplate();
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/finmind-product-template.csv');
       await file.writeAsBytes(bytes);
-      if (!context.mounted) return;
+      if (!mounted) return;
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'Fill this in and upload it back to FinMind',
       );
-      if (!context.mounted) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Template downloaded successfully.')),
       );
     } catch (error) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       ErrorDialog.show(
         context,
         message: error.toString(),
@@ -96,7 +172,7 @@ class ProductBulkImportPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _uploadCsv(BuildContext context, WidgetRef ref) async {
+  Future<void> _uploadCsv() async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
@@ -124,37 +200,89 @@ class ProductBulkImportPage extends ConsumerWidget {
         return;
       }
 
-      File file;
-      if (picked.path != null) {
-        file = File(picked.path!);
+      String csvContent;
+      if (picked.bytes != null) {
+        csvContent = utf8.decode(picked.bytes!);
       } else {
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/import-${DateTime.now().millisecondsSinceEpoch}.csv');
-        await tempFile.writeAsBytes(picked.bytes!);
-        file = tempFile;
+        csvContent = await File(picked.path!).readAsString();
       }
 
-      if (!file.existsSync()) {
+      final parsedRows = CsvImportUtils.parseCsv(csvContent);
+      if (parsedRows.isEmpty) {
         ErrorDialog.show(
           context,
-          message: 'Selected file could not be found.',
-          title: 'File not found',
+          message: 'No valid product rows found in the CSV file.',
+          title: 'Empty file',
         );
         return;
       }
 
-      if (!context.mounted) return;
-      LoadingDialog.show(context, message: 'Importing products...');
+      setState(() {
+        _rows
+          ..clear()
+          ..addAll(parsedRows);
+      });
 
-      final importResult = await ref.read(productsControllerProvider.notifier).importProducts(csvFile: file);
-
-      if (!context.mounted) return;
-      LoadingDialog.hide(context);
-
-      await _showResult(context, importResult);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Loaded ${parsedRows.length} rows from CSV.')),
+      );
     } catch (error) {
-      if (!context.mounted) return;
+      if (!mounted) return;
+      ErrorDialog.show(
+        context,
+        message: error.toString(),
+        title: 'Failed to parse CSV',
+      );
+    }
+  }
+
+  Future<void> _submit() async {
+    final nonEmptyRows = _rows.where((row) => row.name.trim().isNotEmpty).toList();
+    if (nonEmptyRows.isEmpty) {
+      ErrorDialog.show(
+        context,
+        message: 'Please add at least one product with a name.',
+        title: 'No products to import',
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    LoadingDialog.show(context, message: 'Importing ${nonEmptyRows.length} products...');
+
+    try {
+      final csvContent = CsvImportUtils.generateCsv(nonEmptyRows);
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/import-${DateTime.now().millisecondsSinceEpoch}.csv');
+      await file.writeAsString(csvContent);
+
+      final result = await ref.read(productsControllerProvider.notifier).importProducts(csvFile: file);
+
+      if (!mounted) return;
       LoadingDialog.hide(context);
+      setState(() => _isSubmitting = false);
+
+      if (result.failed == 0) {
+        setState(() {
+          _rows.clear();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${result.created} products imported successfully.')),
+        );
+      } else {
+        final erroredRows = _applyErrorsToRows(nonEmptyRows, result);
+        setState(() {
+          _rows
+            ..clear()
+            ..addAll(erroredRows);
+        });
+        await _showErrorResult(context, result);
+      }
+    } catch (error) {
+      if (!mounted) return;
+      LoadingDialog.hide(context);
+      setState(() => _isSubmitting = false);
       ErrorDialog.show(
         context,
         message: error.toString(),
@@ -163,70 +291,60 @@ class ProductBulkImportPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _showResult(BuildContext context, ProductImportResult result) async {
-    final message = result.failed == 0
-        ? '${result.created} products added successfully.'
-        : '${result.created} products added. ${result.failed} rows had issues:';
+  List<ProductImportRow> _applyErrorsToRows(List<ProductImportRow> submittedRows, ProductImportResult result) {
+    final errorByRow = <int, String>{};
+    for (final error in result.errors) {
+      errorByRow[error.row] = error.reason;
+    }
 
+    final erroredRows = <ProductImportRow>[];
+    for (var i = 0; i < submittedRows.length; i++) {
+      final originalRow = submittedRows[i];
+      final backendRowNumber = i + 2;
+      if (errorByRow.containsKey(backendRowNumber)) {
+        erroredRows.add(originalRow.copyWith(error: errorByRow[backendRowNumber]));
+      }
+    }
+    return erroredRows;
+  }
+
+  Future<void> _showErrorResult(BuildContext context, ProductImportResult result) async {
     final theme = Theme.of(context);
-    final errorItems = result.errors.isEmpty
-        ? <Widget>[]
-        : [
-            const SizedBox(height: 12),
-            Text(
-              'Errors:',
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...result.errors.map((error) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.warning_rounded,
-                      size: 18,
-                      color: theme.colorScheme.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Row ${error.row}: ',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            TextSpan(
-                              text: error.name.isNotEmpty ? '"${error.name}" — ' : '',
-                              style: theme.textTheme.bodySmall,
-                            ),
-                            TextSpan(
-                              text: error.reason,
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ];
-
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(message),
-        ...errorItems,
+        Text('${result.created} products added. ${result.failed} rows had issues and are highlighted below.'),
+        const SizedBox(height: 12),
+        ...result.errors.map((error) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.warning_rounded, size: 16, color: theme.colorScheme.error),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Row ${error.row}: ',
+                          style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        TextSpan(
+                          text: error.name.isNotEmpty ? '"${error.name}" — ' : '',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        TextSpan(text: error.reason, style: theme.textTheme.bodySmall),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ],
     );
 
@@ -235,16 +353,8 @@ class ProductBulkImportPage extends ConsumerWidget {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          icon: Icon(
-            result.failed == 0
-                ? Icons.check_circle_outline
-                : Icons.warning_rounded,
-            color: result.failed == 0
-                ? theme.colorScheme.primary
-                : theme.colorScheme.error,
-            size: 32,
-          ),
-          title: Text(result.failed == 0 ? 'Import complete' : 'Import finished'),
+          icon: Icon(Icons.warning_rounded, color: theme.colorScheme.error, size: 32),
+          title: const Text('Import finished with errors'),
           content: SingleChildScrollView(child: content),
           actions: [
             FilledButton(
