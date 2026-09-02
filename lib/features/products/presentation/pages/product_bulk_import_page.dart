@@ -99,13 +99,41 @@ class ProductBulkImportPage extends ConsumerWidget {
   Future<void> _uploadCsv(BuildContext context, WidgetRef ref) async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
+        type: FileType.any,
+        withData: true,
       );
       if (result == null || result.files.isEmpty) return;
 
       final picked = result.files.single;
-      final file = File(picked.path!);
+      final extension = picked.extension?.toLowerCase() ?? picked.name.toLowerCase().split('.').last;
+      if (extension != 'csv') {
+        ErrorDialog.show(
+          context,
+          message: 'Please select a CSV file. Selected: ${picked.name}',
+          title: 'Invalid file type',
+        );
+        return;
+      }
+
+      if (picked.path == null && picked.bytes == null) {
+        ErrorDialog.show(
+          context,
+          message: 'Selected file could not be read. Try copying it to local storage first.',
+          title: 'File not readable',
+        );
+        return;
+      }
+
+      File file;
+      if (picked.path != null) {
+        file = File(picked.path!);
+      } else {
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/import-${DateTime.now().millisecondsSinceEpoch}.csv');
+        await tempFile.writeAsBytes(picked.bytes!);
+        file = tempFile;
+      }
+
       if (!file.existsSync()) {
         ErrorDialog.show(
           context,

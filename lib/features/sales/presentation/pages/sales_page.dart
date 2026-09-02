@@ -9,6 +9,7 @@ import 'package:finmind/core/theme/colors.dart';
 import 'package:finmind/shared/widgets/empty_state_widget.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
 import 'package:finmind/shared/dialogs/success_dialog.dart';
+import 'package:finmind/features/products/presentation/providers/products_provider.dart';
 
 import '../../../../features/products/domain/entities/product.dart';
 import '../../../../features/debtors/domain/entities/debtor.dart';
@@ -56,8 +57,7 @@ class _SalesPageState extends ConsumerState<SalesPage> {
 
   void _onSearchChanged() {
     final query = _searchController.text.trim();
-    ref.read(salesSearchProvider.notifier).setSearch(query);
-    ref.read(salesProductsControllerProvider.notifier).refresh();
+    ref.read(productsControllerProvider.notifier).updateSearch(query);
   }
 
   bool get _isCredit => _paymentMethod.isCredit;
@@ -239,7 +239,7 @@ class _SalesPageState extends ConsumerState<SalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final productsState = ref.watch(salesProductsControllerProvider);
+    final productsState = ref.watch(productsControllerProvider);
 
     ref.listen<AsyncValue<Sale?>>(salesControllerProvider, (prev, next) {
       if (next is AsyncData<Sale?>) {
@@ -304,7 +304,7 @@ class _SalesPageState extends ConsumerState<SalesPage> {
                   message: error.toString(),
                   action: TextButton(
                     onPressed: () =>
-                        ref.read(salesProductsControllerProvider.notifier).refresh(),
+                        ref.read(productsControllerProvider.notifier).refreshProducts(),
                     child: const Text('Retry'),
                   ),
                 ),

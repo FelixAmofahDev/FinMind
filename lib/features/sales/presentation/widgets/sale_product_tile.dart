@@ -164,12 +164,17 @@ class _StockBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isOutOfStock && !isLowStock) return const SizedBox.shrink();
+    final label = isOutOfStock ? 'Out of stock' : '$stock in stock';
+    final color = isOutOfStock
+        ? AppColors.coralDark
+        : isLowStock
+            ? AppColors.amberDark
+            : AppColors.tealDark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.coralDark,
+        color: color,
         borderRadius: BorderRadius.circular(6),
         boxShadow: [
           BoxShadow(
@@ -180,7 +185,7 @@ class _StockBadge extends StatelessWidget {
         ],
       ),
       child: Text(
-        isOutOfStock ? 'Out of stock' : '$stock left',
+        label,
         style: const TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
