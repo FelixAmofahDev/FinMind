@@ -33,7 +33,7 @@ class ReportCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Cash on hand · all accounts',
+          Text('Total cash · all accounts',
               style: TextStyle(fontSize: 12.5, color: Colors.blue.shade100)),
           const SizedBox(height: 6),
           Text(cashText,
@@ -42,16 +42,7 @@ class ReportCard extends ConsumerWidget {
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: -0.5)),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text('Incoming...',
-                style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600)),
-          ),
+          
           const SizedBox(height: 16),
           const Divider(color: Colors.white24, height: 1),
           const SizedBox(height: 14),

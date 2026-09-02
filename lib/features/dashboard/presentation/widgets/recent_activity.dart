@@ -121,109 +121,119 @@ class _ActivityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entityColor = _entityColor(entity);
     final actionColor = _actionColor(action);
 
     return Container(
-  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  decoration: BoxDecoration(
-    color: Theme.of(context).colorScheme.surface,
-    borderRadius: BorderRadius.circular(14),
-    border: Border.all(
-      color: Colors.grey.withOpacity(0.10),
-    ),
-  ),
-  child: Row(
-    children: [
-      // Entity icon
-      Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: entityColor.withOpacity(0.10),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(
-          _entityIcon(entity),
-          size: 19,
-          color: entityColor,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.10),
         ),
       ),
-
-      const SizedBox(width: 12),
-
-      // Title + subtitle
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.1,
-              ),
+      child: Row(
+        children: [
+          // Entity icon — neutral, same treatment for every row
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.paper,
+              borderRadius: BorderRadius.circular(9),
+              border: Border.all(color: AppColors.line),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade500,
-              ),
+            child: Icon(
+              _entityIcon(entity),
+              size: 18,
+              color: AppColors.textPrimary,
             ),
-          ],
-        ),
-      ),
+          ),
 
-      const SizedBox(width: 10),
+          const SizedBox(width: 12),
 
-      // Action
-      Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 9,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: actionColor.withOpacity(0.09),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 5,
-              height: 5,
-              decoration: BoxDecoration(
-                color: actionColor,
-                shape: BoxShape.circle,
-              ),
+          // Title + entity label + subtitle
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.1,
+                    color: Color.fromARGB(255, 46, 97, 60),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '${_entityLabel(entity)} · $subtitle',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: _entityColor(entity),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 6),
-            Text(
-              action,
+          ),
+
+          const SizedBox(width: 10),
+
+          // Action — the only accent color on the row
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
+            ),
+            decoration: BoxDecoration(
+              color: actionColor.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: actionColor.withOpacity(0.3)),
+            ),
+            child: Text(
+              action[0].toUpperCase() + action.substring(1),
               style: TextStyle(
                 fontSize: 10.5,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: actionColor,
+                letterSpacing: 0.2,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    ],
-  ),
-);
+    );
   }
 
+  String _entityLabel(String entity) {
+    return entity
+        .split('_')
+        .map((word) => word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
+        .join(' ');
+  }
+
+  Color _actionColor(String action) {
+    switch (action) {
+      case 'created':
+        return AppColors.mute;
+      case 'updated':
+        return AppColors.blue;
+      case 'voided':
+        return AppColors.warning;
+      case 'deleted':
+        return AppColors.danger;
+      default:
+        return AppColors.mute;
+    }
+  }
   Color _entityColor(String entity) {
     switch (entity) {
       case 'sale':
@@ -240,21 +250,6 @@ class _ActivityRow extends StatelessWidget {
         return AppColors.tealDark;
       case 'owner_withdrawal':
         return AppColors.coralDark;
-      default:
-        return AppColors.mute;
-    }
-  }
-
-  Color _actionColor(String action) {
-    switch (action) {
-      case 'created':
-        return AppColors.success;
-      case 'updated':
-        return AppColors.blue;
-      case 'voided':
-        return AppColors.warning;
-      case 'deleted':
-        return AppColors.danger;
       default:
         return AppColors.mute;
     }

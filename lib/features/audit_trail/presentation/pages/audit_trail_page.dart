@@ -364,7 +364,6 @@ class _AuditLogTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final entityColor = _entityColor(log.entity);
     final actionColor = _actionColor(log.action);
 
     return AppCard(
@@ -373,30 +372,39 @@ class _AuditLogTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: entityColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.paper,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.line),
             ),
-            child: Icon(_entityIcon(log.entity), size: 20, color: entityColor),
+            child: Icon(_entityIcon(log.entity), size: 18, color: AppColors.textPrimary),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  log.summary,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
                 Row(
                   children: [
-                    _Chip(label: log.entity, color: entityColor),
-                    const SizedBox(width: 6),
-                    _Chip(label: log.action, color: actionColor),
+                    Expanded(
+                      child: Text(
+                        log.summary,
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: Color.fromARGB(255, 46, 97, 60)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _StatusChip(label: log.action, color: actionColor),
                   ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _entityLabel(log.entity),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _entityColor(log.entity),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -411,7 +419,28 @@ class _AuditLogTile extends StatelessWidget {
     );
   }
 
-  Color _entityColor(String entity) {
+  String _entityLabel(String entity) {
+    return entity
+        .split('_')
+        .map((word) => word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
+        .join(' ');
+  }
+
+  Color _actionColor(String action) {
+    switch (action) {
+      case 'created':
+        return AppColors.mute;
+      case 'updated':
+        return AppColors.blue;
+      case 'voided':
+        return AppColors.warning;
+      case 'deleted':
+        return AppColors.danger;
+      default:
+        return AppColors.mute;
+    }
+  }
+Color _entityColor(String entity) {
     switch (entity) {
       case 'sale':
         return AppColors.teal;
@@ -431,22 +460,6 @@ class _AuditLogTile extends StatelessWidget {
         return AppColors.mute;
     }
   }
-
-  Color _actionColor(String action) {
-    switch (action) {
-      case 'created':
-        return AppColors.success;
-      case 'updated':
-        return AppColors.blue;
-      case 'voided':
-        return AppColors.warning;
-      case 'deleted':
-        return AppColors.danger;
-      default:
-        return AppColors.mute;
-    }
-  }
-
   IconData _entityIcon(String entity) {
     switch (entity) {
       case 'sale':
@@ -469,8 +482,8 @@ class _AuditLogTile extends StatelessWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.color});
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.label, required this.color});
 
   final String label;
   final Color color;
@@ -478,14 +491,15 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: color.withOpacity(0.35)),
       ),
       child: Text(
-        label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
+        label[0].toUpperCase() + label.substring(1),
+        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color, letterSpacing: 0.2),
       ),
     );
   }

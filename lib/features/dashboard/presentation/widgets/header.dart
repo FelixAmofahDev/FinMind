@@ -1,3 +1,4 @@
+import 'package:finmind/app/router/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,7 +55,7 @@ class DashboardHeader extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFE7EBF0)),
             ),
-            child: const Icon(Icons.notifications_outlined, size: 20),
+            child: IconButton(icon: Icon(Icons.notifications_outlined), iconSize: 20, onPressed: () => Navigator.of(context).pushNamed(AppRoutes.auditTrail)),
           ),
         ],
       ),
