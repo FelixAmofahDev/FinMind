@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_input.dart';
 import '../../domain/entities/products_query.dart';
 import '../../domain/repositories/products_repository.dart';
+import '../../domain/entities/product_import_result.dart';
 import '../datasources/products_remote_datasource.dart';
 import '../models/product_input_model.dart';
 import '../models/product_update_request_model.dart';
@@ -57,5 +61,16 @@ class ProductsRepositoryImpl implements ProductsRepository {
         categoryId: categoryId,
       ),
     );
+  }
+
+  @override
+  Future<ProductImportResult> importProducts({required File csvFile}) async {
+    final model = await _remoteDatasource.importProducts(csvFile: csvFile);
+    return model.toEntity();
+  }
+
+  @override
+  Future<Uint8List> downloadImportTemplate() {
+    return _remoteDatasource.downloadImportTemplate();
   }
 }

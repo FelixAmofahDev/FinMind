@@ -1,3 +1,4 @@
+import 'package:finmind/app/router/routes.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/header.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/quick_action_grid.dart';
 import 'package:finmind/features/dashboard/presentation/widgets/recent_activity.dart';
@@ -28,7 +29,11 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 18),
           StatCardsRow(),
           const SizedBox(height: 20),
-          const _SectionHeader(title: 'Recent activity', actionLabel: 'See all'),
+          _SectionHeader(
+            title: 'Recent activity',
+            actionLabel: 'See all',
+            onActionTap: () => Navigator.of(context).pushNamed(AppRoutes.auditTrail),
+          ),
           const ActivityListCard(),
           const SizedBox(height: 12),
         ],
@@ -43,7 +48,8 @@ class HomePage extends StatelessWidget {
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String actionLabel;
-  const _SectionHeader({required this.title, required this.actionLabel});
+  final VoidCallback? onActionTap;
+  const _SectionHeader({required this.title, required this.actionLabel, this.onActionTap});
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +59,21 @@ class _SectionHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          // TODO: onTap -> navigate to full list
-          Text(
-            actionLabel,
-            style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF185FA5)),
-          ),
+          if (onActionTap != null)
+            GestureDetector(
+              onTap: onActionTap,
+              child: Text(
+                actionLabel,
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF185FA5)),
+              ),
+            )
+          else
+            Text(
+              actionLabel,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF185FA5)),
+            ),
         ],
       ),
     );

@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
@@ -6,12 +9,15 @@ import '../../data/repositories/products_repository_impl.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_input.dart';
 import '../../domain/entities/products_query.dart';
+import '../../domain/entities/product_import_result.dart';
 import '../../domain/repositories/products_repository.dart';
 import '../../domain/usecases/create_product.dart';
 import '../../domain/usecases/deactivate_product.dart';
 import '../../domain/usecases/get_product.dart';
 import '../../domain/usecases/list_products.dart';
 import '../../domain/usecases/update_product.dart';
+import '../../domain/usecases/import_products.dart';
+import '../../domain/usecases/download_import_template.dart';
 
 final productsRemoteDatasourceProvider = Provider<ProductsRemoteDatasource>((ref) {
   return ProductsRemoteDatasource(ref.read(apiClientProvider));
@@ -52,6 +58,14 @@ final deactivateProductUseCaseProvider = FutureProvider<DeactivateProduct>((ref)
   return DeactivateProduct(ref.watch(productsRepositoryProvider));
 });
 
+final importProductsUseCaseProvider = FutureProvider<ImportProducts>((ref) async {
+  return ImportProducts(ref.watch(productsRepositoryProvider));
+});
+
+final downloadImportTemplateUseCaseProvider = FutureProvider<DownloadImportTemplate>((ref) async {
+  return DownloadImportTemplate(ref.watch(productsRepositoryProvider));
+});
+
 final productsControllerProvider = AsyncNotifierProvider<ProductsController, List<Product>>(ProductsController.new);
 
 class ProductsController extends AsyncNotifier<List<Product>> {
@@ -72,6 +86,18 @@ class ProductsController extends AsyncNotifier<List<Product>> {
     final created = await createProductUseCase(input: input);
     ref.invalidateSelf();
     return created;
+  }
+
+  Future<ProductImportResult> importProducts({required File csvFile}) async {
+    final useCase = await ref.read(importProductsUseCaseProvider.future);
+    final result = await useCase(csvFile: csvFile);
+    ref.invalidateSelf();
+    return result;
+  }
+
+  Future<Uint8List> downloadImportTemplate() async {
+    final useCase = await ref.read(downloadImportTemplateUseCaseProvider.future);
+    return useCase();
   }
 
   Future<void> refreshProducts() async {

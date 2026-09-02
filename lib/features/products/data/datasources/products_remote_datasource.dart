@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../../core/api/api_client.dart';
@@ -7,6 +10,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../models/product_input_model.dart';
 import '../models/product_model.dart';
 import '../models/product_update_request_model.dart';
+import '../models/product_import_result_model.dart';
 
 class ProductsRemoteDatasource {
   const ProductsRemoteDatasource(this._apiClient);
@@ -82,6 +86,49 @@ class ProductsRemoteDatasource {
         '${ApiConstants.products}/$productId',
       );
       return ProductModel.fromJson(_extractMap(response.data));
+    } on DioException catch (error) {
+      throw ServerException(
+        ErrorMapper.fromDioError(error).message,
+        code: error.response?.statusCode,
+      );
+    }
+  }
+
+  Future<ProductImportResultModel> importProducts({required File csvFile}) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          csvFile.path,
+          filename: 'products.csv',
+        ),
+      });
+      final response = await _apiClient.post<Map<String, dynamic>>(
+        ApiConstants.productsImport,
+        data: formData,
+      );
+      final raw = _extractMap(response.data);
+      return ProductImportResultModel.fromJson(raw);
+    } on DioException catch (error) {
+      throw ServerException(
+        ErrorMapper.fromDioError(error).message,
+        code: error.response?.statusCode,
+      );
+    }
+  }
+
+  Future<Uint8List> downloadImportTemplate() async {
+    try {
+      final response = await _apiClient.get<dynamic>(
+        ApiConstants.productsImportTemplate,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      if (response.data is Uint8List) {
+        return response.data as Uint8List;
+      }
+      if (response.data is List<int>) {
+        return Uint8List.fromList(response.data as List<int>);
+      }
+      throw const ServerException('Invalid template response');
     } on DioException catch (error) {
       throw ServerException(
         ErrorMapper.fromDioError(error).message,

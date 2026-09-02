@@ -31,4 +31,8 @@ class ApiConstants {
   static const String aiAsk = '/api/v1/ai/ask';
   static const String aiConversations = '/api/v1/ai/conversations';
   static const String aiConversationDetail = '/api/v1/ai/conversations';
+
+  static const String productsImportTemplate = '/api/v1/products/import-template';
+  static const String productsImport = '/api/v1/products/import';
+  static const String audit = '/api/v1/audit';
 }

@@ -17,6 +17,8 @@ class AppRoutes {
   static const String productDetail = '/products/detail';
   static const String productCreate = '/products/create';
   static const String productEdit = '/products/edit';
+  static const String productBulkImport = '/products/import';
+  static const String auditTrail = '/audit-trail';
   static const String restock = '/products/restock';
   static const String sales = '/sales';
   //Dashboard//

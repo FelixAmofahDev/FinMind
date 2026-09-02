@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:finmind/app/router/routes.dart';
+
 import '../../domain/entities/product_input.dart';
 import '../providers/products_provider.dart';
 import '../widgets/product_form_card.dart';
@@ -23,6 +25,14 @@ class ProductFormPage extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            TextButton.icon(
+              onPressed: () => Navigator.of(context).pushNamed(
+                AppRoutes.productBulkImport,
+              ),
+              icon: const Icon(Icons.upload_file_rounded),
+              label: const Text('Bulk import products'),
+            ),
+            const SizedBox(height: 12),
             ProductFormCard(
               onSubmit: (ProductInput input) async {
                 final created = await ref
