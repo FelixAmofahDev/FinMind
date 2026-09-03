@@ -1,8 +1,9 @@
-import 'dart:convert';
+import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'date_formatter.dart';
@@ -216,7 +217,7 @@ class PrintUtils {
       footerMessage: footerMessage,
     );
 
-    await _printText(text, 'Receipt $receiptNumber');
+    await _sharePdf(text, 'Receipt $receiptNumber');
   }
 
   static Future<void> printCashReport({
@@ -232,7 +233,7 @@ class PrintUtils {
       accounts: accounts,
     );
 
-    await _printText(text, 'Cash Position Report');
+    await _sharePdf(text, 'Cash Position Report');
   }
 
   static Future<void> printProfitLossReport({
@@ -258,7 +259,7 @@ class PrintUtils {
       expenseBreakdown: expenseBreakdown,
     );
 
-    await _printText(text, 'Profit & Loss Report');
+    await _sharePdf(text, 'Profit & Loss Report');
   }
 
   static Future<void> shareReceipt({
@@ -335,18 +336,30 @@ class PrintUtils {
     await Share.share(text, subject: 'Profit & Loss Report');
   }
 
-  static Future<void> _printText(String text, String jobName) async {
-    try {
-      final bytes = Uint8List.fromList(const Utf8Encoder().convert(text));
-      await Printing.layoutPdf(
-        onLayout: (format) => bytes,
-        name: jobName,
-      );
-    } on MissingPluginException catch (_) {
-      throw const PrintException(
-        'Printing is not available. Make sure the app is fully restarted after installing the printing plugin, or try a different platform.',
-      );
-    }
+  static Future<void> _sharePdf(String text, String jobName) async {
+    final pdfDoc = pw.Document();
+
+    pdfDoc.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 500 * PdfPageFormat.mm),
+        build: (context) {
+          final lines = text.split('\n');
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            children: [
+              for (final line in lines)
+                pw.Text(line, style: const pw.TextStyle(fontSize: 10)),
+            ],
+          );
+        },
+      ),
+    );
+
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/$jobName.pdf');
+    await file.writeAsBytes(await pdfDoc.save());
+
+    await Share.shareXFiles([XFile(file.path)], text: jobName);
   }
 }
 
