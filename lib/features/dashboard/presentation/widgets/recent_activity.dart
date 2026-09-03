@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:finmind/app/router/routes.dart';
 import 'package:finmind/core/theme/colors.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
 import 'package:finmind/shared/widgets/empty_state_widget.dart';
@@ -71,6 +72,12 @@ class _ActivityListCardState extends ConsumerState<ActivityListCard> {
                     subtitle: _formatDate(log.createdAt),
                     entity: log.entity,
                     action: log.action,
+                    onTap: () {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.auditDetail,
+                        arguments: log,
+                      );
+                    },
                   ),
                 );
               }),
@@ -93,7 +100,6 @@ class _ActivityListCardState extends ConsumerState<ActivityListCard> {
   }
 
   String _formatTime(DateTime date) {
-    final hour = date.hour.toString().padLeft(2, '0');
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
     final displayHour = date.hour > 12 ? date.hour - 12 : (date.hour == 0 ? 12 : date.hour);
@@ -111,104 +117,109 @@ class _ActivityRow extends StatelessWidget {
   final String subtitle;
   final String entity;
   final String action;
+  final VoidCallback? onTap;
 
   const _ActivityRow({
     required this.title,
     required this.subtitle,
     required this.entity,
     required this.action,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final actionColor = _actionColor(action);
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.10),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.10),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          // Entity icon — neutral, same treatment for every row
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.paper,
-              borderRadius: BorderRadius.circular(9),
-              border: Border.all(color: AppColors.line),
-            ),
-            child: Icon(
-              _entityIcon(entity),
-              size: 18,
-              color: AppColors.textPrimary,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          // Title + entity label + subtitle
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.1,
-                    color: Color.fromARGB(255, 46, 97, 60),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '${_entityLabel(entity)} · $subtitle',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: _entityColor(entity),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          // Action — the only accent color on the row
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: actionColor.withOpacity(0.07),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: actionColor.withOpacity(0.3)),
-            ),
-            child: Text(
-              action[0].toUpperCase() + action.substring(1),
-              style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
-                color: actionColor,
-                letterSpacing: 0.2,
+        child: Row(
+          children: [
+            // Entity icon — neutral, same treatment for every row
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.paper,
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(color: AppColors.line),
+              ),
+              child: Icon(
+                _entityIcon(entity),
+                size: 18,
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-        ],
+
+            const SizedBox(width: 12),
+
+            // Title + entity label + subtitle
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.1,
+                      color: Color.fromARGB(255, 46, 97, 60),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${_entityLabel(entity)} · $subtitle',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: _entityColor(entity),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            // Action — the only accent color on the row
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: actionColor.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: actionColor.withOpacity(0.3)),
+              ),
+              child: Text(
+                action[0].toUpperCase() + action.substring(1),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: actionColor,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

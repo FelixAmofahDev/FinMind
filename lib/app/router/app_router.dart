@@ -18,6 +18,8 @@ import '../../features/products/presentation/pages/product_form_page.dart';
 import '../../features/products/presentation/pages/product_edit_page.dart';
 import '../../features/products/presentation/pages/product_bulk_import_page.dart';
 import '../../features/audit_trail/presentation/pages/audit_trail_page.dart';
+import '../../features/audit_trail/presentation/pages/audit_detail_page.dart';
+import '../../features/audit_trail/domain/entities/audit_log.dart';
 import '../../features/purchases/presentation/pages/restock_page.dart';
 import '../../features/sales/presentation/pages/sales_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_completion_page.dart';
@@ -64,6 +66,10 @@ class AppRouter {
         return _buildRoute(settings, const ProductBulkImportPage());
       case AppRoutes.auditTrail:
         return _buildRoute(settings, const AuditTrailPage());
+      case AppRoutes.auditDetail:
+        final log = settings.arguments as AuditLog?;
+        if (log == null) return _buildRoute(settings, const _NotFoundPage());
+        return _buildRoute(settings, AuditDetailPage(log: log));
       case AppRoutes.restock:
         return _buildRoute(settings, const RestockPage());
       case AppRoutes.sales:

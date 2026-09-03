@@ -1,3 +1,4 @@
+import 'package:finmind/app/router/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -142,7 +143,15 @@ class _AuditTrailPageState extends ConsumerState<AuditTrailPage> {
         final log = logs[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: _AuditLogTile(log: log),
+          child: _AuditLogTile(
+            log: log,
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                AppRoutes.auditDetail,
+                arguments: log,
+              );
+            },
+          ),
         );
       },
     );
@@ -357,9 +366,10 @@ class _DateField extends StatelessWidget {
 }
 
 class _AuditLogTile extends StatelessWidget {
-  const _AuditLogTile({required this.log});
+  const _AuditLogTile({required this.log, this.onTap});
 
   final AuditLog log;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -368,53 +378,57 @@ class _AuditLogTile extends StatelessWidget {
 
     return AppCard(
       padding: const EdgeInsets.all(14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.paper,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.line),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.paper,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.line),
+              ),
+              child: Icon(_entityIcon(log.entity), size: 18, color: AppColors.textPrimary),
             ),
-            child: Icon(_entityIcon(log.entity), size: 18, color: AppColors.textPrimary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        log.summary,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: Color.fromARGB(255, 46, 97, 60)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          log.summary,
+                          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: Color.fromARGB(255, 46, 97, 60)),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    _StatusChip(label: log.action, color: actionColor),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _entityLabel(log.entity),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: _entityColor(log.entity),
-                    fontWeight: FontWeight.w600,
+                      const SizedBox(width: 8),
+                      _StatusChip(label: log.action, color: actionColor),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  DateFormat('dd MMM yyyy, hh:mm a').format(log.createdAt),
-                  style: theme.textTheme.bodySmall?.copyWith(color: AppColors.mute),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    _entityLabel(log.entity),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: _entityColor(log.entity),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    DateFormat('dd MMM yyyy, hh:mm a').format(log.createdAt),
+                    style: theme.textTheme.bodySmall?.copyWith(color: AppColors.mute),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
