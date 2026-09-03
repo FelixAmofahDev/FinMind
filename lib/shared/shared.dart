@@ -1,6 +1,7 @@
 export 'dialogs/confirm_dialog.dart';
 export 'dialogs/error_dialog.dart';
 export 'dialogs/loading_dialog.dart';
+export 'dialogs/receipt_preview_dialog.dart';
 export 'dialogs/success_dialog.dart';
 export 'extensions/datetime_extensions.dart';
 export 'extensions/num_extensions.dart';

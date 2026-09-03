@@ -1,14 +1,17 @@
 import 'package:finmind/features/sales/presentation/providers/sales_provider.dart';
 import 'package:finmind/features/sales/presentation/widgets/cart_bottom_bar.dart';
+import 'package:finmind/shared/dialogs/receipt_preview_dialog.dart';
 import 'package:finmind/shared/widgets/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:finmind/core/theme/colors.dart';
+import 'package:finmind/core/utils/print_utils.dart';
 import 'package:finmind/shared/widgets/empty_state_widget.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
 import 'package:finmind/shared/dialogs/success_dialog.dart';
+import 'package:finmind/features/business/presentation/providers/business_providers.dart';
 import 'package:finmind/features/products/presentation/providers/products_provider.dart';
 
 import '../../../../features/products/domain/entities/product.dart';
@@ -152,6 +155,86 @@ class _SalesPageState extends ConsumerState<SalesPage> {
     );
   }
 
+  Future<void> _promptPrintReceipt({
+    required Sale sale,
+    required List<CartItem> cartItems,
+    required SalePaymentMethod paymentMethod,
+    required String customerName,
+    required String customerPhone,
+    Debtor? selectedDebtor,
+  }) async {
+    String businessName = 'My Business';
+    String? businessPhone;
+
+    try {
+      final businessProfile = await ref.read(businessProfileControllerProvider.future);
+      businessName = businessProfile.name;
+      businessPhone = businessProfile.phoneNumber;
+    } catch (_) {}
+
+    final subtotal = cartItems.fold<double>(
+      0,
+      (sum, item) => sum + (item.product.sellingPrice * item.quantity),
+    );
+
+    final receiptItems = cartItems
+        .map(
+          (item) => ReceiptItem(
+            name: item.product.name,
+            quantity: item.quantity,
+            unitPrice: item.product.sellingPrice,
+          ),
+        )
+        .toList();
+
+    final effectiveCustomerName = paymentMethod.isCredit && selectedDebtor != null
+        ? selectedDebtor.name
+        : (customerName.isEmpty ? null : customerName);
+
+    final effectiveCustomerPhone = paymentMethod.isCredit && selectedDebtor != null
+        ? selectedDebtor.phone
+        : (customerPhone.isEmpty ? null : customerPhone);
+
+    final receiptText = PrintUtils.generateReceiptText(
+      businessName: businessName,
+      businessPhone: businessPhone,
+      receiptNumber: sale.referenceNumber,
+      dateTime: DateTime.now(),
+      items: receiptItems,
+      subtotal: subtotal,
+      total: sale.totalRevenue,
+      paymentMethod: paymentMethod.label,
+      customerName: effectiveCustomerName,
+      customerPhone: effectiveCustomerPhone,
+    );
+
+    final shouldPrint = await ReceiptPreviewDialog.show(
+      context,
+      receiptText: receiptText,
+    );
+
+    if (!shouldPrint || !mounted) return;
+
+    try {
+      await PrintUtils.printReceipt(
+        businessName: businessName,
+        businessPhone: businessPhone,
+        receiptNumber: sale.referenceNumber,
+        dateTime: DateTime.now(),
+        items: receiptItems,
+        subtotal: subtotal,
+        total: sale.totalRevenue,
+        paymentMethod: paymentMethod.label,
+        customerName: effectiveCustomerName,
+        customerPhone: effectiveCustomerPhone,
+      );
+    } on PrintException catch (e) {
+      _showError(e.message);
+    } catch (e) {
+      _showError('Failed to print receipt: $e');
+    }
+  }
+
   Future<void> _submit() async {
     if (_cartItems.isEmpty) {
       _showError('Add at least one product to the cart.');
@@ -245,14 +328,32 @@ class _SalesPageState extends ConsumerState<SalesPage> {
       if (next is AsyncData<Sale?>) {
         final sale = next.value;
         if (sale != null && mounted) {
-      if (_isCartOpen) {
-        Navigator.of(context).pop(); // close the cart bottom sheet
-      }
-      _clearCart();
+          final cartItems = List<CartItem>.from(_cartItems);
+          final paymentMethod = _paymentMethod;
+          final customerName = _customerNameController.text.trim();
+          final customerPhone = _customerPhoneController.text.trim();
+          final selectedDebtor = _selectedDebtor;
+
+          if (_isCartOpen) {
+            Navigator.of(context).pop();
+          }
+          _clearCart();
+
           SuccessDialog.show(
             context,
             message: 'Sale recorded successfully.\nReference: ${sale.referenceNumber}',
-          );
+          ).then((_) {
+            if (mounted) {
+              _promptPrintReceipt(
+                sale: sale,
+                cartItems: cartItems,
+                paymentMethod: paymentMethod,
+                customerName: customerName,
+                customerPhone: customerPhone,
+                selectedDebtor: selectedDebtor,
+              );
+            }
+          });
         }
       } else if (next is AsyncError) {
         _showError(next.error.toString());

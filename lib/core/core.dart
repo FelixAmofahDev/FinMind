@@ -14,4 +14,5 @@ export 'storage/secure_storage_service.dart';
 export 'utils/currency_formatter.dart';
 export 'utils/date_formatter.dart';
 export 'utils/logger.dart';
+export 'utils/print_utils.dart';
 export 'utils/validators.dart';
