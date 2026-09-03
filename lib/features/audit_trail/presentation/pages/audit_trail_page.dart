@@ -183,13 +183,13 @@ class _FilterBar extends ConsumerWidget {
                   label: 'Entity',
                   value: filters.entity,
                   options: const [
-                    'sale',
-                    'stock_purchase',
-                    'expense',
-                    'debtor_payment',
-                    'creditor_payment',
-                    'owner_deposit',
-                    'owner_withdrawal',
+                    _FilterOption(value: 'sale', label: 'Sale'),
+                    _FilterOption(value: 'stock_purchase', label: 'Stock Purchase'),
+                    _FilterOption(value: 'expense', label: 'Expense'),
+                    _FilterOption(value: 'debtor_payment', label: 'Debtor Payment'),
+                    _FilterOption(value: 'creditor_payment', label: 'Creditor Payment'),
+                    _FilterOption(value: 'owner_deposit', label: 'Owner Deposit'),
+                    _FilterOption(value: 'owner_withdrawal', label: 'Owner Withdrawal'),
                   ],
                   onSelected: (value) {
                     final newQuery = filters.copyWith(entity: value, page: 1);
@@ -202,7 +202,12 @@ class _FilterBar extends ConsumerWidget {
                 child: _FilterChip(
                   label: 'Action',
                   value: filters.action,
-                  options: const ['created', 'updated', 'voided', 'deleted'],
+                  options: const [
+                    _FilterOption(value: 'created', label: 'Created'),
+                    _FilterOption(value: 'updated', label: 'Updated'),
+                    _FilterOption(value: 'voided', label: 'Voided'),
+                    _FilterOption(value: 'deleted', label: 'Deleted'),
+                  ],
                   onSelected: (value) {
                     final newQuery = filters.copyWith(action: value, page: 1);
                     onFiltersChanged(newQuery);
@@ -253,14 +258,19 @@ class _FilterBar extends ConsumerWidget {
               ),
             ],
           ),
-          if (filters.entity != null || filters.action != null || filters.from != null || filters.to != null)
-            TextButton.icon(
-              onPressed: () {
-                onFiltersChanged(const AuditQuery());
-              },
-              icon: const Icon(Icons.clear_rounded, size: 18),
-              label: const Text('Clear filters'),
+          if (filters.entity != null || filters.action != null || filters.from != null || filters.to != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  onFiltersChanged(const AuditQuery());
+                },
+                icon: const Icon(Icons.clear_rounded, size: 18),
+                label: const Text('Clear filters'),
+              ),
             ),
+          ],
         ],
       ),
     );
@@ -277,7 +287,7 @@ class _FilterChip extends StatelessWidget {
 
   final String label;
   final String? value;
-  final List<String> options;
+  final List<_FilterOption> options;
   final ValueChanged<String?> onSelected;
 
   @override
@@ -314,7 +324,7 @@ class _FilterChip extends StatelessWidget {
                 items: [
                   const DropdownMenuItem<String>(value: null, child: Text('All')),
                   ...options.map((option) {
-                    return DropdownMenuItem<String>(value: option, child: Text(option));
+                    return DropdownMenuItem<String>(value: option.value, child: Text(option.label));
                   }),
                 ],
                 onChanged: onSelected,
@@ -325,6 +335,12 @@ class _FilterChip extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FilterOption {
+  const _FilterOption({required this.value, required this.label});
+  final String value;
+  final String label;
 }
 
 class _DateField extends StatelessWidget {
