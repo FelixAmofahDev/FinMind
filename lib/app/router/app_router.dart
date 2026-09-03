@@ -31,6 +31,7 @@ import '../../features/creditors/presentation/pages/creditor_edit_page.dart';
 import '../../features/expenses/presentation/pages/expenses_page.dart';
 import '../../features/owner_transactions/domain/entities/owner_transaction_type.dart';
 import '../../features/owner_transactions/presentation/pages/owner_transactions_page.dart';
+import '../../features/reports/presentation/pages/trial_balance_page.dart';
 import 'routes.dart';
 
 class AppRouter {
@@ -80,6 +81,8 @@ class AppRouter {
         return _buildRoute(settings, const DashboardPage());
       case AppRoutes.insights:
         return _buildRoute(settings, const DashboardPage(initialIndex: 1));
+      case AppRoutes.trialBalance:
+        return _buildRoute(settings, const TrialBalancePage());
       case AppRoutes.moneyPeopleHub:
         return _buildRoute(settings, const DashboardPage(initialIndex: 3));
       case AppRoutes.businessSettings:

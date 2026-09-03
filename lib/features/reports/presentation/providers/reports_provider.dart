@@ -5,9 +5,11 @@ import '../../data/datasources/reports_remote_datasource.dart';
 import '../../data/repositories/reports_repository_impl.dart';
 import '../../domain/entities/cash_position_report.dart';
 import '../../domain/entities/profit_loss_report.dart';
+import '../../domain/entities/trial_balance_report.dart';
 import '../../domain/repositories/reports_repository.dart';
 import '../../domain/usecases/get_cash_position.dart';
 import '../../domain/usecases/get_profit_loss.dart';
+import '../../domain/usecases/get_trial_balance.dart';
 import '../widgets/period_selector.dart';
 
 final reportsRemoteDatasourceProvider =
@@ -27,6 +29,10 @@ final getProfitLossUseCaseProvider = Provider<GetProfitLoss>((ref) {
 
 final getCashPositionUseCaseProvider = Provider<GetCashPosition>((ref) {
   return GetCashPosition(ref.read(reportsRepositoryProvider));
+});
+
+final getTrialBalanceUseCaseProvider = Provider<GetTrialBalance>((ref) {
+  return GetTrialBalance(ref.read(reportsRepositoryProvider));
 });
 
 class ReportTabNotifier extends Notifier<ReportTab> {
@@ -112,6 +118,23 @@ class CashPositionController extends AsyncNotifier<CashPositionReport> {
   }
 
   Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
+}
+
+final trialBalanceControllerProvider =
+    AsyncNotifierProvider<TrialBalanceController, TrialBalanceReport>(
+  TrialBalanceController.new,
+);
+
+class TrialBalanceController extends AsyncNotifier<TrialBalanceReport> {
+  @override
+  Future<TrialBalanceReport> build() async {
+    return ref.watch(getTrialBalanceUseCaseProvider)();
+  }
+
+  Future<void> refresh({String? asOf}) async {
     ref.invalidateSelf();
     await future;
   }

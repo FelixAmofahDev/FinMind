@@ -8,6 +8,7 @@ import 'package:finmind/features/reports/presentation/widgets/period_selector.da
 import 'package:finmind/features/reports/presentation/widgets/pnl_breakdown_card.dart';
 import 'package:finmind/shared/extensions/num_extensions.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
+import '../../../../app/router/routes.dart';
 import '../providers/reports_provider.dart';
 
 class InsightsPage extends ConsumerWidget {
@@ -24,6 +25,15 @@ class InsightsPage extends ConsumerWidget {
         backgroundColor: const Color(0xFFF4F7FB),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.of(context).pushNamed(AppRoutes.trialBalance);
+            },
+            icon: const Icon(Icons.balance_rounded, size: 18),
+            label: const Text('Get Trial Balance'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: RefreshIndicator(

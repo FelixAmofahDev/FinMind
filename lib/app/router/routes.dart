@@ -26,6 +26,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   //Home (shell) destinations
   static const String insights = '/insights';
+  static const String trialBalance = '/reports/trial-balance';
   //Money & People//
   static const String moneyPeopleHub = '/money';
   static const String debtorsCreditorsHistory = '/money/history';
