@@ -75,7 +75,9 @@ class _SalesPageState extends ConsumerState<SalesPage> {
 
   void _addToCart(Product product) {
     final currentStock = product.currentStockQty.toInt();
-    final existing = _cartItems.firstWhereOrNull((item) => item.product.id == product.id);
+    final existing = _cartItems.firstWhereOrNull(
+      (item) => item.product.id == product.id,
+    );
     final inCart = existing?.quantity ?? 0;
 
     if (inCart >= currentStock) {
@@ -150,9 +152,9 @@ class _SalesPageState extends ConsumerState<SalesPage> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _promptPrintReceipt({
@@ -167,7 +169,9 @@ class _SalesPageState extends ConsumerState<SalesPage> {
     String? businessPhone;
 
     try {
-      final businessProfile = await ref.read(businessProfileControllerProvider.future);
+      final businessProfile = await ref.read(
+        businessProfileControllerProvider.future,
+      );
       businessName = businessProfile.name;
       businessPhone = businessProfile.phoneNumber;
     } catch (_) {}
@@ -187,11 +191,13 @@ class _SalesPageState extends ConsumerState<SalesPage> {
         )
         .toList();
 
-    final effectiveCustomerName = paymentMethod.isCredit && selectedDebtor != null
+    final effectiveCustomerName =
+        paymentMethod.isCredit && selectedDebtor != null
         ? selectedDebtor.name
         : (customerName.isEmpty ? null : customerName);
 
-    final effectiveCustomerPhone = paymentMethod.isCredit && selectedDebtor != null
+    final effectiveCustomerPhone =
+        paymentMethod.isCredit && selectedDebtor != null
         ? selectedDebtor.phone
         : (customerPhone.isEmpty ? null : customerPhone);
 
@@ -217,6 +223,7 @@ class _SalesPageState extends ConsumerState<SalesPage> {
 
     try {
       await PrintUtils.printReceipt(
+        receiptText: receiptText,
         businessName: businessName,
         businessPhone: businessPhone,
         receiptNumber: sale.referenceNumber,
@@ -247,7 +254,9 @@ class _SalesPageState extends ConsumerState<SalesPage> {
     String? dueDate;
 
     if (_isCredit) {
-      dueDate = _dueDate == null ? null : DateFormat('yyyy-MM-dd').format(_dueDate!);
+      dueDate = _dueDate == null
+          ? null
+          : DateFormat('yyyy-MM-dd').format(_dueDate!);
       if (_creditTypeIndex == 0) {
         customerName = _customerNameController.text.trim();
         if (customerName.isEmpty) {
@@ -267,7 +276,12 @@ class _SalesPageState extends ConsumerState<SalesPage> {
     final request = SaleRequest(
       paymentMethod: _paymentMethod,
       items: _cartItems
-          .map((item) => SaleLineItem(productId: item.product.id, quantity: item.quantity))
+          .map(
+            (item) => SaleLineItem(
+              productId: item.product.id,
+              quantity: item.quantity,
+            ),
+          )
           .toList(),
       customerName: customerName,
       customerPhone: customerPhone,
@@ -275,7 +289,9 @@ class _SalesPageState extends ConsumerState<SalesPage> {
       dueDate: dueDate,
     );
 
-    await ref.read(salesControllerProvider.notifier).createSale(request: request);
+    await ref
+        .read(salesControllerProvider.notifier)
+        .createSale(request: request);
   }
 
   void _openCartSheet() {
@@ -285,7 +301,7 @@ class _SalesPageState extends ConsumerState<SalesPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-        builder: (context) => CartBottomSheet(
+      builder: (context) => CartBottomSheet(
         cartItems: _cartItems,
         paymentMethod: _paymentMethod,
         creditTypeIndex: _creditTypeIndex,
@@ -341,7 +357,8 @@ class _SalesPageState extends ConsumerState<SalesPage> {
 
           SuccessDialog.show(
             context,
-            message: 'Sale recorded successfully.\nReference: ${sale.referenceNumber}',
+            message:
+                'Sale recorded successfully.\nReference: ${sale.referenceNumber}',
           ).then((_) {
             if (mounted) {
               _promptPrintReceipt(
@@ -404,8 +421,9 @@ class _SalesPageState extends ConsumerState<SalesPage> {
                   title: 'Could not load products',
                   message: error.toString(),
                   action: TextButton(
-                    onPressed: () =>
-                        ref.read(productsControllerProvider.notifier).refreshProducts(),
+                    onPressed: () => ref
+                        .read(productsControllerProvider.notifier)
+                        .refreshProducts(),
                     child: const Text('Retry'),
                   ),
                 ),
@@ -421,7 +439,10 @@ class _SalesPageState extends ConsumerState<SalesPage> {
                   );
                 }
                 return GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.72,
@@ -453,7 +474,6 @@ class _SalesPageState extends ConsumerState<SalesPage> {
     );
   }
 }
-
 
 extension _ListExtension<T> on List<T> {
   T? firstWhereOrNull(bool Function(T) test) {

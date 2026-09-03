@@ -11,8 +11,8 @@ import 'date_formatter.dart';
 class PrintUtils {
   const PrintUtils._();
 
-  static const _line = '──────────────────────────────────';
-  static const _dotLine = '──────────────────────────────────';
+ static const _line = '------------------------------';
+ static const _dotLine = '------------------------------';
 
   static final NumberFormat _twoDecimal = NumberFormat.currency(
     decimalDigits: 2,
@@ -65,7 +65,9 @@ class PrintUtils {
     buffer.writeln(_dotLine);
 
     for (final item in items) {
-      final name = item.name.length > 18 ? item.name.substring(0, 18) : item.name;
+      final name = item.name.length > 18
+          ? item.name.substring(0, 18)
+          : item.name;
       final qty = item.quantity.toString();
       final price = _twoDecimal.format(item.unitPrice);
       final lineTotal = _twoDecimal.format(item.unitPrice * item.quantity);
@@ -117,8 +119,12 @@ class PrintUtils {
     buffer.writeln(_dotLine);
 
     for (final account in accounts) {
-      final name = account.name.length > 20 ? account.name.substring(0, 20) : account.name;
-      final subtype = account.subtype.length > 12 ? account.subtype.substring(0, 12) : account.subtype;
+      final name = account.name.length > 20
+          ? account.name.substring(0, 20)
+          : account.name;
+      final subtype = account.subtype.length > 12
+          ? account.subtype.substring(0, 12)
+          : account.subtype;
       final balance = _twoDecimal.format(account.balance);
       buffer.writeln(
         '${_pad(name, 20)} ${_pad(subtype, 12)} ${_pad(balance, 8)}',
@@ -159,9 +165,7 @@ class PrintUtils {
     );
     buffer.writeln();
     buffer.writeln('COST OF GOODS SOLD');
-    buffer.writeln(
-      '${_pad('COGS', 28)} ${_pad(_twoDecimal.format(cogs), 10)}',
-    );
+    buffer.writeln('${_pad('COGS', 28)} ${_pad(_twoDecimal.format(cogs), 10)}');
     buffer.writeln();
     buffer.writeln(
       '${_pad('GROSS PROFIT', 28)} ${_pad(_twoDecimal.format(grossProfit), 10)}',
@@ -169,8 +173,12 @@ class PrintUtils {
     buffer.writeln();
     buffer.writeln('EXPENSES');
     for (final item in expenseBreakdown) {
-      final category = item.category.length > 14 ? item.category.substring(0, 14) : item.category;
-      final name = item.name.length > 14 ? item.name.substring(0, 14) : item.name;
+      final category = item.category.length > 14
+          ? item.category.substring(0, 14)
+          : item.category;
+      final name = item.name.length > 14
+          ? item.name.substring(0, 14)
+          : item.name;
       buffer.writeln(
         '  ${_pad(category, 14)} ${_pad(name, 14)} ${_pad(_twoDecimal.format(item.amount), 10)}',
       );
@@ -189,6 +197,7 @@ class PrintUtils {
   }
 
   static Future<void> printReceipt({
+    String? receiptText,
     required String businessName,
     String? businessAddress,
     String? businessPhone,
@@ -202,20 +211,22 @@ class PrintUtils {
     String? customerPhone,
     String? footerMessage,
   }) async {
-    final text = generateReceiptText(
-      businessName: businessName,
-      businessAddress: businessAddress,
-      businessPhone: businessPhone,
-      receiptNumber: receiptNumber,
-      dateTime: dateTime,
-      items: items,
-      subtotal: subtotal,
-      total: total,
-      paymentMethod: paymentMethod,
-      customerName: customerName,
-      customerPhone: customerPhone,
-      footerMessage: footerMessage,
-    );
+    final text =
+        receiptText ??
+        generateReceiptText(
+          businessName: businessName,
+          businessAddress: businessAddress,
+          businessPhone: businessPhone,
+          receiptNumber: receiptNumber,
+          dateTime: dateTime,
+          items: items,
+          subtotal: subtotal,
+          total: total,
+          paymentMethod: paymentMethod,
+          customerName: customerName,
+          customerPhone: customerPhone,
+          footerMessage: footerMessage,
+        );
 
     await _sharePdf(text, 'Receipt $receiptNumber');
   }
@@ -338,18 +349,26 @@ class PrintUtils {
 
   static Future<void> _sharePdf(String text, String jobName) async {
     final pdfDoc = pw.Document();
+    final receiptFont = pw.Font.courier();
 
     pdfDoc.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 500 * PdfPageFormat.mm),
+        pageFormat: PdfPageFormat(
+          80 * PdfPageFormat.mm,
+          500 * PdfPageFormat.mm,
+        ),
+        margin: const pw.EdgeInsets.all(0),
         build: (context) {
-          final lines = text.split('\n');
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-            children: [
-              for (final line in lines)
-                pw.Text(line, style: const pw.TextStyle(fontSize: 10)),
-            ],
+          return pw.Padding(
+            padding: const pw.EdgeInsets.all(16),
+            child: pw.Text(
+              text,
+              style: pw.TextStyle(
+                font: receiptFont,
+                fontSize: 12,
+                lineSpacing: 4.8,
+              ),
+            ),
           );
         },
       ),
