@@ -8,6 +8,9 @@ import 'package:finmind/features/reports/presentation/widgets/period_selector.da
 import 'package:finmind/features/reports/presentation/widgets/pnl_breakdown_card.dart';
 import 'package:finmind/shared/extensions/num_extensions.dart';
 import 'package:finmind/shared/widgets/loading_indicator.dart';
+import 'package:finmind/core/utils/print_utils.dart' as print_utils;
+import 'package:finmind/features/business/presentation/providers/business_providers.dart';
+import 'package:finmind/features/reports/domain/entities/trial_balance_report.dart';
 import '../../../../app/router/routes.dart';
 import '../providers/reports_provider.dart';
 
@@ -51,6 +54,18 @@ class InsightsPage extends ConsumerWidget {
               const SizedBox(height: 6),
               _buildTabControl(context, ref, tab),
               const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => _exportFinancialReport(context, ref),
+                    icon: const Icon(Icons.picture_as_pdf_rounded),
+                    label: const Text('Generate Financial Report'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
               if (tab == ReportTab.profit)
                 const _ProfitSection()
               else
@@ -62,8 +77,108 @@ class InsightsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildTabControl(
-      BuildContext context, WidgetRef ref, ReportTab tab) {
+  Future<void> _exportFinancialReport(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final now = DateTime.now();
+    final range = PeriodPreset.thisMonth();
+    final from = _formatDate(range.start);
+    final to = _formatDate(range.end);
+    var loadingShown = false;
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        loadingShown = true;
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('Preparing report...'),
+            ],
+          ),
+        );
+      },
+    );
+
+    try {
+      final results = await Future.wait([
+        ref.read(getProfitLossUseCaseProvider)(from: from, to: to),
+        ref.read(getCashPositionUseCaseProvider)(),
+        ref.read(getTrialBalanceUseCaseProvider)(asOf: _formatDate(now)),
+      ]);
+      final profitLoss = results[0] as ProfitLossReport;
+      final cashPosition = results[1] as CashPositionReport;
+      final trialBalance = results[2] as TrialBalanceReport;
+      final profile = ref.read(businessProfileControllerProvider).value;
+
+      if (context.mounted) Navigator.of(context).pop();
+      loadingShown = false;
+
+      await print_utils.PrintUtils.printFinancialReport(
+        businessName: profile?.name ?? 'FinMind',
+        periodLabel: DateFormat('MMMM yyyy').format(range.start),
+        generatedAt: DateFormat('d MMMM yyyy, HH:mm').format(now),
+        profitLoss: print_utils.ProfitLossSummary(
+          revenue: profitLoss.revenue,
+          cogs: profitLoss.cogs,
+          grossProfit: profitLoss.grossProfit,
+          expenses: profitLoss.expenses,
+          netProfit: profitLoss.netProfit,
+          expenseBreakdown: profitLoss.expenseBreakdown
+              .map(
+                (item) => print_utils.ExpenseBreakdownItem(
+                  category: item.category,
+                  name: item.name,
+                  amount: item.amount,
+                ),
+              )
+              .toList(),
+        ),
+        cashPosition: print_utils.CashPositionSummary(
+          total: cashPosition.total,
+          accounts: cashPosition.accounts
+              .map(
+                (account) => print_utils.CashAccount(
+                  subtype: account.subtype,
+                  name: account.name,
+                  balance: account.balance,
+                ),
+              )
+              .toList(),
+        ),
+        trialBalance: print_utils.TrialBalanceSummary(
+          accounts: trialBalance.accounts
+              .map(
+                (account) => print_utils.TrialBalanceAccount(
+                  code: account.code,
+                  name: account.name,
+                  debit: account.debit,
+                  credit: account.credit,
+                ),
+              )
+              .toList(),
+          totalDebit: trialBalance.totalDebit,
+          totalCredit: trialBalance.totalCredit,
+          isBalanced: trialBalance.isBalanced,
+        ),
+      );
+    } catch (error) {
+      if (context.mounted) {
+        if (loadingShown) Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not generate financial report: $error'),
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildTabControl(BuildContext context, WidgetRef ref, ReportTab tab) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(4),
@@ -151,8 +266,10 @@ class _ProfitSection extends ConsumerWidget {
     final to = ref.watch(periodToProvider);
     final profitState = ref.watch(profitLossControllerProvider);
 
-    ref.listen<AsyncValue<ProfitLossReport>>(profitLossControllerProvider,
-        (previous, next) {
+    ref.listen<AsyncValue<ProfitLossReport>>(profitLossControllerProvider, (
+      previous,
+      next,
+    ) {
       next.whenOrNull(
         error: (error, _) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -178,9 +295,7 @@ class _ProfitSection extends ConsumerWidget {
                 ref.read(periodFromProvider.notifier).setFrom(fromStr);
                 ref.read(periodToProvider.notifier).setTo(toStr);
               }
-              ref
-                  .read(profitLossControllerProvider.notifier)
-                  .refresh();
+              ref.read(profitLossControllerProvider.notifier).refresh();
             },
             customRange: (from.isNotEmpty && to.isNotEmpty)
                 ? DateTimeRange(
@@ -216,7 +331,10 @@ class _ProfitSection extends ConsumerWidget {
           ),
           data: (report) {
             final netIsPositive = report.netProfit >= 0;
-            final periodLabel = _periodLabel(report.periodFrom, report.periodTo);
+            final periodLabel = _periodLabel(
+              report.periodFrom,
+              report.periodTo,
+            );
 
             return Column(
               children: [
@@ -245,8 +363,10 @@ class _CashSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cashState = ref.watch(cashPositionControllerProvider);
 
-    ref.listen<AsyncValue<CashPositionReport>>(
-        cashPositionControllerProvider, (previous, next) {
+    ref.listen<AsyncValue<CashPositionReport>>(cashPositionControllerProvider, (
+      previous,
+      next,
+    ) {
       next.whenOrNull(
         error: (error, _) {
           ScaffoldMessenger.of(context).showSnackBar(

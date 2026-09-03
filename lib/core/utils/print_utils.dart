@@ -11,8 +11,8 @@ import 'date_formatter.dart';
 class PrintUtils {
   const PrintUtils._();
 
- static const _line = '------------------------------';
- static const _dotLine = '------------------------------';
+  static const _line = '------------------------------';
+  static const _dotLine = '------------------------------';
 
   static final NumberFormat _twoDecimal = NumberFormat.currency(
     decimalDigits: 2,
@@ -196,6 +196,123 @@ class PrintUtils {
     return buffer.toString();
   }
 
+  static String generateFinancialReportText({
+    required String businessName,
+    required String periodLabel,
+    required String generatedAt,
+    required ProfitLossSummary profitLoss,
+    required CashPositionSummary cashPosition,
+    required TrialBalanceSummary trialBalance,
+  }) {
+    final buffer = StringBuffer();
+    final reportLine = '=' * 72;
+    final sectionLine = '-' * 72;
+
+    buffer.writeln(_center(businessName, 72));
+    buffer.writeln(_center('FINANCIAL REPORT', 72));
+    buffer.writeln(_center(periodLabel, 72));
+    buffer.writeln(_center('Generated: $generatedAt', 72));
+    buffer.writeln(reportLine);
+    buffer.writeln();
+
+    buffer.writeln('PROFIT AND LOSS');
+    buffer.writeln(sectionLine);
+    buffer.writeln('${_pad('Revenue', 58)}${_money(profitLoss.revenue, 14)}');
+    buffer.writeln(
+      '${_pad('Cost of goods sold', 58)}${_money(profitLoss.cogs, 14)}',
+    );
+    buffer.writeln(
+      '${_pad('Gross profit', 58)}${_money(profitLoss.grossProfit, 14)}',
+    );
+    buffer.writeln();
+    buffer.writeln('EXPENSES');
+    for (final item in profitLoss.expenseBreakdown) {
+      final label = '${item.category} - ${item.name}';
+      buffer.writeln('${_pad(label, 58)}${_money(item.amount, 14)}');
+    }
+    buffer.writeln(
+      '${_pad('Total expenses', 58)}${_money(profitLoss.expenses, 14)}',
+    );
+    buffer.writeln(sectionLine);
+    buffer.writeln(
+      '${_pad('NET PROFIT', 58)}${_money(profitLoss.netProfit, 14)}',
+    );
+    buffer.writeln();
+
+    buffer.writeln('CURRENT CASH POSITION');
+    buffer.writeln(sectionLine);
+    buffer.writeln(
+      '${_pad('Account', 38)}${_pad('Type', 16)}${_pad('Balance', 18, right: true)}',
+    );
+    for (final account in cashPosition.accounts) {
+      buffer.writeln(
+        '${_pad(account.name, 38)}${_pad(account.subtype, 16)}${_money(account.balance, 18)}',
+      );
+    }
+    buffer.writeln(sectionLine);
+    buffer.writeln(
+      '${_pad('TOTAL CASH AND BALANCES', 54)}${_money(cashPosition.total, 18)}',
+    );
+    buffer.writeln();
+
+    buffer.writeln('TRIAL BALANCE');
+    buffer.writeln(sectionLine);
+    buffer.writeln(
+      '${_pad('Account', 42)}${_pad('Debit', 15)}${_pad('Credit', 15)}',
+    );
+    for (final account in trialBalance.accounts) {
+      final accountLabel = account.code.isEmpty
+          ? account.name
+          : '${account.code} ${account.name}';
+      buffer.writeln(
+        '${_pad(accountLabel, 42)}${_money(account.debit, 15)}${_money(account.credit, 15)}',
+      );
+    }
+    buffer.writeln(sectionLine);
+    buffer.writeln(
+      '${_pad('TOTAL', 42)}${_money(trialBalance.totalDebit, 15)}${_money(trialBalance.totalCredit, 15)}',
+    );
+    buffer.writeln(
+      'Status: ${trialBalance.isBalanced ? 'Balanced' : 'Unbalanced'}',
+    );
+    buffer.writeln();
+    buffer.writeln(reportLine);
+    buffer.writeln(_center('Prepared by FinMind', 72));
+
+    return buffer.toString();
+  }
+
+  static String _money(double value, int width) {
+    return _pad(_twoDecimal.format(value), width, right: true);
+  }
+
+  static Future<void> printFinancialReport({
+    required String businessName,
+    required String periodLabel,
+    required String generatedAt,
+    required ProfitLossSummary profitLoss,
+    required CashPositionSummary cashPosition,
+    required TrialBalanceSummary trialBalance,
+  }) async {
+    final text = generateFinancialReportText(
+      businessName: businessName,
+      periodLabel: periodLabel,
+      generatedAt: generatedAt,
+      profitLoss: profitLoss,
+      cashPosition: cashPosition,
+      trialBalance: trialBalance,
+    );
+
+    await _sharePdf(
+      text,
+      'Financial Report $periodLabel',
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(36),
+      fontSize: 9,
+      lineSpacing: 2,
+    );
+  }
+
   static Future<void> printReceipt({
     String? receiptText,
     required String businessName,
@@ -347,26 +464,34 @@ class PrintUtils {
     await Share.share(text, subject: 'Profit & Loss Report');
   }
 
-  static Future<void> _sharePdf(String text, String jobName) async {
+  static Future<void> _sharePdf(
+    String text,
+    String jobName, {
+    PdfPageFormat? pageFormat,
+    pw.EdgeInsets? margin,
+    double fontSize = 12,
+    double lineSpacing = 4.8,
+  }) async {
     final pdfDoc = pw.Document();
     final receiptFont = pw.Font.courier();
 
     pdfDoc.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(
-          80 * PdfPageFormat.mm,
-          500 * PdfPageFormat.mm,
-        ),
-        margin: const pw.EdgeInsets.all(0),
+        pageFormat:
+            pageFormat ??
+            PdfPageFormat(80 * PdfPageFormat.mm, 500 * PdfPageFormat.mm),
+        margin: margin ?? const pw.EdgeInsets.all(0),
         build: (context) {
           return pw.Padding(
-            padding: const pw.EdgeInsets.all(16),
+            padding: margin == null
+                ? const pw.EdgeInsets.all(16)
+                : pw.EdgeInsets.zero,
             child: pw.Text(
               text,
               style: pw.TextStyle(
                 font: receiptFont,
-                fontSize: 12,
-                lineSpacing: 4.8,
+                fontSize: fontSize,
+                lineSpacing: lineSpacing,
               ),
             ),
           );
@@ -425,4 +550,57 @@ class ExpenseBreakdownItem {
   final String category;
   final String name;
   final double amount;
+}
+
+class ProfitLossSummary {
+  const ProfitLossSummary({
+    required this.revenue,
+    required this.cogs,
+    required this.grossProfit,
+    required this.expenses,
+    required this.netProfit,
+    required this.expenseBreakdown,
+  });
+
+  final double revenue;
+  final double cogs;
+  final double grossProfit;
+  final double expenses;
+  final double netProfit;
+  final List<ExpenseBreakdownItem> expenseBreakdown;
+}
+
+class CashPositionSummary {
+  const CashPositionSummary({required this.total, required this.accounts});
+
+  final double total;
+  final List<CashAccount> accounts;
+}
+
+class TrialBalanceSummary {
+  const TrialBalanceSummary({
+    required this.accounts,
+    required this.totalDebit,
+    required this.totalCredit,
+    required this.isBalanced,
+  });
+
+  final List<TrialBalanceAccount> accounts;
+  final double totalDebit;
+  final double totalCredit;
+  final bool isBalanced;
+}
+
+class TrialBalanceAccount {
+  const TrialBalanceAccount({
+    required this.code,
+    required this.name,
+    required this.debit,
+    required this.credit,
+  });
+
+  final String code;
+  final String name;
+  final double debit;
+  final double credit;
 }
